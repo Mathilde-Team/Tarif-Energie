@@ -65,6 +65,9 @@ async def test_capteurs(hass: HomeAssistant):
     assert economie.state == "1.94"
     assert [e["option"] for e in economie.attributes["classement"]] == [
         "primeo_fixe_confort:hphc",
+        # TotalEnergies Access HC (#125, indexée TRV, kWh HT -10 %) : 36 x 0,1467
+        # + 3/365 x 190,32 = 6,85 €.
+        "totalenergies_access:hphc",
         # EDF Zen Online HC (#122, indexée TRV) : 36 x 0,1531 + 3/365 x 190,32 = 7,076 €,
         # devant Plenitude HC (7,082 €) bien qu'à égalité au centime.
         "edf_zen_online:hphc",
@@ -81,6 +84,8 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_constance:hphc",
         "la_bellenergie_garance:hphc",
         "primeo_fixe_confort:base",
+        # TotalEnergies Access Base (#23) : 36 x 0,1837 + 3/365 x 190,32 = 8,18 €.
+        "totalenergies_access:base",
         "plenitude_pleniweb_1an:base",
         # Hunélec HC (#326) : 36 x 0,19129 + 3/365 x 191,52 = 8,46 € ;
         # 100 % vert (#328) : + 2,27 €/mois = 8,68 € ; TRV Base : 8,77 €.
@@ -126,10 +131,11 @@ async def test_option_indisponible_au_dela_de_15_kva(hass: HomeAssistant):
     base = hass.states.get("sensor.maison_12_month_cost_base_option")
     assert base.state == "unknown"
     assert "36 kVA" in base.attributes["indisponible"]
-    # À 36 kVA, EDF Zen Online HC (646,56 €/an, 15,31 c€) : 36 x 0,1531 + 3/365 x 646,56
-    # = 10,83 €, devant Plenitude HC (681,72 €/an, 14,67 c€ : 10,88 €) et le TRV HC.
-    assert hass.states.get("sensor.maison_cheapest_option").state == "edf_zen_online:hphc"
-    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.24"
+    # À 36 kVA, TotalEnergies Access HC (646,56 €/an, 14,67 c€) : 36 x 0,1467
+    # + 3/365 x 646,56 = 10,60 €, devant EDF Zen Online HC (même abonnement, 15,31 c€ :
+    # 10,83 €), Plenitude HC (681,72 €/an, 14,67 c€ : 10,88 €) et le TRV HC.
+    assert hass.states.get("sensor.maison_cheapest_option").state == "totalenergies_access:hphc"
+    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.47"
 
 
 async def test_sans_donnees(hass: HomeAssistant):

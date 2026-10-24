@@ -46,6 +46,7 @@ def test_quatre_offres_livrees(offres):
         "primeo_fixe_confort",
         "selia_elec_vert_fixe",
         "sicae_oise_trv_local",
+        "totalenergies_access",
     ]
     assert all(o.grilles["base"] for o in offres.values())
 
@@ -136,6 +137,28 @@ def test_edf_zen_online_indexee_trv(offres):
     assert g.prix == {"hp": Decimal("0.2059"), "hc": Decimal("0.1531")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["edf_zen_online:hphc"].en_vigueur(3, jour)
+
+
+def test_totalenergies_access_grille_du_1er_octobre_2026(offres):
+    """TotalEnergies Access (#23, #125) : indexée TRV, kWh HT remisé de 10 % pendant 3 ans."""
+    offre = offres["totalenergies_access"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["totalenergies_access:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.32"),  # 15,86 x 12, abonnement du TRV
+        {"base": Decimal("0.1837")},
+    )
+    assert grilles["totalenergies_access:base"].en_vigueur(36, jour).prix == {"base": Decimal("0.1823")}
+    # Abonnements HC du TRV, différents de la Base dès 9 kVA.
+    assert grilles["totalenergies_access:hphc"].en_vigueur(9, jour).abonnement_an == Decimal("241.92")
+    g = grilles["totalenergies_access:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.1965"), "hc": Decimal("0.1467")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["totalenergies_access:hphc"].en_vigueur(3, jour)
 
 
 @pytest.mark.parametrize(
