@@ -28,6 +28,7 @@ def test_quatre_offres_livrees(offres):
     assert sorted(offres) == [
         "alterna_du_coin_1an",
         "alterna_fixe_1an",
+        "edf_zen_online",
         "es_trv_local",
         "es_verte_fixe_1an",
         "es_verte_regionale_fixe_1an",
@@ -113,6 +114,52 @@ def test_gedia_grille_du_19_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.28965"), "hc": Decimal("0.21082")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["gedia_all_inclusive:hphc"].en_vigueur(3, jour)
+
+
+def test_edf_zen_online_indexee_trv(offres):
+    """EDF Zen Online (#21, #122) : indexée sur le TRV, sans durée de fixité ni réseau ELD."""
+    offre = offres["edf_zen_online"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["edf_zen_online:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.32"),  # 15,86 x 12, comme le TRV
+        {"base": Decimal("0.1925")},
+    )
+    assert grilles["edf_zen_online:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.1909")}
+    with pytest.raises(TarifIntrouvable, match="18 kVA"):  # Base 18-36 kVA en extinction
+        grilles["edf_zen_online:base"].en_vigueur(18, jour)
+    g = grilles["edf_zen_online:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.2059"), "hc": Decimal("0.1531")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["edf_zen_online:hphc"].en_vigueur(3, jour)
+
+
+@pytest.mark.parametrize(
+    ("extra", "chemin_fautif"),
+    [
+        ({"duree_fixite_mois": 12}, "offre.duree_fixite_mois"),  # le prix suit le TRV
+        ({"eld": "x"}, "offre.eld"),  # réservé aux TRV locaux
+    ],
+)
+def test_indexee_trv_invalide(extra, chemin_fautif):
+    from datetime import date
+
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Indexée",
+        "type_prix": "indexe_trv",
+        "grille_du": date(2026, 8, 1),
+        "source": "https://exemple.fr/grille.pdf",
+        "options": {"base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}}},
+        **extra,
+    }
+    with pytest.raises(OffreInvalide, match=chemin_fautif):
+        offre_depuis_dict(donnees, "x")
 
 
 def test_es_trv_local_grille_du_1er_aout_2026(offres):

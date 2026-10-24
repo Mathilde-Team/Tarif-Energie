@@ -53,10 +53,14 @@ S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_p
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux) et
 SICAE Oise.
 
+Les offres **indexées sur le TRV** (`type_prix: indexe_trv`) n'ont pas de durée de fixité et
+pas de réseau `eld:`. Leur grille TTC datée est à mettre à jour à chaque mouvement du TRV :
+EDF Zen Online (Base de 3 à 15 kVA, HC de 6 à 36 kVA).
+
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
-grilles datées appliquées au jour le jour. Les offres indexées, dynamiques ou à
-coloration de jours (OctoTempo) viendront ensuite. Pour ajouter une offre : un fichier
+grilles datées appliquées au jour le jour. Les offres dynamiques ou à coloration de
+jours (OctoTempo) viendront ensuite. Pour ajouter une offre : un fichier
 YAML sur le modèle des existants, une issue d'inventaire la documentant.
 
 ## Installation

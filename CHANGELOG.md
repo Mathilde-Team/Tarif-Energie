@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **Offres indexées sur le TRV** (`type_prix: indexe_trv`, #21) : pas de durée de fixité ni de réseau `eld:` (les deux sont refusés), et une grille TTC datée comme pour un TRV local. Première offre : **EDF Zen Online** (#21 Base, #122 HC), grille du 01/08/2026. La Base va de 3 à 15 kVA (18 à 36 kVA en extinction), l'option HC de 6 à 36 kVA.
 - **TRV local SICAE Oise** (#298 Base, #299 HC) : grille du 01/08/2026, abonnements en €/an, lue sur le rendu du PDF. Base en 3 et 6 kVA seulement, HC dès 3 kVA. Tempo (#300) n'est pas repris.
 - **TRV local des ELD** (#189) : `type_prix: reglemente`, sans `duree_fixite_mois` (le prix suit le TRV) et avec le réseau dans `eld:` ; `Offre` porte `type_prix` et `eld`. Premier TRV local : **ÉS Énergies** (#72 Base, #190 HC), grille du 01/08/2026, HC dès 3 kVA ; Base 9-36 kVA en extinction. Tempo (#191) n'est pas repris.
 - **Offre GEDIA All Inclusive GES Électricité** (#54, #335), Base et Heures creuses : tableau « Domestique » de la grille TTC du 19-25/10/2026. Elle est réservée au réseau GEDIA (Dreux). Les offres acceptent maintenant **`abonnement_annuel_ttc`**, exclusif de `abonnement_mensuel_ttc`, pour les grilles publiées en €/an (repris sans division par 12).
