@@ -77,6 +77,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
         # derrière Alterna fixe HC, à égalité au centime.
         "alterna_indexee:hphc",
+        # Alpiq Sérénité HC (#150) : kWh HT du TRV -0,5 %, abonnement du TRV = 7,26 €.
+        "alpiq_serenite:hphc",
         # TotalEnergies Heures Eco HC (#132) : mêmes prix HT que le TRV ; les prix TTC
         # arrondis du PDF la placent un centime sous le TRV national (7,28 € contre 7,29 €).
         "totalenergies_heures_eco:hphc",
@@ -103,6 +105,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Alterna indexée Base (#45) : 36 x 0,1919 + 3/365 x 211,92 = 8,65 €.
         "alterna_indexee:base",
         "hunelec_prix_fixe_1an_vert:hphc",
+        # Alpiq Sérénité Base (#42) : 36 x 0,199247 + 3/365 x 190,32 = 8,74 €.
+        "alpiq_serenite:base",
         "base",
         # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.
         "sicae_oise_trv_local:base",
@@ -155,7 +159,7 @@ async def test_sans_donnees(hass: HomeAssistant):
     await _installer(hass, [])
     # Sans consommation, toutes les options coûtent 0,00 € : le classement départage
     # les ex æquo par ordre alphabétique de la clé de comparaison.
-    assert hass.states.get("sensor.maison_cheapest_option").state == "alterna_du_coin_1an:base"
+    assert hass.states.get("sensor.maison_cheapest_option").state == "alpiq_serenite:base"
     assert hass.states.get("sensor.maison_off_peak_share").state == "unknown"
     await _installer_vide_hphc(hass)
 

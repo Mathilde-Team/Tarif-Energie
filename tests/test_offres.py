@@ -26,6 +26,7 @@ def offres():
 
 def test_quatre_offres_livrees(offres):
     assert sorted(offres) == [
+        "alpiq_serenite",
         "alterna_du_coin_1an",
         "alterna_fixe_1an",
         "alterna_indexee",
@@ -162,6 +163,26 @@ def test_totalenergies_access_grille_du_1er_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.1965"), "hc": Decimal("0.1467")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["totalenergies_access:hphc"].en_vigueur(3, jour)
+
+
+def test_alpiq_serenite_trv_moins_un_demi_pourcent(offres):
+    """Alpiq Électricité Sérénité (#42, #150) : grille du 01/08/2026, sans HC en 3 kVA."""
+    offre = offres["alpiq_serenite"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["alpiq_serenite:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.199247")},
+    )
+    assert grilles["alpiq_serenite:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.197695")}
+    g = grilles["alpiq_serenite:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.213337"), "hc": Decimal("0.158293")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["alpiq_serenite:hphc"].en_vigueur(3, jour)
 
 
 def test_totalenergies_heures_eco_reprend_le_trv(offres):

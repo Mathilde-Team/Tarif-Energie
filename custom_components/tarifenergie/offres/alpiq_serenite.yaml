@@ -1,0 +1,29 @@
+# Alpiq Électricité Sérénité (issues #42 Base, #150 HC ; inventaire #6).
+# Offre indexée sur le TRV (typologie CRE) : abonnement identique au TRV, kWh HT =
+# TRV -0,5 %, sans engagement. Grille TTC « valable à compter du 01/08/2026 » (PDF
+# officiel, toujours en ligne le 24/10/2026), à mettre à jour à chaque mouvement du
+# TRV. Option électricité verte (+0,006 € TTC/kWh) non reprise. Puissances
+# intermédiaires (4, 5, 7 kVA…) non reprises. HC de 6 à 36 kVA, mêmes abonnements
+# que la Base.
+id: alpiq_serenite
+fournisseur: Alpiq
+offre: Électricité Sérénité
+type_prix: indexe_trv
+grille_du: 2026-08-01
+source: https://particuliers.alpiq.fr/grille-tarifaire/particuliers/PRIX_SERENITE.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.13, 6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc_par_puissance:
+      3: {base: 0.199247}
+      6: {base: 0.199247}
+      9: {base: 0.197695}
+      12: {base: 0.197695}
+      15: {base: 0.197695}
+      18: {base: 0.197695}
+      24: {base: 0.197695}
+      30: {base: 0.197695}
+      36: {base: 0.197695}
+  hphc:  # pas de HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {hp: 0.213337, hc: 0.158293}
