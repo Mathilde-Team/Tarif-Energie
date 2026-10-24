@@ -77,6 +77,9 @@ async def test_capteurs(hass: HomeAssistant):
         # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
         # derrière Alterna fixe HC, à égalité au centime.
         "alterna_indexee:hphc",
+        # TotalEnergies Heures Eco HC (#132) : mêmes prix HT que le TRV ; les prix TTC
+        # arrondis du PDF la placent un centime sous le TRV national (7,28 € contre 7,29 €).
+        "totalenergies_heures_eco:hphc",
         "hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
         "sicae_oise_trv_local:hphc",
@@ -103,6 +106,9 @@ async def test_capteurs(hass: HomeAssistant):
         "base",
         # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.
         "sicae_oise_trv_local:base",
+        # TotalEnergies Heures Eco Base (#94) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €,
+        # à égalité au centime avec le TRV national.
+        "totalenergies_heures_eco:base",
         # TRV local ÉS Base (#72) : 36 x 0,20006 + 3/365 x 191,40 = 8,775 € (TRV national : 8,772 €).
         "es_trv_local:base",
         "alterna_du_coin_1an:base",

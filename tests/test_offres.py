@@ -49,6 +49,7 @@ def test_quatre_offres_livrees(offres):
         "selia_elec_vert_fixe",
         "sicae_oise_trv_local",
         "totalenergies_access",
+        "totalenergies_heures_eco",
     ]
     assert all(o.grilles["base"] for o in offres.values())
 
@@ -161,6 +162,26 @@ def test_totalenergies_access_grille_du_1er_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.1965"), "hc": Decimal("0.1467")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["totalenergies_access:hphc"].en_vigueur(3, jour)
+
+
+def test_totalenergies_heures_eco_reprend_le_trv(offres):
+    """TotalEnergies Heures Eco (#94, #132) : grille du 01/10/2026, sans HC en 3 kVA."""
+    offre = offres["totalenergies_heures_eco"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["totalenergies_heures_eco:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.2001")},
+    )
+    assert grilles["totalenergies_heures_eco:base"].en_vigueur(36, jour).prix == {"base": Decimal("0.1985")}
+    g = grilles["totalenergies_heures_eco:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["totalenergies_heures_eco:hphc"].en_vigueur(3, jour)
 
 
 def test_alterna_indexee_grille_du_1er_septembre_2026(offres):
