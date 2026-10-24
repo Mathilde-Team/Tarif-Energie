@@ -74,6 +74,9 @@ async def test_capteurs(hass: HomeAssistant):
         "plenitude_pleniweb_1an:hphc",
         "la_bellenergie_prudence:hphc",
         "alterna_fixe_1an:hphc",
+        # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
+        # derrière Alterna fixe HC, à égalité au centime.
+        "alterna_indexee:hphc",
         "hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
         "sicae_oise_trv_local:hphc",
@@ -94,6 +97,8 @@ async def test_capteurs(hass: HomeAssistant):
         "edf_zen_online:base",
         "la_bellenergie_prudence:base",
         "alterna_fixe_1an:base",
+        # Alterna indexée Base (#45) : 36 x 0,1919 + 3/365 x 211,92 = 8,65 €.
+        "alterna_indexee:base",
         "hunelec_prix_fixe_1an_vert:hphc",
         "base",
         # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.

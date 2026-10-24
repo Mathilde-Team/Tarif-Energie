@@ -28,6 +28,7 @@ def test_quatre_offres_livrees(offres):
     assert sorted(offres) == [
         "alterna_du_coin_1an",
         "alterna_fixe_1an",
+        "alterna_indexee",
         "edf_zen_online",
         "es_trv_local",
         "es_verte_fixe_1an",
@@ -160,6 +161,25 @@ def test_totalenergies_access_grille_du_1er_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.1965"), "hc": Decimal("0.1467")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["totalenergies_access:hphc"].en_vigueur(3, jour)
+
+
+def test_alterna_indexee_grille_du_1er_septembre_2026(offres):
+    """Alterna Mon électricité française indexée (#45, #153) : HC dès 3 kVA."""
+    offre = offres["alterna_indexee"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["alterna_indexee:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 9, 1).date(),
+        Decimal("211.92"),  # 17,66 x 12
+        {"base": Decimal("0.1919")},
+    )
+    assert grilles["alterna_indexee:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.1904")}
+    g = grilles["alterna_indexee:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("167.16")  # 13,93 x 12
+    assert g.prix == {"hp": Decimal("0.2054"), "hc": Decimal("0.1528")}
+    assert grilles["alterna_indexee:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("688.68")
 
 
 def test_mint_online_green_grille_du_8_octobre_2026(offres):
