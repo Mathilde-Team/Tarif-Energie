@@ -121,6 +121,8 @@ async def test_capteurs(hass: HomeAssistant):
     assert "2026-10-01" in economie.attributes["indisponibles"]["geg_elec_verte_3ans:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["ohm_serente_fixe_1an:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["gedia_all_inclusive:hphc"]
+    # Mint Online & Green (#35, #143) : grille applicable au 08/10/2026 seulement.
+    assert "2026-10-01" in economie.attributes["indisponibles"]["mint_online_green:hphc"]
     assert hass.states.get("sensor.maison_12_month_consumption").state == "36.0"
     assert hass.states.get("sensor.maison_off_peak_share").state == "100.0"
     assert await hass.config_entries.async_unload(entree.entry_id)
