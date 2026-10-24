@@ -41,6 +41,7 @@ def test_quatre_offres_livrees(offres):
         "la_bellenergie_prudence",
         "ohm_fixe_2ans",
         "ohm_serente_fixe_1an",
+        "papernest_verte_1an",
         "plenitude_pleniweb_1an",
         "primeo_fixe_confort",
         "selia_elec_vert_fixe",
@@ -113,6 +114,27 @@ def test_gedia_grille_du_19_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.28965"), "hc": Decimal("0.21082")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["gedia_all_inclusive:hphc"].en_vigueur(3, jour)
+
+
+def test_papernest_grille_du_22_septembre_2026(offres):
+    """papernest énergie Électricité verte 1 an (#67, #169), grille TTC du 22/09/2026."""
+    offre = offres["papernest_verte_1an"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("fixe", None, 12)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["papernest_verte_1an:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 9, 22).date(),
+        Decimal("387.72"),  # 32,31 x 12
+        {"base": Decimal("0.29841")},
+    )
+    g = grilles["papernest_verte_1an:hphc"].en_vigueur(6, jour)
+    assert g.abonnement_an == Decimal("464.40")  # 38,70 x 12
+    assert g.prix == {"hp": Decimal("0.32023"), "hc": Decimal("0.24528")}
+    # Dès 15 kVA, l'abonnement HC est celui de la Base.
+    assert grilles["papernest_verte_1an:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("1803.36")
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["papernest_verte_1an:hphc"].en_vigueur(3, jour)
 
 
 def test_es_trv_local_grille_du_1er_aout_2026(offres):
