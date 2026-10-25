@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local Sorégies** (#236 Base, #237 HC) : Tarif Bleu résidentiel du réseau SRD (Vienne), grille TTC du 01/08/2026. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#238) n'est pas repris.
 - **TRV local SÉOLIS** (#233 Base, #234 HC) : Tarif Bleu résidentiel du réseau Gérédis (Deux-Sèvres), grille du 01/08/2026, abonnements publiés en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#235) n'est pas repris.
 - **TRV local Régie d'Amnéville** (#221 Base, #222 HC) : Tarif Bleu résidentiel d'Amnéville (groupe OMEGA), grille du 01/08/2026, primes fixes publiées en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC de 6 à 36 kVA. Tempo (#223) n'est pas repris.
 - **TRV local Bazas Energies** (#218 Base, #219 HC) : Tarif Bleu résidentiel de Bazas, grille du 01/08/2026, abonnements « compteur Linky ». Base publiée en 3 et 6 kVA seulement (9-36 kVA en extinction) ; HC de 6 à 36 kVA. Tempo (#220) n'est pas repris.
