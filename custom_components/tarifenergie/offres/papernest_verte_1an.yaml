@@ -1,0 +1,21 @@
+# papernest énergie Électricité 100 % verte d'origine France, prix fixe 1 an
+# (issues #67 Base, #169 HC ; inventaire #6). Sans engagement ; abonnement et kWh
+# fixes 12 mois.
+# Grille TTC « applicables à partir du 22/09/2026 », relevée le 24/10/2026 avec
+# pdftotext -layout. Pas d'option HC en 3 kVA ; abonnements HC égaux à la Base
+# à partir de 15 kVA. Prix très au-dessus du TRV (kWh Base 29,84 c€ contre
+# 20,01 c€), signalé dans l'issue comme possible grille de fin de commercialisation.
+id: papernest_verte_1an
+fournisseur: papernest énergie
+offre: Électricité verte 1 an
+type_prix: fixe
+grille_du: 2026-09-22
+duree_fixite_mois: 12
+source: https://assets.papernest.com/doc/ppn_energie_grille_tarifaire.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 16.39, 6: 32.31, 9: 48.57, 12: 60.99, 15: 71.77, 18: 80.73, 24: 105.75, 30: 125.35, 36: 150.28}
+    kwh_ttc: {base: 0.29841}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 38.70, 9: 56.23, 12: 62.77, 15: 71.77, 18: 80.73, 24: 105.75, 30: 125.35, 36: 150.28}
+    kwh_ttc: {hp: 0.32023, hc: 0.24528}
