@@ -55,7 +55,10 @@ async def test_capteurs(hass: HomeAssistant):
     assert base.attributes["grilles"] == ["2026-08-01"]
     # Offres de marché (issues #40, #44, #63, #64 et lot 2) : à cette consommation
     # nocturne, Primeo Fixe Confort HC (13,44 c€) est la moins chère ; les grilles
-    # postérieures au 3 octobre (GEG 05/10, Ohm 14/10 et 16/10, GEDIA 19/10) sont indisponibles.
+    # postérieures au 3 octobre (GEG 05/10, Mint 08/10, Ohm 14/10 et 16/10, GEDIA 19/10)
+    # sont indisponibles.
+    # postérieures au 3 octobre (GEG 05/10, Ohm 14/10 et 16/10, Octopus Eco Fixe Plus 12/10,
+    # GEDIA 19/10) sont indisponibles.
     prudence = hass.states.get("sensor.maison_12_month_cost_la_bellenergie_prudence_off_peak")
     assert prudence is not None
     assert prudence.state == "7.15"
@@ -65,31 +68,215 @@ async def test_capteurs(hass: HomeAssistant):
     assert economie.state == "1.94"
     assert [e["option"] for e in economie.attributes["classement"]] == [
         "primeo_fixe_confort:hphc",
+        # Gaz de Bordeaux NovaFixe HC (#372, #371) : 36 x 0,14669 + 3/365 x 190,44 = 6,85 €
+        # (remise de 100 € du Bonus non modélisée : même total).
+        "gaz_de_bordeaux_novafixe:hphc",
+        "gaz_de_bordeaux_novafixe_bonus:hphc",
+        # TotalEnergies Access HC (#125, indexée TRV, kWh HT -10 %) : 36 x 0,1467
+        # + 3/365 x 190,32 = 6,85 €.
+        "totalenergies_access:hphc",
+        # Gaz de Bordeaux NovaFlex HC (#373, indexée TRV, kWh HT -5 %) : 36 x 0,1528
+        # + 3/365 x 190,44 = 7,07 €.
+        "gaz_de_bordeaux_novaflex:hphc",
+        # EDF Zen Online HC (#122, indexée TRV) : 36 x 0,1531 + 3/365 x 190,32 = 7,076 €,
+        # devant Plenitude HC (7,082 €) bien qu'à égalité au centime.
+        "edf_zen_online:hphc",
         "plenitude_pleniweb_1an:hphc",
         "la_bellenergie_prudence:hphc",
         "alterna_fixe_1an:hphc",
+        # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
+        # derrière Alterna fixe HC, à égalité au centime.
+        "alterna_indexee:hphc",
+        # Alpiq Sérénité HC (#150) : kWh HT du TRV -0,5 %, abonnement du TRV = 7,26 €.
+        "alpiq_serenite:hphc",
+        # TRV local Energis HC (#201) : 7,28 €, juste devant le TRV national HC
+        # (abonnement 6 kVA un peu moins cher).
+        "energis_trv_local:hphc",
+        # TRV local Gedia HC (#193) : 36 x 0,15890 + 3/365 x 190,32 = 7,28 €, juste
+        # devant le TRV national HC (7,29 €, abonnement un peu plus cher).
+        "gedia_trv_local:hphc",
+        # TRV local Lavaur HC (#213) : 7,28 €.
+        "lavaur_trv_local:hphc",
+        # TRV local Oya HC (#216) : 7,28 €.
+        "oya_trv_local:hphc",
+        # TRV local SIEL Labergement (#314) HC : 36 x 0,1589 + 3/365 x 190,35 €, sous le TRV national.
+        "siel_labergement_trv_local:hphc",
+        # TRV local Soréa HC (#319) : 36 x 0,1589 + 3/365 x 190,32 = 7,285 €, juste sous le TRV national.
+        "sorea_trv_local:hphc",
+        # TotalEnergies Heures Eco HC (#132) : mêmes prix HT que le TRV ; les prix TTC
+        # arrondis du PDF la placent un centime sous le TRV national (7,28 € contre 7,29 €).
+        "totalenergies_heures_eco:hphc",
+        # TRV local GEG HC (#196) : 36 x 0,1589 + 3/365 x 190,80 = 7,29 €, à égalité au
+        # centime avec le TRV national HC ; départage par le nom de l'option.
+        "geg_trv_local:hphc",
         "hphc",
+        # TRV local Amnéville HC (#222) : 7,30 €.
+        "amneville_trv_local:hphc",
+        # TRV local Barr HC (#198) : 36 x 0,1589 + 3/365 x 192,48 = 7,30 €, juste
+        # derrière le TRV national HC (abonnement un peu plus cher).
+        "barr_trv_local:hphc",
+        # TRV local Bazas HC (#219) : 7,30 €.
+        "bazas_trv_local:hphc",
+        # TRV local Gascogne HC (#206) : abonnement annuel 192,59 €, total 7,30 €.
+        "gascogne_trv_local:hphc",
+        # TRV local La Réole HC (#273) : 7,30 €.
+        "la_reole_trv_local:hphc",
+        # TRV local Lannemezan HC (#211) : 7,30 €.
+        "lannemezan_trv_local:hphc",
+        # TRV local Marange-Silvange HC (#266) : 7,30 €.
+        "marange_silvange_trv_local:hphc",
+        # TRV local SÉOLIS HC (#234) : 7,30 €.
+        "seolis_trv_local:hphc",
+        # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
+        "sicae_oise_trv_local:hphc",
+        # TRV local SICAE-Précy HC (#302) : 36 x 0,1589 + 3/365 x 192,59 = 7,303 €.
+        "sicae_precy_trv_local:hphc",
+        # TRV local SICAE Somme (#304, #305) HC : 36 x 0,1589 + 3/365 x 192,59 €.
+        "sicae_somme_trv_local:hphc",
+        # TRV local SICAE Vallée du Sausseron (#307, #308) HC : 36 x 0,1589 + 3/365 x 192,59 €.
+        "sicae_vs_trv_local:hphc",
+        # TRV local SICAP Pithiviers (#310, #311) HC : 36 x 0,1589 + 3/365 x 192,60 €.
+        "sicap_pithiviers_trv_local:hphc",
+        # TRV local Sorégies HC (#237) : 7,30 €.
+        "soregies_trv_local:hphc",
+        # TRV local Synelva HC (#240) : 7,30 €.
+        "synelva_trv_local:hphc",
+        # TRV local UEM HC (#243) : 7,30 €.
+        "uem_trv_local:hphc",
+        # TRV local Enes Creutzwald HC (#276) : 7,32 €, à égalité au centime avec
+        # es_trv_local:hphc ; départage par le nom de l'option.
+        "enes_creutzwald_trv_local:hphc",
         # TRV local ÉS HC (#190) : 36 x 0,15890 + 3/365 x 194,16 = 7,316 €, juste
         # après le TRV national HC (abonnement un peu plus cher).
         "es_trv_local:hphc",
+        # TRV local Sarre-Union HC (#258) : 7,32 €, à égalité au centime avec
+        # es_trv_local:hphc ; départage par le nom de l'option.
+        "sarre_union_trv_local:hphc",
+        # TRV local UME HC (#322) : mêmes montants que l'ÉS, ex æquo départagé par la clé.
+        "ume_trv_local:hphc",
+        # TRV local Vialis HC (#246) : 7,32 €, à égalité au centime avec
+        # es_trv_local:hphc ; départage par le nom de l'option.
+        "vialis_trv_local:hphc",
+        # Octopus Eco Fixe HC (#139) : 36 x 0,1613 + 3/365 x 190,32 = 7,37 €.
+        "octopus_eco_fixe_oct2026:hphc",
         "alterna_du_coin_1an:hphc",
         "la_bellenergie_constance:hphc",
+        # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
+        "edf_zen_fixe_2ans:hphc",
         "la_bellenergie_garance:hphc",
         "primeo_fixe_confort:base",
+        # TotalEnergies Fixe 2 ans HC (#126) : 36 x 0,1791 + 3/365 x 192,60 = 8,03 €.
+        "totalenergies_fixe_2ans:hphc",
+        # Gaz de Bordeaux NovaFixe Base (#111, #99) : 36 x 0,18373 + 3/365 x 190,44 = 8,18 €.
+        "gaz_de_bordeaux_novafixe:base",
+        "gaz_de_bordeaux_novafixe_bonus:base",
+        # TotalEnergies Access Base (#23) : 36 x 0,1837 + 3/365 x 190,32 = 8,18 €.
+        "totalenergies_access:base",
         "plenitude_pleniweb_1an:base",
         # Hunélec HC (#326) : 36 x 0,19129 + 3/365 x 191,52 = 8,46 € ;
         # 100 % vert (#328) : + 2,27 €/mois = 8,68 € ; TRV Base : 8,77 €.
         "hunelec_prix_fixe_1an:hphc",
+        # Gaz de Bordeaux NovaFlex Base (#100) : 36 x 0,1919 + 3/365 x 190,44 = 8,47 €.
+        "gaz_de_bordeaux_novaflex:base",
+        # EDF Zen Online Base (#21) : 36 x 0,1925 + 3/365 x 190,32 = 8,49 €.
+        "edf_zen_online:base",
+        # TRV local Energis Base (#200) : 36 x 0,19522 + 3/365 x 190,32 = 8,59 €.
+        "energis_trv_local:base",
         "la_bellenergie_prudence:base",
         "alterna_fixe_1an:base",
+        # Alterna indexée Base (#45) : 36 x 0,1919 + 3/365 x 211,92 = 8,65 €.
+        "alterna_indexee:base",
         "hunelec_prix_fixe_1an_vert:hphc",
+        # Alpiq Sérénité Base (#42) : 36 x 0,199247 + 3/365 x 190,32 = 8,74 €.
+        "alpiq_serenite:base",
+        # TotalEnergies Verte Fixe HC (#133) : 36 x 0,1992 + 3/365 x 192,60 = 8,75 €.
+        "totalenergies_verte_fixe:hphc",
+        # TRV local Amnéville Base (#221) : 8,76 €.
+        "amneville_trv_local:base",
+        # TRV local Marange-Silvange Base (#265) : 8,76 €.
+        "marange_silvange_trv_local:base",
+        # TRV local UEM Base (#242) : 8,76 €.
+        "uem_trv_local:base",
+        # TRV local Barr Base (#197) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €, à égalité au
+        # centime avec le TRV national Base ; départage par le nom de l'option.
+        "barr_trv_local:base",
         "base",
+        # TRV local Bazas Base (#218) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "bazas_trv_local:base",
+        # TRV local Gascogne Base (#205) : 36 x 0,2001 + 3/365 x 190,35 = 8,77 €, à égalité
+        # au centime avec le TRV national Base ; départage par le nom de l'option.
+        "gascogne_trv_local:base",
+        # TRV local Gedia Base (#192) : 36 x 0,20006 + 3/365 x 190,32 = 8,77 €, à égalité au
+        # centime avec le TRV national Base ; départage par le nom de l'option.
+        "gedia_trv_local:base",
+        # TRV local GEG Base (#195) : 36 x 0,2001 + 3/365 x 190,80 = 8,77 €, à égalité au
+        # centime avec le TRV national Base ; départage par le nom de l'option.
+        "geg_trv_local:base",
+        # TRV local La Réole Base (#272) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "la_reole_trv_local:base",
+        # TRV local Lannemezan Base (#210) : 8,77 €, à égalité au centime avec le TRV
+        # national Base ; départage par le nom de l'option.
+        "lannemezan_trv_local:base",
+        # TRV local Lavaur Base (#212) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "lavaur_trv_local:base",
+        # TRV local Oya Base (#215) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "oya_trv_local:base",
+        # TRV local SÉOLIS Base (#233) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "seolis_trv_local:base",
+        # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.
+        "sicae_oise_trv_local:base",
+        # TRV local SICAE-Précy Base (#301) : 36 x 0,2001 + 3/365 x 190,35 = 8,768 €.
+        "sicae_precy_trv_local:base",
+        # TRV local SICAE Somme (#304, #305) Base : 36 x 0,2001 + 3/365 x 190,35 €.
+        "sicae_somme_trv_local:base",
+        # TRV local SICAE Vallée du Sausseron (#307, #308) Base : 36 x 0,2001 + 3/365 x 190,35 €.
+        "sicae_vs_trv_local:base",
+        # TRV local SICAP Pithiviers (#310, #311) Base : 36 x 0,2001 + 3/365 x 190,32 €.
+        "sicap_pithiviers_trv_local:base",
+        # TRV local SIEL Labergement (#313, #314) Base : 36 x 0,2001 + 3/365 x 190,35 €.
+        "siel_labergement_trv_local:base",
+        # TRV local Soréa Base (#318) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €.
+        "sorea_trv_local:base",
+        # TRV local Sorégies Base (#236) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "soregies_trv_local:base",
+        # TotalEnergies Heures Eco Base (#94) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €,
+        # à égalité au centime avec le TRV national.
+        "totalenergies_heures_eco:base",
+        # TRV local Enes Creutzwald Base (#275) : 8,78 €, à égalité au centime avec
+        # es_trv_local:base ; départage par le nom de l'option.
+        "enes_creutzwald_trv_local:base",
         # TRV local ÉS Base (#72) : 36 x 0,20006 + 3/365 x 191,40 = 8,775 € (TRV national : 8,772 €).
         "es_trv_local:base",
+        # TRV local Sarre-Union Base (#257) : 8,78 €, à égalité au centime avec
+        # es_trv_local:base ; départage par le nom de l'option.
+        "sarre_union_trv_local:base",
+        # TRV local Synelva Base (#239) : 8,78 €, à égalité au centime avec
+        # es_trv_local:base ; départage par le nom de l'option.
+        "synelva_trv_local:base",
+        "ume_trv_local:base",  # TRV local UME Base (#321), ex æquo avec l'ÉS
+        # TRV local Vialis Base (#245) : 8,78 €, à égalité au centime avec
+        # es_trv_local:base ; départage par le nom de l'option.
+        "vialis_trv_local:base",
         "alterna_du_coin_1an:base",
         "la_bellenergie_constance:base",
+        # Octopus Eco Fixe Base (#30) : 36 x 0,2033 + 3/365 x 190,32 = 8,88 €.
+        "octopus_eco_fixe_oct2026:base",
+        # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
+        "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
+        # Engie Elec Référence 3 ans HC (#127) : 36 x 0,20683 + 3/365 x 215,79 = 9,22 €.
+        "engie_elec_reference_3ans:hphc",
         "selia_elec_vert_fixe:hphc",
+        # TotalEnergies Fixe 2 ans Base (#25) : 36 x 0,2270 + 3/365 x 190,32 = 9,74 €.
+        "totalenergies_fixe_2ans:base",
+        # Happ-e Électricité 1 an HC (#128) : 36 x 0,22398 + 3/365 x 214,35 = 9,83 €.
+        "happe_elec_1an:hphc",
         "ilek_enrfixe_plus:hphc",
         # Hunélec Base (#325, #327) : 36 x 0,23506 + 3/365 x 188,88 = 10,01 € (vert : 10,24 €).
         "hunelec_prix_fixe_1an:base",
@@ -97,16 +284,34 @@ async def test_capteurs(hass: HomeAssistant):
         # Hunélec vert Base (10,2385 €) ; ÉS 100 % régionale HC (#332) : 10,46 €.
         "es_verte_fixe_1an:hphc",
         "hunelec_prix_fixe_1an_vert:base",
+        # Engie Elec Référence 3 ans Base (#28) : 36 x 0,24205 + 3/365 x 195,18 = 10,32 €.
+        "engie_elec_reference_3ans:base",
         "es_verte_regionale_fixe_1an:hphc",
+        # TotalEnergies Verte Fixe Base (#95) : 36 x 0,2540 + 3/365 x 145,56 = 10,71 €.
+        "totalenergies_verte_fixe:base",
+        # Happ-e Électricité 1 an Base (#71) : 36 x 0,26309 + 3/365 x 193,74 = 11,06 €.
+        "happe_elec_1an:base",
         "ilek_enrfixe_plus:base",
         "selia_elec_vert_fixe:base",
         # ÉS Base (#73) : 36 x 0,30216 + 3/365 x 191,40 = 12,45 € ; régionale (#74) : 12,67 €.
         "es_verte_fixe_1an:base",
+        # papernest HC (#169) : 36 x 0,24528 + 3/365 x 464,40 = 12,65 €, juste devant
+        # ÉS 100 % régionale Base (12,67 €) ; papernest Base (#67) : 13,93 €, dernière.
+        "papernest_verte_1an:hphc",
         "es_verte_regionale_fixe_1an:base",
+        "papernest_verte_1an:base",
     ]
     assert "2026-10-01" in economie.attributes["indisponibles"]["geg_elec_verte_3ans:base"]
+    assert "2026-10-01" in economie.attributes["indisponibles"]["geg_direct_producteur_3ans:hphc"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["ohm_serente_fixe_1an:base"]
+    assert "2026-10-01" in economie.attributes["indisponibles"]["ohm_premiohm:hphc"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["gedia_all_inclusive:hphc"]
+    # Mint Online & Green (#35, #143) : grille applicable au 08/10/2026 seulement.
+    assert "2026-10-01" in economie.attributes["indisponibles"]["mint_online_green:hphc"]
+    assert "2026-10-01" in economie.attributes["indisponibles"]["mint_classic_green:base"]
+    assert "2026-10-01" in economie.attributes["indisponibles"]["mint_smart_green:hphc"]
+    # Octopus Eco Fixe Plus (#29, #138) : grille du 12/10/2026, postérieure à la période.
+    assert "2026-10-01" in economie.attributes["indisponibles"]["octopus_eco_fixe_plus_oct2026:base"]
     assert hass.states.get("sensor.maison_12_month_consumption").state == "36.0"
     assert hass.states.get("sensor.maison_off_peak_share").state == "100.0"
     assert await hass.config_entries.async_unload(entree.entry_id)
@@ -117,16 +322,18 @@ async def test_option_indisponible_au_dela_de_15_kva(hass: HomeAssistant):
     base = hass.states.get("sensor.maison_12_month_cost_base_option")
     assert base.state == "unknown"
     assert "36 kVA" in base.attributes["indisponible"]
-    # À 36 kVA, Plenitude HC (681,72 €/an, 14,67 c€) passe devant Prudence HC et le TRV HC.
-    assert hass.states.get("sensor.maison_cheapest_option").state == "plenitude_pleniweb_1an:hphc"
-    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.19"
+    # À 36 kVA, Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, juste
+    # devant TotalEnergies Access HC (même abonnement, 14,67 c€), EDF Zen Online HC (15,31 c€ :
+    # 10,83 €), Plenitude HC (681,72 €/an, 14,67 c€ : 10,88 €), Prudence HC et le TRV HC.
+    assert hass.states.get("sensor.maison_cheapest_option").state == "gaz_de_bordeaux_novafixe:hphc"
+    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.47"
 
 
 async def test_sans_donnees(hass: HomeAssistant):
     await _installer(hass, [])
     # Sans consommation, toutes les options coûtent 0,00 € : le classement départage
     # les ex æquo par ordre alphabétique de la clé de comparaison.
-    assert hass.states.get("sensor.maison_cheapest_option").state == "alterna_du_coin_1an:base"
+    assert hass.states.get("sensor.maison_cheapest_option").state == "alpiq_serenite:base"
     assert hass.states.get("sensor.maison_off_peak_share").state == "unknown"
     await _installer_vide_hphc(hass)
 

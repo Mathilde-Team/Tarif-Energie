@@ -1,0 +1,28 @@
+# TotalEnergies Heures Eco Électricité (issues #94 Base, #132 HC ; inventaire #6).
+# Offre indexée sur le TRV (typologie CRE) : abonnement et kWh HT identiques au TRV,
+# sans remise ni engagement (le PDF affiche le TRV et l'offre côte à côte, avec les
+# mêmes valeurs). Grille TTC « Offre - Heures Eco - 1 oct. 2026 » (PDF officiel), à
+# mettre à jour à chaque mouvement du TRV. Puissances intermédiaires Linky (4, 5,
+# 7 kVA…) non reprises. HC de 6 à 36 kVA.
+id: totalenergies_heures_eco
+fournisseur: TotalEnergies
+offre: Heures Eco Électricité
+type_prix: indexe_trv
+grille_du: 2026-10-01
+source: https://www.totalenergies.fr/fileadmin/Digital/Groupe/PDF/Documents_contractuels/Particuliers/Tarifs_TotalEnergies/fr/grille-tarifaire-heures-eco-particuliers.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.13, 6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.41, 24: 39.49, 30: 46.92, 36: 54.41}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2001}
+      6: {base: 0.2001}
+      9: {base: 0.1985}
+      12: {base: 0.1985}
+      15: {base: 0.1985}
+      18: {base: 0.1985}
+      24: {base: 0.1985}
+      30: {base: 0.1985}
+      36: {base: 0.1985}
+  hphc:  # pas de HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.86, 9: 20.16, 12: 24.39, 15: 28.18, 18: 31.70, 24: 39.88, 30: 47.40, 36: 53.88}
+    kwh_ttc: {hp: 0.2142, hc: 0.1589}
