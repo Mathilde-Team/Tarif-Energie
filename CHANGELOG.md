@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local Energis** (#200 Base, #201 HC) : Tarif Bleu résidentiel de Saint-Avold, grille du 01/08/2026. Base publiée en 3 et 6 kVA seulement (9-36 kVA en extinction) ; HC dès 3 kVA. Tempo (#202) n'est pas repris.
 - **TRV local Barr Energies** (#197 Base, #198 HC) : Tarif Bleu résidentiel de Barr et Villé, fiche descriptive du 01/08/2026 (TURPE 4 postes). Base publiée en 3 et 6 kVA seulement (9-36 kVA en extinction) ; HC dès 3 kVA. Tempo (#199) n'est pas repris.
 - **TRV local GEG** (#195 Base, #196 HC) : Tarif Bleu résidentiel du territoire GreenAlp (Grenoble), grille TTC du 01/08/2026 (PART 08.26). HC dès 3 kVA avec le même abonnement que la Base ; Base 9-36 kVA en extinction. EJP (en extinction) n'est pas repris.
 - **TRV local Gedia** (#192 Base, #193 HC) : Tarif Bleu résidentiel de la commune de Dreux, grille TTC du 01/08/2026 (page 2 du PDF officiel). HC dès 3 kVA avec le même abonnement que la Base ; Base 9-36 kVA en extinction. Tempo (#194) n'est pas repris.
