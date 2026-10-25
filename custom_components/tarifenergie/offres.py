@@ -2,9 +2,9 @@
 
 Chaque fichier ``offres/<id>.yaml`` décrit une offre d'électricité pour particuliers,
 telle que publiée dans les grilles des fournisseurs (inventaire #6, une issue par
-offre). Le moteur v0.2 ne sait lire que les offres **à prix fixe** (typologie CRE) ;
-les offres indexées, dynamiques ou à coloration de jours (OctoTempo…) viendront plus
-tard avec leurs structures propres.
+offre). Le moteur lit les offres **à prix fixe** et **indexées sur le TRV** (typologie
+CRE), ainsi que les TRV locaux des ELD ; les offres dynamiques ou à coloration de jours
+(OctoTempo…) viendront plus tard avec leurs structures propres.
 
 Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
 
@@ -12,6 +12,7 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
     fournisseur: la bellenergie
     offre: Prudence
     type_prix: fixe                      # ou reglemente (TRV local d'une ELD : eld:, sans durée de fixité)
+                                         # ou indexe_trv (suit le TRV : sans durée de fixité ni eld:)
     grille_du: 2026-08-01                 # date d'effet de la grille tarifaire
     duree_fixite_mois: 12
     source: https://…/grille.pdf         # fiche de référence (registre #27)
@@ -51,7 +52,12 @@ DOSSIER_OFFRES = Path(__file__).parent / "offres"
 # « reglemente » : TRV local d'une entreprise locale de distribution (ELD) —
 # barème national, abonnement propre au réseau ; pas de durée de fixité (le
 # prix suit les mouvements du TRV), identifiant de réseau ``eld`` exigé.
-TYPE_PRIX: tuple[str, ...] = ("fixe", "reglemente")
+# « indexe_trv » : offre de marché indexée sur le TRV (typologie CRE) — prix HT
+# alignés sur le TRV ou à remise constante ; comme un TRV local, pas de durée de
+# fixité et une grille TTC datée à mettre à jour à chaque mouvement du TRV, mais
+# sans réseau ``eld``.
+TYPE_PRIX: tuple[str, ...] = ("fixe", "reglemente", "indexe_trv")
+SANS_FIXITE: tuple[str, ...] = ("reglemente", "indexe_trv")
 POSTES = ("base", "hp", "hc")
 MOIS_PAR_AN = Decimal("12")
 
@@ -174,13 +180,13 @@ def _grilles_option(
 
 @dataclass(frozen=True)
 class Offre:
-    """Une offre (prix fixe ou TRV local d'une ELD), convertie en grilles par option."""
+    """Une offre (prix fixe, indexée sur le TRV ou TRV local d'une ELD), convertie en grilles par option."""
 
     id: str
     fournisseur: str
     offre: str
     grille_du: date
-    duree_fixite_mois: int | None  # None pour un TRV local (type_prix « reglemente »)
+    duree_fixite_mois: int | None  # None si le prix suit le TRV (« reglemente », « indexe_trv »)
     grilles: dict[str, Grilles]  # option du TRV ("base", "hphc") → Grilles
     type_prix: str = "fixe"
     eld: str | None = None  # réseau de l'ELD, pour un TRV local
@@ -206,11 +212,12 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     type_prix = donnees["type_prix"]
     duree = donnees.get("duree_fixite_mois")
     eld = None
-    if type_prix == "reglemente":
-        _exiger(
-            duree is None, "offre.duree_fixite_mois", "sans objet pour un TRV local (le prix suit le TRV)"
-        )
-        eld = _texte(donnees, "eld", "offre")
+    if type_prix in SANS_FIXITE:
+        _exiger(duree is None, "offre.duree_fixite_mois", "sans objet quand le prix suit le TRV")
+        if type_prix == "reglemente":
+            eld = _texte(donnees, "eld", "offre")
+        else:
+            _exiger("eld" not in donnees, "offre.eld", "réservé aux TRV locaux (type_prix « reglemente »)")
     else:
         _exiger(
             isinstance(duree, int) and not isinstance(duree, bool) and duree > 0,
