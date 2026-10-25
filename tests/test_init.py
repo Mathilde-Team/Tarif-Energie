@@ -96,6 +96,8 @@ async def test_capteurs(hass: HomeAssistant):
         "bazas_trv_local:hphc",
         # TRV local Gascogne HC (#206) : abonnement annuel 192,59 €, total 7,30 €.
         "gascogne_trv_local:hphc",
+        # TRV local La Réole HC (#273) : 7,30 €.
+        "la_reole_trv_local:hphc",
         # TRV local Lannemezan HC (#211) : 7,30 €.
         "lannemezan_trv_local:hphc",
         # TRV local Marange-Silvange HC (#266) : 7,30 €.
@@ -165,6 +167,9 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local GEG Base (#195) : 36 x 0,2001 + 3/365 x 190,80 = 8,77 €, à égalité au
         # centime avec le TRV national Base ; départage par le nom de l'option.
         "geg_trv_local:base",
+        # TRV local La Réole Base (#272) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "la_reole_trv_local:base",
         # TRV local Lannemezan Base (#210) : 8,77 €, à égalité au centime avec le TRV
         # national Base ; départage par le nom de l'option.
         "lannemezan_trv_local:base",

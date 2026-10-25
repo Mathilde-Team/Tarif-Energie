@@ -61,8 +61,8 @@ Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, 
 (Saint-Avold), Gascogne Énergies Services (Aire-sur-l'Adour), Énergies Services Lannemezan (plateau
 de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amnéville), SÉOLIS (réseau
 Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartrain), UEM (réseau réséda,
-Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union) et Régie de Marange-Silvange
-(Marange-Silvange).
+Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie de Marange-Silvange
+(Marange-Silvange) et RMMS La Réole (La Réole).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
