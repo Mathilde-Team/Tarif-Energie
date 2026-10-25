@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local SIEL Labergement-Sainte-Marie** (#313 Base, #314 HC) : grille du 01/08/2026, abonnements annuels. HC dès 3 kVA, avec le même abonnement qu'en Base ; Base 9-36 kVA en extinction. Tempo (#315) et EJP ne sont pas repris.
 - **TRV local SICAP Pithiviers** (#310 Base, #311 HC) : grille du 01/08/2026, abonnements mensuels. HC dès 3 kVA ; Base 9-36 kVA en extinction. Tempo (#312) n'est pas repris.
 - **TRV local SICAE de la Vallée du Sausseron** (#307 Base, #308 HC) : grille du 01/08/2026, abonnements en €/an. Base en 3 et 6 kVA seulement, HC dès 3 kVA. Tempo (#309) n'est pas repris.
 - **TRV local SICAE de la Somme et du Cambraisis** (#304 Base, #305 HC) : grille du 01/08/2026, abonnements en €/an. HC à partir de 6 kVA ; Base 9-36 kVA en extinction. Tempo (#306) n'est pas repris.

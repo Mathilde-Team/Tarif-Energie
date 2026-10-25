@@ -83,6 +83,8 @@ async def test_capteurs(hass: HomeAssistant):
         "gedia_trv_local:hphc",
         # TRV local Oya HC (#216) : 7,28 €.
         "oya_trv_local:hphc",
+        # TRV local SIEL Labergement (#314) HC : 36 x 0,1589 + 3/365 x 190,35 €, sous le TRV national.
+        "siel_labergement_trv_local:hphc",
         # TRV local Soréa HC (#319) : 36 x 0,1589 + 3/365 x 190,32 = 7,285 €, juste sous le TRV national.
         "sorea_trv_local:hphc",
         # TRV local GEG HC (#196) : 36 x 0,1589 + 3/365 x 190,80 = 7,29 €, à égalité au
@@ -204,6 +206,8 @@ async def test_capteurs(hass: HomeAssistant):
         "sicae_vs_trv_local:base",
         # TRV local SICAP Pithiviers (#310, #311) Base : 36 x 0,2001 + 3/365 x 190,32 €.
         "sicap_pithiviers_trv_local:base",
+        # TRV local SIEL Labergement (#313, #314) Base : 36 x 0,2001 + 3/365 x 190,35 €.
+        "siel_labergement_trv_local:base",
         # TRV local Soréa Base (#318) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €.
         "sorea_trv_local:base",
         # TRV local Sorégies Base (#236) : 8,77 €, à égalité au centime avec
