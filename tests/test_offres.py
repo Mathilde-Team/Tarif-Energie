@@ -28,6 +28,8 @@ def test_quatre_offres_livrees(offres):
     assert sorted(offres) == [
         "alterna_du_coin_1an",
         "alterna_fixe_1an",
+        "edf_zen_fixe_2ans",
+        "es_trv_local",
         "es_verte_fixe_1an",
         "es_verte_regionale_fixe_1an",
         "gedia_all_inclusive",
@@ -38,11 +40,15 @@ def test_quatre_offres_livrees(offres):
         "la_bellenergie_constance",
         "la_bellenergie_garance",
         "la_bellenergie_prudence",
+        "octopus_eco_fixe_oct2026",
+        "octopus_eco_fixe_plus_oct2026",
         "ohm_fixe_2ans",
         "ohm_serente_fixe_1an",
         "plenitude_pleniweb_1an",
         "primeo_fixe_confort",
         "selia_elec_vert_fixe",
+        "sicae_oise_trv_local",
+        "totalenergies_fixe_2ans",
         "totalenergies_verte_fixe",
     ]
     assert all(o.grilles["base"] for o in offres.values())
@@ -114,6 +120,72 @@ def test_gedia_grille_du_19_octobre_2026(offres):
         grilles["gedia_all_inclusive:hphc"].en_vigueur(3, jour)
 
 
+def test_es_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local ÉS (#72, #190) : type « reglemente », sans durée de fixité, HC dès 3 kVA."""
+    offre = offres["es_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == (
+        "reglemente",
+        "strasbourg_electricite_reseaux",
+        None,
+    )
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("191.40"),  # 15,95 x 12
+        {"base": Decimal("0.20006")},
+    )
+    assert grilles["es_trv_local:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.19850")}
+    g = grilles["es_trv_local:hphc"].en_vigueur(3, jour)  # HC proposée dès 3 kVA
+    assert g.abonnement_an == Decimal("147.48")  # 12,29 x 12
+    assert g.prix == {"hp": Decimal("0.21422"), "hc": Decimal("0.15890")}
+
+
+def test_sicae_oise_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local SICAE Oise (#298, #299) : Base en 3 et 6 kVA seulement, HC dès 3 kVA."""
+    offre = offres["sicae_oise_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", "sicae_oise", None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["sicae_oise_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.36"),
+        {"base": Decimal("0.2001")},
+    )
+    g = grilles["sicae_oise_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("659.92")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    with pytest.raises(TarifIntrouvable, match="9 kVA"):
+        grilles["sicae_oise_trv_local:base"].en_vigueur(9, jour)
+    assert grilles["sicae_oise_trv_local:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("146.68")
+
+
+@pytest.mark.parametrize(
+    ("extra", "chemin_fautif"),
+    [
+        ({"duree_fixite_mois": 12, "eld": "x"}, "offre.duree_fixite_mois"),  # sans objet pour un TRV
+        ({}, "offre.eld"),  # réseau de l'ELD exigé
+    ],
+)
+def test_trv_local_invalide(extra, chemin_fautif):
+    from datetime import date
+
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "TRV local",
+        "type_prix": "reglemente",
+        "grille_du": date(2026, 8, 1),
+        "source": "https://exemple.fr/trv.pdf",
+        "options": {"base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}}},
+        **extra,
+    }
+    with pytest.raises(OffreInvalide, match=chemin_fautif):
+        offre_depuis_dict(donnees, "x")
+
+
 def test_abonnement_annuel_et_mensuel_exclusifs():
     """abonnement_annuel_ttc repris tel quel ; les deux champs ensemble sont refusés."""
     from datetime import date
@@ -152,6 +224,73 @@ def test_totalenergies_verte_fixe_grille_du_24_septembre_2026(offres):
     with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
         grilles["totalenergies_verte_fixe:hphc"].en_vigueur(3, jour)
     assert offres["totalenergies_verte_fixe"].duree_fixite_mois == 12
+
+
+def test_octopus_eco_fixe_grilles_d_octobre_2026(offres):
+    """Grilles TTC Octopus Eco Fixe Plus (12/10/2026) et Eco Fixe (30/09/2026) (#29, #30, #138, #139)."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["octopus_eco_fixe_plus_oct2026:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 12).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.1968")},
+    )
+    # Cellules fusionnées : 1-6 kVA puis 7-36 kVA ; 36 kVA à 54,41 €/mois.
+    g = grilles["octopus_eco_fixe_plus_oct2026:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("652.92"), {"base": Decimal("0.1953")})
+    # HC proposée dès 3 kVA, même abonnement qu'en Base.
+    g = grilles["octopus_eco_fixe_plus_oct2026:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("145.56")  # 12,13 x 12
+    assert g.prix == {"hp": Decimal("0.2106"), "hc": Decimal("0.1565")}
+    g = grilles["octopus_eco_fixe_oct2026:base"].en_vigueur(9, jour)
+    assert (g.debut, g.prix) == (datetime(2026, 9, 30).date(), {"base": Decimal("0.2017")})
+    assert grilles["octopus_eco_fixe_oct2026:base"].en_vigueur(3, jour).prix == {"base": Decimal("0.2033")}
+    g = grilles["octopus_eco_fixe_oct2026:hphc"].en_vigueur(6, jour)
+    assert g.prix == {"hp": Decimal("0.2178"), "hc": Decimal("0.1613")}
+    assert offres["octopus_eco_fixe_oct2026"].duree_fixite_mois == 24
+
+
+def test_totalenergies_fixe_2ans_grille_du_24_septembre_2026(offres):
+    """Grille TTC TotalEnergies Fixe 2 ans du 24/09/2026, PDF officiel (#25 Base, #126 HC)."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["totalenergies_fixe_2ans:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 9, 24).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.2270")},
+    )
+    # kWh Base : 0,2270 € en 3 et 6 kVA, 0,2252 € au-delà.
+    assert grilles["totalenergies_fixe_2ans:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.2252")}
+    g = grilles["totalenergies_fixe_2ans:hphc"].en_vigueur(6, jour)
+    assert g.abonnement_an == Decimal("192.60")  # 16,05 x 12
+    assert g.prix == {"hp": Decimal("0.2435"), "hc": Decimal("0.1791")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["totalenergies_fixe_2ans:hphc"].en_vigueur(3, jour)
+    assert offres["totalenergies_fixe_2ans"].duree_fixite_mois == 24
+
+
+def test_edf_zen_fixe_grille_du_1er_octobre_2026(offres):
+    """Grille TTC EDF Zen Fixe 2 ans du 01/10/2026, PDF EDF (#8 Base, #114 HC)."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["edf_zen_fixe_2ans:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.2082")},
+    )
+    # kWh Base : 0,2082 € en 3 et 6 kVA, 0,2065 € de 9 à 36 kVA.
+    assert grilles["edf_zen_fixe_2ans:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.2065")}
+    # 36 kVA : 53,88 x 12.
+    assert grilles["edf_zen_fixe_2ans:base"].en_vigueur(36, jour).abonnement_an == Decimal("646.56")
+    g = grilles["edf_zen_fixe_2ans:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # même abonnement qu'en Base
+    assert g.prix == {"hp": Decimal("0.2231"), "hc": Decimal("0.1650")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["edf_zen_fixe_2ans:hphc"].en_vigueur(3, jour)
+    assert offres["edf_zen_fixe_2ans"].duree_fixite_mois == 25  # 2 ans et 1 mois
 
 
 def test_prudence_grille_du_1er_aout_2026(offres):
