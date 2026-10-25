@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local SICAE de la Vallée du Sausseron** (#307 Base, #308 HC) : grille du 01/08/2026, abonnements en €/an. Base en 3 et 6 kVA seulement, HC dès 3 kVA. Tempo (#309) n'est pas repris.
 - **TRV local SICAE de la Somme et du Cambraisis** (#304 Base, #305 HC) : grille du 01/08/2026, abonnements en €/an. HC à partir de 6 kVA ; Base 9-36 kVA en extinction. Tempo (#306) n'est pas repris.
 - **TRV local SICAE-Précy** (Aube ; #301 Base, #302 HC) : grille du 01/08/2026, abonnements en €/an. Base publiée de 3 à 15 kVA, HC à partir de 6 kVA. Tempo (#303) n'est pas repris.
 - **TRV local Soréa** (Maurienne ; #318 Base, #319 HC) : grille du 01/08/2026, HC à partir de 6 kVA ; Base 9-36 kVA en extinction. Tempo (#320) et les rabais communaux ne sont pas repris.
