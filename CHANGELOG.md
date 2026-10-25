@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local Enes Creutzwald** (#275 Base, #276 HC) : Tarif Bleu résidentiel de Creutzwald, grilles 2026 publiées en images (prix du barème du 01/08/2026), abonnements en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA.
 - **TRV local RMMS La Réole** (#272 Base, #273 HC) : Tarif Bleu résidentiel de La Réole, grille TTC du 01/08/2026, abonnements « compteur Linky ». Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC de 6 à 36 kVA. Tempo (#274) n'est pas repris.
 - **TRV local Régie de Marange-Silvange** (#265 Base, #266 HC) : Tarif Bleu résidentiel de Marange-Silvange, grille du 01/08/2026, primes fixes en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#267) n'est pas repris.
 - **TRV local Énergies & Services Sarre-Union** (#257 Base, #258 HC) : Tarif Bleu résidentiel de Sarre-Union, grille du 01/08/2026 (mêmes valeurs que ÉS). Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#259) n'est pas repris.
