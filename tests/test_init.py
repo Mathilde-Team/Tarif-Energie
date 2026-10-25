@@ -96,6 +96,8 @@ async def test_capteurs(hass: HomeAssistant):
         "gascogne_trv_local:hphc",
         # TRV local Lannemezan HC (#211) : 7,30 €.
         "lannemezan_trv_local:hphc",
+        # TRV local SÉOLIS HC (#234) : 7,30 €.
+        "seolis_trv_local:hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
         "sicae_oise_trv_local:hphc",
         # TRV local ÉS HC (#190) : 36 x 0,15890 + 3/365 x 194,16 = 7,316 €, juste
@@ -149,6 +151,9 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Oya Base (#215) : 8,77 €, à égalité au centime avec
         # TRV national Base ; départage par le nom de l'option.
         "oya_trv_local:base",
+        # TRV local SÉOLIS Base (#233) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "seolis_trv_local:base",
         # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.
         "sicae_oise_trv_local:base",
         # TRV local ÉS Base (#72) : 36 x 0,20006 + 3/365 x 191,40 = 8,775 € (TRV national : 8,772 €).
