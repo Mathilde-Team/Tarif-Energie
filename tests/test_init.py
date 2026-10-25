@@ -108,6 +108,8 @@ async def test_capteurs(hass: HomeAssistant):
         "seolis_trv_local:hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
         "sicae_oise_trv_local:hphc",
+        # TRV local SICAE-Précy HC (#302) : 36 x 0,1589 + 3/365 x 192,59 = 7,303 €.
+        "sicae_precy_trv_local:hphc",
         # TRV local Sorégies HC (#237) : 7,30 €.
         "soregies_trv_local:hphc",
         # TRV local Synelva HC (#240) : 7,30 €.
@@ -188,6 +190,8 @@ async def test_capteurs(hass: HomeAssistant):
         "seolis_trv_local:base",
         # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.
         "sicae_oise_trv_local:base",
+        # TRV local SICAE-Précy Base (#301) : 36 x 0,2001 + 3/365 x 190,35 = 8,768 €.
+        "sicae_precy_trv_local:base",
         # TRV local Soréa Base (#318) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €.
         "sorea_trv_local:base",
         # TRV local Sorégies Base (#236) : 8,77 €, à égalité au centime avec
