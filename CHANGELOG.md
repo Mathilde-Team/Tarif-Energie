@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local UME (Usine Municipale d'Erstein)** (#321 Base, #322 HC) : grille du 01/08/2026, avec les mêmes montants que le TRV local ÉS. HC dès 3 kVA ; Base 9-36 kVA en extinction. Tempo (#323) n'est pas repris.
 - **Offre Happ-e by ENGIE Électricité 1 an** (#71, #128), Base et Heures creuses : annexe prix du 01/10/2026. Seule la part fourniture est fixe 12 mois ; chaque total TTC est la somme fourniture + acheminement TURPE (CU en Base, MUDT en Heures creuses), comme le précise la fiche descriptive. Pas d'Heures creuses en 3 kVA.
 - **Offre GEG Mon Offre Elec Verte Direct Producteur, fixe 3 ans** (#55, #136), Base et Heures creuses : grille TTC du 05/10/2026, même PDF que l'offre Elec Verte. HP à 19,83 c€ jusqu'à 9 kVA puis 20,16 c€, HC à 15,86 c€ ; pas d'HC en 3 kVA.
 - **Offre Ohm Énergie Premi'Ohm** (#39, #147), Base et Heures creuses : grille TTC du 14/10/2026, prix fixe de la part électricité pendant 3 ans. Le kWh est unique pour toutes les puissances (Base 22,87 c€, HP 24,55 c€, HC 17,99 c€) ; pas d'HC en 3 kVA.

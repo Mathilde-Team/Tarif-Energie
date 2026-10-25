@@ -121,6 +121,8 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Sarre-Union HC (#258) : 7,32 €, à égalité au centime avec
         # es_trv_local:hphc ; départage par le nom de l'option.
         "sarre_union_trv_local:hphc",
+        # TRV local UME HC (#322) : mêmes montants que l'ÉS, ex æquo départagé par la clé.
+        "ume_trv_local:hphc",
         # TRV local Vialis HC (#246) : 7,32 €, à égalité au centime avec
         # es_trv_local:hphc ; départage par le nom de l'option.
         "vialis_trv_local:hphc",
@@ -198,6 +200,7 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Synelva Base (#239) : 8,78 €, à égalité au centime avec
         # es_trv_local:base ; départage par le nom de l'option.
         "synelva_trv_local:base",
+        "ume_trv_local:base",  # TRV local UME Base (#321), ex æquo avec l'ÉS
         # TRV local Vialis Base (#245) : 8,78 €, à égalité au centime avec
         # es_trv_local:base ; départage par le nom de l'option.
         "vialis_trv_local:base",
