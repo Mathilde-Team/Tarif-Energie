@@ -65,7 +65,7 @@ de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amn�
 Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartrain), UEM (réseau réséda,
 Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie de Marange-Silvange
 (Marange-Silvange), RMMS La Réole (La Réole), Enes Creutzwald (Creutzwald), UME (Usine Municipale
-d'Erstein), Soréa (Maurienne) et SICAE-Précy (Aube).
+d'Erstein), Soréa (Maurienne), SICAE-Précy (Aube), SICAE de la Somme et du Cambraisis.
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
