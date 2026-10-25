@@ -92,6 +92,8 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_prudence:base",
         "alterna_fixe_1an:base",
         "hunelec_prix_fixe_1an_vert:hphc",
+        # TotalEnergies Verte Fixe HC (#133) : 36 x 0,1992 + 3/365 x 192,60 = 8,75 €.
+        "totalenergies_verte_fixe:hphc",
         "base",
         # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.
         "sicae_oise_trv_local:base",
@@ -115,6 +117,8 @@ async def test_capteurs(hass: HomeAssistant):
         "es_verte_fixe_1an:hphc",
         "hunelec_prix_fixe_1an_vert:base",
         "es_verte_regionale_fixe_1an:hphc",
+        # TotalEnergies Verte Fixe Base (#95) : 36 x 0,2540 + 3/365 x 145,56 = 10,71 €.
+        "totalenergies_verte_fixe:base",
         "ilek_enrfixe_plus:base",
         "selia_elec_vert_fixe:base",
         # ÉS Base (#73) : 36 x 0,30216 + 3/365 x 191,40 = 12,45 € ; régionale (#74) : 12,67 €.
