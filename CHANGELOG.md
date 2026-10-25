@@ -5,6 +5,11 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **Offre Alpiq Électricité Sérénité** (#42 Base, #150 HC) : indexée sur le TRV, kWh HT au TRV -0,5 % et abonnement du TRV, grille du 01/08/2026 ; HC à partir de 6 kVA. L'option électricité verte n'est pas reprise.
+- **Offre TotalEnergies Heures Eco Électricité** (#94 Base, #132 HC) : indexée sur le TRV avec les mêmes prix, sans remise ni engagement, grille du 01/10/2026 ; HC à partir de 6 kVA.
+- **Offre Alterna Mon électricité française indexée** (#45 Base, #153 HC) : indexée sur le TRV, grille TTC du 01/09/2026, avec un abonnement propre à Alterna. L'option HC est proposée dès 3 kVA.
+- **Offre Mint Énergie Online & Green** (#35 Base, #143 HC) : indexée sur le TRV (kWh HTT -5 %, abonnement HTT du TRV), grille TTC applicable au 08/10/2026. Pas d'option HC en 3 kVA. La majoration au renouvellement n'est pas modélisée.
+- **Offre TotalEnergies Access Électricité** (#23 Base, #125 HC) : indexée sur le TRV, grille TTC du 01/10/2026. Les prix retenus sont ceux remisés (-10 % sur le kWh HT pendant 3 ans). L'abonnement est celui du TRV.
 - **Offres indexées sur le TRV** (`type_prix: indexe_trv`, #21) : pas de durée de fixité ni de réseau `eld:` (les deux sont refusés), et une grille TTC datée comme pour un TRV local. Première offre : **EDF Zen Online** (#21 Base, #122 HC), grille du 01/08/2026. La Base va de 3 à 15 kVA (18 à 36 kVA en extinction), l'option HC de 6 à 36 kVA.
 - **Offre papernest énergie Électricité verte 1 an** (#67 Base, #169 HC) : prix fixe 12 mois, grille TTC du 22/09/2026. Pas d'option HC en 3 kVA. Ses prix sont très au-dessus du TRV : elle arrive dernière du classement des tests.
 - **TRV local Énergies Services Lavaur** (#212 Base, #213 HC) : Tarif Bleu résidentiel de Lavaur et Saint-Paul-Cap-de-Joux, grille du 01/08/2026 (tableaux en image, kWh en cts €). Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#214) n'est pas repris.

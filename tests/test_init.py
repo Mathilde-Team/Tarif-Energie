@@ -72,12 +72,20 @@ async def test_capteurs(hass: HomeAssistant):
         # (remise de 100 € du Bonus non modélisée : même total).
         "gaz_de_bordeaux_novafixe:hphc",
         "gaz_de_bordeaux_novafixe_bonus:hphc",
+        # TotalEnergies Access HC (#125, indexée TRV, kWh HT -10 %) : 36 x 0,1467
+        # + 3/365 x 190,32 = 6,85 €.
+        "totalenergies_access:hphc",
         # EDF Zen Online HC (#122, indexée TRV) : 36 x 0,1531 + 3/365 x 190,32 = 7,076 €,
         # devant Plenitude HC (7,082 €) bien qu'à égalité au centime.
         "edf_zen_online:hphc",
         "plenitude_pleniweb_1an:hphc",
         "la_bellenergie_prudence:hphc",
         "alterna_fixe_1an:hphc",
+        # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
+        # derrière Alterna fixe HC, à égalité au centime.
+        "alterna_indexee:hphc",
+        # Alpiq Sérénité HC (#150) : kWh HT du TRV -0,5 %, abonnement du TRV = 7,26 €.
+        "alpiq_serenite:hphc",
         # TRV local Energis HC (#201) : 7,28 €, juste devant le TRV national HC
         # (abonnement 6 kVA un peu moins cher).
         "energis_trv_local:hphc",
@@ -92,6 +100,9 @@ async def test_capteurs(hass: HomeAssistant):
         "siel_labergement_trv_local:hphc",
         # TRV local Soréa HC (#319) : 36 x 0,1589 + 3/365 x 190,32 = 7,285 €, juste sous le TRV national.
         "sorea_trv_local:hphc",
+        # TotalEnergies Heures Eco HC (#132) : mêmes prix HT que le TRV ; les prix TTC
+        # arrondis du PDF la placent un centime sous le TRV national (7,28 € contre 7,29 €).
+        "totalenergies_heures_eco:hphc",
         # TRV local GEG HC (#196) : 36 x 0,1589 + 3/365 x 190,80 = 7,29 €, à égalité au
         # centime avec le TRV national HC ; départage par le nom de l'option.
         "geg_trv_local:hphc",
@@ -156,6 +167,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Gaz de Bordeaux NovaFixe Base (#111, #99) : 36 x 0,18373 + 3/365 x 190,44 = 8,18 €.
         "gaz_de_bordeaux_novafixe:base",
         "gaz_de_bordeaux_novafixe_bonus:base",
+        # TotalEnergies Access Base (#23) : 36 x 0,1837 + 3/365 x 190,32 = 8,18 €.
+        "totalenergies_access:base",
         "plenitude_pleniweb_1an:base",
         # Hunélec HC (#326) : 36 x 0,19129 + 3/365 x 191,52 = 8,46 € ;
         # 100 % vert (#328) : + 2,27 €/mois = 8,68 € ; TRV Base : 8,77 €.
@@ -166,7 +179,11 @@ async def test_capteurs(hass: HomeAssistant):
         "energis_trv_local:base",
         "la_bellenergie_prudence:base",
         "alterna_fixe_1an:base",
+        # Alterna indexée Base (#45) : 36 x 0,1919 + 3/365 x 211,92 = 8,65 €.
+        "alterna_indexee:base",
         "hunelec_prix_fixe_1an_vert:hphc",
+        # Alpiq Sérénité Base (#42) : 36 x 0,199247 + 3/365 x 190,32 = 8,74 €.
+        "alpiq_serenite:base",
         # TotalEnergies Verte Fixe HC (#133) : 36 x 0,1992 + 3/365 x 192,60 = 8,75 €.
         "totalenergies_verte_fixe:hphc",
         # TRV local Amnéville Base (#221) : 8,76 €.
@@ -223,6 +240,9 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Sorégies Base (#236) : 8,77 €, à égalité au centime avec
         # TRV national Base ; départage par le nom de l'option.
         "soregies_trv_local:base",
+        # TotalEnergies Heures Eco Base (#94) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €,
+        # à égalité au centime avec le TRV national.
+        "totalenergies_heures_eco:base",
         # TRV local Enes Creutzwald Base (#275) : 8,78 €, à égalité au centime avec
         # es_trv_local:base ; départage par le nom de l'option.
         "enes_creutzwald_trv_local:base",
@@ -281,6 +301,8 @@ async def test_capteurs(hass: HomeAssistant):
     assert "2026-10-01" in economie.attributes["indisponibles"]["ohm_serente_fixe_1an:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["ohm_premiohm:hphc"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["gedia_all_inclusive:hphc"]
+    # Mint Online & Green (#35, #143) : grille applicable au 08/10/2026 seulement.
+    assert "2026-10-01" in economie.attributes["indisponibles"]["mint_online_green:hphc"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["mint_classic_green:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["mint_smart_green:hphc"]
     # Octopus Eco Fixe Plus (#29, #138) : grille du 12/10/2026, postérieure à la période.
@@ -295,9 +317,9 @@ async def test_option_indisponible_au_dela_de_15_kva(hass: HomeAssistant):
     base = hass.states.get("sensor.maison_12_month_cost_base_option")
     assert base.state == "unknown"
     assert "36 kVA" in base.attributes["indisponible"]
-    # À 36 kVA, Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, devant
-    # EDF Zen Online HC (646,56 €/an, 15,31 c€ : 10,83 €), Plenitude HC (681,72 €/an,
-    # 14,67 c€ : 10,88 €), Prudence HC et le TRV HC.
+    # À 36 kVA, Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, juste
+    # devant TotalEnergies Access HC (même abonnement, 14,67 c€), EDF Zen Online HC (15,31 c€ :
+    # 10,83 €), Plenitude HC (681,72 €/an, 14,67 c€ : 10,88 €), Prudence HC et le TRV HC.
     assert hass.states.get("sensor.maison_cheapest_option").state == "gaz_de_bordeaux_novafixe:hphc"
     assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.47"
 
@@ -306,7 +328,7 @@ async def test_sans_donnees(hass: HomeAssistant):
     await _installer(hass, [])
     # Sans consommation, toutes les options coûtent 0,00 € : le classement départage
     # les ex æquo par ordre alphabétique de la clé de comparaison.
-    assert hass.states.get("sensor.maison_cheapest_option").state == "alterna_du_coin_1an:base"
+    assert hass.states.get("sensor.maison_cheapest_option").state == "alpiq_serenite:base"
     assert hass.states.get("sensor.maison_off_peak_share").state == "unknown"
     await _installer_vide_hphc(hass)
 
