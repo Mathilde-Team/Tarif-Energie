@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local Régie d'Amnéville** (#221 Base, #222 HC) : Tarif Bleu résidentiel d'Amnéville (groupe OMEGA), grille du 01/08/2026, primes fixes publiées en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC de 6 à 36 kVA. Tempo (#223) n'est pas repris.
 - **TRV local Bazas Energies** (#218 Base, #219 HC) : Tarif Bleu résidentiel de Bazas, grille du 01/08/2026, abonnements « compteur Linky ». Base publiée en 3 et 6 kVA seulement (9-36 kVA en extinction) ; HC de 6 à 36 kVA. Tempo (#220) n'est pas repris.
 - **TRV local Oya énergies** (#215 Base, #216 HC) : Tarif Bleu résidentiel, grille du 01/08/2026. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#217) n'est pas repris.
 - **Offre Engie Elec Référence 3 ans** (#28, #127), Base et Heures creuses : grille d'octobre 2026 de la fiche descriptive. Seule la fourniture est fixe 3 ans (« prix fixe de la part de l'électricité », comme Ohm Fixe 2 ans). Chaque total TTC additionne fourniture, acheminement et obligations au prix de souscription, avec l'acheminement courant : CU en Base, MUDT en Heures creuses. Les options CU4 et MU4 ne sont pas reprises.

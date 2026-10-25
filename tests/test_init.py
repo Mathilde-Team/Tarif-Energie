@@ -85,6 +85,8 @@ async def test_capteurs(hass: HomeAssistant):
         # centime avec le TRV national HC ; départage par le nom de l'option.
         "geg_trv_local:hphc",
         "hphc",
+        # TRV local Amnéville HC (#222) : 7,30 €.
+        "amneville_trv_local:hphc",
         # TRV local Barr HC (#198) : 36 x 0,1589 + 3/365 x 192,48 = 7,30 €, juste
         # derrière le TRV national HC (abonnement un peu plus cher).
         "barr_trv_local:hphc",
@@ -123,6 +125,8 @@ async def test_capteurs(hass: HomeAssistant):
         "hunelec_prix_fixe_1an_vert:hphc",
         # TotalEnergies Verte Fixe HC (#133) : 36 x 0,1992 + 3/365 x 192,60 = 8,75 €.
         "totalenergies_verte_fixe:hphc",
+        # TRV local Amnéville Base (#221) : 8,76 €.
+        "amneville_trv_local:base",
         # TRV local Barr Base (#197) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €, à égalité au
         # centime avec le TRV national Base ; départage par le nom de l'option.
         "barr_trv_local:base",
