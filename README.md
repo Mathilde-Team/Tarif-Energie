@@ -66,7 +66,8 @@ Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartra
 Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie de Marange-Silvange
 (Marange-Silvange), RMMS La Réole (La Réole), Enes Creutzwald (Creutzwald), UME (Usine Municipale
 d'Erstein), Soréa (Maurienne), SICAE-Précy (Aube), SICAE de la Somme, du Cambraisis, SICAE de la
-Vallée du Sausseron, SICAP Pithiviers et SIEL Labergement-Sainte-Marie.
+Vallée du Sausseron, SICAP Pithiviers, SIEL Labergement-Sainte-Marie et Énergies Services Lavaur
+(Lavaur, Saint-Paul-Cap-de-Joux).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,

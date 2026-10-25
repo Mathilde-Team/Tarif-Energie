@@ -81,6 +81,8 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Gedia HC (#193) : 36 x 0,15890 + 3/365 x 190,32 = 7,28 €, juste
         # devant le TRV national HC (7,29 €, abonnement un peu plus cher).
         "gedia_trv_local:hphc",
+        # TRV local Lavaur HC (#213) : 7,28 €.
+        "lavaur_trv_local:hphc",
         # TRV local Oya HC (#216) : 7,28 €.
         "oya_trv_local:hphc",
         # TRV local SIEL Labergement (#314) HC : 36 x 0,1589 + 3/365 x 190,35 €, sous le TRV national.
@@ -190,6 +192,9 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Lannemezan Base (#210) : 8,77 €, à égalité au centime avec le TRV
         # national Base ; départage par le nom de l'option.
         "lannemezan_trv_local:base",
+        # TRV local Lavaur Base (#212) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "lavaur_trv_local:base",
         # TRV local Oya Base (#215) : 8,77 €, à égalité au centime avec
         # TRV national Base ; départage par le nom de l'option.
         "oya_trv_local:base",
