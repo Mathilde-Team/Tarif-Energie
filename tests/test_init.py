@@ -75,6 +75,9 @@ async def test_capteurs(hass: HomeAssistant):
         # TotalEnergies Access HC (#125, indexée TRV, kWh HT -10 %) : 36 x 0,1467
         # + 3/365 x 190,32 = 6,85 €.
         "totalenergies_access:hphc",
+        # Gaz de Bordeaux NovaFlex HC (#373, indexée TRV, kWh HT -5 %) : 36 x 0,1528
+        # + 3/365 x 190,44 = 7,07 €.
+        "gaz_de_bordeaux_novaflex:hphc",
         # EDF Zen Online HC (#122, indexée TRV) : 36 x 0,1531 + 3/365 x 190,32 = 7,076 €,
         # devant Plenitude HC (7,082 €) bien qu'à égalité au centime.
         "edf_zen_online:hphc",
@@ -173,6 +176,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Hunélec HC (#326) : 36 x 0,19129 + 3/365 x 191,52 = 8,46 € ;
         # 100 % vert (#328) : + 2,27 €/mois = 8,68 € ; TRV Base : 8,77 €.
         "hunelec_prix_fixe_1an:hphc",
+        # Gaz de Bordeaux NovaFlex Base (#100) : 36 x 0,1919 + 3/365 x 190,44 = 8,47 €.
+        "gaz_de_bordeaux_novaflex:base",
         # EDF Zen Online Base (#21) : 36 x 0,1925 + 3/365 x 190,32 = 8,49 €.
         "edf_zen_online:base",
         # TRV local Energis Base (#200) : 36 x 0,19522 + 3/365 x 190,32 = 8,59 €.
