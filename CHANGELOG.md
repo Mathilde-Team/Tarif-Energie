@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **Offre papernest énergie Électricité verte 1 an** (#67 Base, #169 HC) : prix fixe 12 mois, grille TTC du 22/09/2026. Pas d'option HC en 3 kVA. Ses prix sont très au-dessus du TRV : elle arrive dernière du classement des tests.
 - **TRV local Énergies Services Lavaur** (#212 Base, #213 HC) : Tarif Bleu résidentiel de Lavaur et Saint-Paul-Cap-de-Joux, grille du 01/08/2026 (tableaux en image, kWh en cts €). Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#214) n'est pas repris.
 - **TRV local SIEL Labergement-Sainte-Marie** (#313 Base, #314 HC) : grille du 01/08/2026, abonnements annuels. HC dès 3 kVA, avec le même abonnement qu'en Base ; Base 9-36 kVA en extinction. Tempo (#315) et EJP ne sont pas repris.
 - **TRV local SICAP Pithiviers** (#310 Base, #311 HC) : grille du 01/08/2026, abonnements mensuels. HC dès 3 kVA ; Base 9-36 kVA en extinction. Tempo (#312) n'est pas repris.

@@ -265,7 +265,11 @@ async def test_capteurs(hass: HomeAssistant):
         "selia_elec_vert_fixe:base",
         # ÉS Base (#73) : 36 x 0,30216 + 3/365 x 191,40 = 12,45 € ; régionale (#74) : 12,67 €.
         "es_verte_fixe_1an:base",
+        # papernest HC (#169) : 36 x 0,24528 + 3/365 x 464,40 = 12,65 €, juste devant
+        # ÉS 100 % régionale Base (12,67 €) ; papernest Base (#67) : 13,93 €, dernière.
+        "papernest_verte_1an:hphc",
         "es_verte_regionale_fixe_1an:base",
+        "papernest_verte_1an:base",
     ]
     assert "2026-10-01" in economie.attributes["indisponibles"]["geg_elec_verte_3ans:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["geg_direct_producteur_3ans:hphc"]
