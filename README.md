@@ -55,8 +55,8 @@ les offres **à prix fixe** avec options Base et Heures creuses — 23 offres :
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr
-Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise et Energis
-(Saint-Avold).
+Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, Energis (Saint-Avold)
+et Gascogne Énergies Services (Aire-sur-l'Adour).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,

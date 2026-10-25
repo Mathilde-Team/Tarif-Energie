@@ -86,6 +86,8 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Barr HC (#198) : 36 x 0,1589 + 3/365 x 192,48 = 7,30 €, juste
         # derrière le TRV national HC (abonnement un peu plus cher).
         "barr_trv_local:hphc",
+        # TRV local Gascogne HC (#206) : abonnement annuel 192,59 €, total 7,30 €.
+        "gascogne_trv_local:hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
         "sicae_oise_trv_local:hphc",
         # TRV local ÉS HC (#190) : 36 x 0,15890 + 3/365 x 194,16 = 7,316 €, juste
@@ -119,6 +121,9 @@ async def test_capteurs(hass: HomeAssistant):
         # centime avec le TRV national Base ; départage par le nom de l'option.
         "barr_trv_local:base",
         "base",
+        # TRV local Gascogne Base (#205) : 36 x 0,2001 + 3/365 x 190,35 = 8,77 €, à égalité
+        # au centime avec le TRV national Base ; départage par le nom de l'option.
+        "gascogne_trv_local:base",
         # TRV local Gedia Base (#192) : 36 x 0,20006 + 3/365 x 190,32 = 8,77 €, à égalité au
         # centime avec le TRV national Base ; départage par le nom de l'option.
         "gedia_trv_local:base",
