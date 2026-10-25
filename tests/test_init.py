@@ -55,7 +55,8 @@ async def test_capteurs(hass: HomeAssistant):
     assert base.attributes["grilles"] == ["2026-08-01"]
     # Offres de marché (issues #40, #44, #63, #64 et lot 2) : à cette consommation
     # nocturne, Primeo Fixe Confort HC (13,44 c€) est la moins chère ; les grilles
-    # postérieures au 3 octobre (GEG 05/10, Ohm 14/10 et 16/10, GEDIA 19/10) sont indisponibles.
+    # postérieures au 3 octobre (GEG 05/10, Ohm 14/10 et 16/10, Octopus Eco Fixe Plus 12/10,
+    # GEDIA 19/10) sont indisponibles.
     prudence = hass.states.get("sensor.maison_12_month_cost_la_bellenergie_prudence_off_peak")
     assert prudence is not None
     assert prudence.state == "7.15"
@@ -73,10 +74,21 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_prudence:hphc",
         "alterna_fixe_1an:hphc",
         "hphc",
+        # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
+        "sicae_oise_trv_local:hphc",
+        # TRV local ÉS HC (#190) : 36 x 0,15890 + 3/365 x 194,16 = 7,316 €, juste
+        # après le TRV national HC (abonnement un peu plus cher).
+        "es_trv_local:hphc",
+        # Octopus Eco Fixe HC (#139) : 36 x 0,1613 + 3/365 x 190,32 = 7,37 €.
+        "octopus_eco_fixe_oct2026:hphc",
         "alterna_du_coin_1an:hphc",
         "la_bellenergie_constance:hphc",
+        # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
+        "edf_zen_fixe_2ans:hphc",
         "la_bellenergie_garance:hphc",
         "primeo_fixe_confort:base",
+        # TotalEnergies Fixe 2 ans HC (#126) : 36 x 0,1791 + 3/365 x 192,60 = 8,03 €.
+        "totalenergies_fixe_2ans:hphc",
         # Gaz de Bordeaux NovaFixe Base (#111, #99) : 36 x 0,18373 + 3/365 x 190,44 = 8,18 €.
         "gaz_de_bordeaux_novafixe:base",
         "gaz_de_bordeaux_novafixe_bonus:base",
@@ -87,11 +99,23 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_prudence:base",
         "alterna_fixe_1an:base",
         "hunelec_prix_fixe_1an_vert:hphc",
+        # TotalEnergies Verte Fixe HC (#133) : 36 x 0,1992 + 3/365 x 192,60 = 8,75 €.
+        "totalenergies_verte_fixe:hphc",
         "base",
+        # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.
+        "sicae_oise_trv_local:base",
+        # TRV local ÉS Base (#72) : 36 x 0,20006 + 3/365 x 191,40 = 8,775 € (TRV national : 8,772 €).
+        "es_trv_local:base",
         "alterna_du_coin_1an:base",
         "la_bellenergie_constance:base",
+        # Octopus Eco Fixe Base (#30) : 36 x 0,2033 + 3/365 x 190,32 = 8,88 €.
+        "octopus_eco_fixe_oct2026:base",
+        # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
+        "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
         "selia_elec_vert_fixe:hphc",
+        # TotalEnergies Fixe 2 ans Base (#25) : 36 x 0,2270 + 3/365 x 190,32 = 9,74 €.
+        "totalenergies_fixe_2ans:base",
         "ilek_enrfixe_plus:hphc",
         # Hunélec Base (#325, #327) : 36 x 0,23506 + 3/365 x 188,88 = 10,01 € (vert : 10,24 €).
         "hunelec_prix_fixe_1an:base",
@@ -100,6 +124,8 @@ async def test_capteurs(hass: HomeAssistant):
         "es_verte_fixe_1an:hphc",
         "hunelec_prix_fixe_1an_vert:base",
         "es_verte_regionale_fixe_1an:hphc",
+        # TotalEnergies Verte Fixe Base (#95) : 36 x 0,2540 + 3/365 x 145,56 = 10,71 €.
+        "totalenergies_verte_fixe:base",
         "ilek_enrfixe_plus:base",
         "selia_elec_vert_fixe:base",
         # ÉS Base (#73) : 36 x 0,30216 + 3/365 x 191,40 = 12,45 € ; régionale (#74) : 12,67 €.
@@ -109,6 +135,8 @@ async def test_capteurs(hass: HomeAssistant):
     assert "2026-10-01" in economie.attributes["indisponibles"]["geg_elec_verte_3ans:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["ohm_serente_fixe_1an:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["gedia_all_inclusive:hphc"]
+    # Octopus Eco Fixe Plus (#29, #138) : grille du 12/10/2026, postérieure à la période.
+    assert "2026-10-01" in economie.attributes["indisponibles"]["octopus_eco_fixe_plus_oct2026:base"]
     assert hass.states.get("sensor.maison_12_month_consumption").state == "36.0"
     assert hass.states.get("sensor.maison_off_peak_share").state == "100.0"
     assert await hass.config_entries.async_unload(entree.entry_id)
