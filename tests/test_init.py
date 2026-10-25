@@ -76,6 +76,8 @@ async def test_capteurs(hass: HomeAssistant):
         "es_trv_local:hphc",
         "alterna_du_coin_1an:hphc",
         "la_bellenergie_constance:hphc",
+        # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
+        "edf_zen_fixe_2ans:hphc",
         "la_bellenergie_garance:hphc",
         "primeo_fixe_confort:base",
         "plenitude_pleniweb_1an:base",
@@ -92,6 +94,8 @@ async def test_capteurs(hass: HomeAssistant):
         "es_trv_local:base",
         "alterna_du_coin_1an:base",
         "la_bellenergie_constance:base",
+        # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
+        "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
         "selia_elec_vert_fixe:hphc",
         "ilek_enrfixe_plus:hphc",
