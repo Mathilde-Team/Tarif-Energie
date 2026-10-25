@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local Vialis** (#245 Base, #246 HC) : Tarif Bleu résidentiel de Colmar et environs, grille du 01/08/2026. Base publiée de 3 à 15 kVA seulement (9-15 kVA en extinction) ; HC de 6 à 36 kVA. Tempo (#247) n'est pas repris.
 - **TRV local UEM** (#242 Base, #243 HC) : Tarif Bleu résidentiel du réseau réséda (Metz), grille du 01/08/2026, primes fixes en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#244) n'est pas repris.
 - **Offre Mint Énergie Smart & Green** (#36, #144), Base et Heures creuses : grille TTC du 08/10/2026, fixe 2 ans. Le kWh Base vaut 20,15 c€ de 3 à 6 kVA et 20,02 c€ au-delà. La réduction de 60 € et la majoration au renouvellement ne sont pas modélisées.
 - **Offre Mint Énergie Classic & Green** (#34, #142), Base et Heures creuses : grille TTC du 08/10/2026 (PDF officiel). Le kWh Base vaut 19,37 c€ de 3 à 6 kVA et 19,24 c€ au-delà ; pas d'HC en 3 kVA. La réduction de 50 € et la majoration au renouvellement ne sont pas modélisées.
