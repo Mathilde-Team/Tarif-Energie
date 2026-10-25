@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **TRV local Régie de Marange-Silvange** (#265 Base, #266 HC) : Tarif Bleu résidentiel de Marange-Silvange, grille du 01/08/2026, primes fixes en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#267) n'est pas repris.
 - **TRV local Énergies & Services Sarre-Union** (#257 Base, #258 HC) : Tarif Bleu résidentiel de Sarre-Union, grille du 01/08/2026 (mêmes valeurs que ÉS). Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#259) n'est pas repris.
 - **TRV local Vialis** (#245 Base, #246 HC) : Tarif Bleu résidentiel de Colmar et environs, grille du 01/08/2026. Base publiée de 3 à 15 kVA seulement (9-15 kVA en extinction) ; HC de 6 à 36 kVA. Tempo (#247) n'est pas repris.
 - **TRV local UEM** (#242 Base, #243 HC) : Tarif Bleu résidentiel du réseau réséda (Metz), grille du 01/08/2026, primes fixes en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#244) n'est pas repris.

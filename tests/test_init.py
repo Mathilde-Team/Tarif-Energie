@@ -98,6 +98,8 @@ async def test_capteurs(hass: HomeAssistant):
         "gascogne_trv_local:hphc",
         # TRV local Lannemezan HC (#211) : 7,30 €.
         "lannemezan_trv_local:hphc",
+        # TRV local Marange-Silvange HC (#266) : 7,30 €.
+        "marange_silvange_trv_local:hphc",
         # TRV local SÉOLIS HC (#234) : 7,30 €.
         "seolis_trv_local:hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
@@ -143,6 +145,8 @@ async def test_capteurs(hass: HomeAssistant):
         "totalenergies_verte_fixe:hphc",
         # TRV local Amnéville Base (#221) : 8,76 €.
         "amneville_trv_local:base",
+        # TRV local Marange-Silvange Base (#265) : 8,76 €.
+        "marange_silvange_trv_local:base",
         # TRV local UEM Base (#242) : 8,76 €.
         "uem_trv_local:base",
         # TRV local Barr Base (#197) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €, à égalité au
