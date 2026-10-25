@@ -146,6 +146,8 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
         "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
+        # Engie Elec Référence 3 ans HC (#127) : 36 x 0,20683 + 3/365 x 215,79 = 9,22 €.
+        "engie_elec_reference_3ans:hphc",
         "selia_elec_vert_fixe:hphc",
         # TotalEnergies Fixe 2 ans Base (#25) : 36 x 0,2270 + 3/365 x 190,32 = 9,74 €.
         "totalenergies_fixe_2ans:base",
@@ -156,6 +158,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Hunélec vert Base (10,2385 €) ; ÉS 100 % régionale HC (#332) : 10,46 €.
         "es_verte_fixe_1an:hphc",
         "hunelec_prix_fixe_1an_vert:base",
+        # Engie Elec Référence 3 ans Base (#28) : 36 x 0,24205 + 3/365 x 195,18 = 10,32 €.
+        "engie_elec_reference_3ans:base",
         "es_verte_regionale_fixe_1an:hphc",
         # TotalEnergies Verte Fixe Base (#95) : 36 x 0,2540 + 3/365 x 145,56 = 10,71 €.
         "totalenergies_verte_fixe:base",

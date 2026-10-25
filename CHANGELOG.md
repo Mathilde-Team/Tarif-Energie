@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **Offre Engie Elec Référence 3 ans** (#28, #127), Base et Heures creuses : grille d'octobre 2026 de la fiche descriptive. Seule la fourniture est fixe 3 ans (« prix fixe de la part de l'électricité », comme Ohm Fixe 2 ans). Chaque total TTC additionne fourniture, acheminement et obligations au prix de souscription, avec l'acheminement courant : CU en Base, MUDT en Heures creuses. Les options CU4 et MU4 ne sont pas reprises.
 - **TRV local Énergies Services Lannemezan** (#210 Base, #211 HC) : Tarif Bleu résidentiel du plateau de Lannemezan, grille du 01/08/2026. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA.
 - **TRV local Gascogne Énergies Services** (#205 Base, #206 HC) : Tarif Bleu résidentiel d'Aire-sur-l'Adour, grille du 01/08/2026, abonnements publiés en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#207) n'est pas repris.
 - **TRV local Energis** (#200 Base, #201 HC) : Tarif Bleu résidentiel de Saint-Avold, grille du 01/08/2026. Base publiée en 3 et 6 kVA seulement (9-36 kVA en extinction) ; HC dès 3 kVA. Tempo (#202) n'est pas repris.
