@@ -5,6 +5,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **Offre Mint Énergie Smart & Green** (#36, #144), Base et Heures creuses : grille TTC du 08/10/2026, fixe 2 ans. Le kWh Base vaut 20,15 c€ de 3 à 6 kVA et 20,02 c€ au-delà. La réduction de 60 € et la majoration au renouvellement ne sont pas modélisées.
+- **Offre Mint Énergie Classic & Green** (#34, #142), Base et Heures creuses : grille TTC du 08/10/2026 (PDF officiel). Le kWh Base vaut 19,37 c€ de 3 à 6 kVA et 19,24 c€ au-delà ; pas d'HC en 3 kVA. La réduction de 50 € et la majoration au renouvellement ne sont pas modélisées.
 - **TRV local Synelva** (#239 Base, #240 HC) : Tarif Bleu résidentiel du pays chartrain, grille du 01/08/2026, abonnements en € TTC/an ; kWh un peu au-dessus du barème national (accise de 3,085 c€/kWh indiquée sur la grille). Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC de 6 à 36 kVA. EJP et Tempo (#241) ne sont pas repris.
 - **TRV local Sorégies** (#236 Base, #237 HC) : Tarif Bleu résidentiel du réseau SRD (Vienne), grille TTC du 01/08/2026. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#238) n'est pas repris.
 - **TRV local SÉOLIS** (#233 Base, #234 HC) : Tarif Bleu résidentiel du réseau Gérédis (Deux-Sèvres), grille du 01/08/2026, abonnements publiés en € TTC/an. Base 9-36 kVA en extinction mais publiée (contrats en cours) ; HC dès 3 kVA. Tempo (#235) n'est pas repris.
