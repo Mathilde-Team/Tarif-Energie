@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **Offre elmy Particuliers prix fixe 2 ans** (#104 Base, #176 HC) : prix fixe 24 mois, grille officielle du 01/08/2026. Plus proposée aux nouveaux particuliers ; contrats repris par Octopus Energy France en octobre 2026, prix garantis jusqu'au 31/10/2028.
 - **Offre Alpiq Électricité Sérénité** (#42 Base, #150 HC) : indexée sur le TRV, kWh HT au TRV -0,5 % et abonnement du TRV, grille du 01/08/2026 ; HC à partir de 6 kVA. L'option électricité verte n'est pas reprise.
 - **Offre TotalEnergies Heures Eco Électricité** (#94 Base, #132 HC) : indexée sur le TRV avec les mêmes prix, sans remise ni engagement, grille du 01/10/2026 ; HC à partir de 6 kVA.
 - **Offre Alterna Mon électricité française indexée** (#45 Base, #153 HC) : indexée sur le TRV, grille TTC du 01/09/2026, avec un abonnement propre à Alterna. L'option HC est proposée dès 3 kVA.

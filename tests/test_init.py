@@ -164,6 +164,8 @@ async def test_capteurs(hass: HomeAssistant):
         "primeo_fixe_confort:base",
         # TotalEnergies Fixe 2 ans HC (#126) : 36 x 0,1791 + 3/365 x 192,60 = 8,03 €.
         "totalenergies_fixe_2ans:hphc",
+        # elmy prix fixe 2 ans HC (#176) : 36 x 0,1848 + 3/365 x 180,12 = 8,13 €.
+        "elmy_prix_fixe_2ans:hphc",
         # Gaz de Bordeaux NovaFixe Base (#111, #99) : 36 x 0,18373 + 3/365 x 190,44 = 8,18 €.
         "gaz_de_bordeaux_novafixe:base",
         "gaz_de_bordeaux_novafixe_bonus:base",
@@ -272,6 +274,8 @@ async def test_capteurs(hass: HomeAssistant):
         "totalenergies_fixe_2ans:base",
         # Happ-e Électricité 1 an HC (#128) : 36 x 0,22398 + 3/365 x 214,35 = 9,83 €.
         "happe_elec_1an:hphc",
+        # elmy prix fixe 2 ans Base (#104) : 36 x 0,2323 + 3/365 x 190,32 = 9,93 €.
+        "elmy_prix_fixe_2ans:base",
         "ilek_enrfixe_plus:hphc",
         # Hunélec Base (#325, #327) : 36 x 0,23506 + 3/365 x 188,88 = 10,01 € (vert : 10,24 €).
         "hunelec_prix_fixe_1an:base",

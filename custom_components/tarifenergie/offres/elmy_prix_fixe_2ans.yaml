@@ -1,0 +1,32 @@
+# elmy Particuliers prix fixe 2 ans (issues #104 Base, #176 Heures creuses ;
+# inventaire #6). Électricité 100 % renouvelable et française ; prix HT de la part
+# électricité fixe 2 ans à compter de la souscription. Plus proposée aux nouveaux
+# particuliers : contrats repris par Octopus Energy France en octobre 2026, sans
+# modification contractuelle, prix garantis jusqu'au 31/10/2028 (annonce du
+# 11/09/2026). Grille « valable à compter du 01/08/2026 », relevée le 25/10/2026
+# avec pdftotext -layout. kWh Base : 0,2323 € en 3 et 6 kVA, 0,2307 € de 9 à
+# 36 kVA. Pas d'HC en 3 kVA. TTC « susceptibles d'évoluer en fonction des taxes
+# et du TURPE » : grille affichée retenue.
+id: elmy_prix_fixe_2ans
+fournisseur: elmy
+offre: Particuliers prix fixe 2 ans
+type_prix: fixe
+grille_du: 2026-08-01
+duree_fixite_mois: 24
+source: https://storage.googleapis.com/elmy/Documents/Grilles%20tarifaires/78ec5267-5bed-4a89-b3b8-7ce2353a595d.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.20, 6: 15.86, 9: 19.81, 12: 23.83, 15: 27.58, 18: 31.31, 24: 39.57, 30: 46.59, 36: 54.90}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2323}
+      6: {base: 0.2323}
+      9: {base: 0.2307}
+      12: {base: 0.2307}
+      15: {base: 0.2307}
+      18: {base: 0.2307}
+      24: {base: 0.2307}
+      30: {base: 0.2307}
+      36: {base: 0.2307}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.01, 9: 18.57, 12: 22.01, 15: 25.26, 18: 28.47, 24: 35.30, 30: 41.36, 36: 47.49}
+    kwh_ttc: {hp: 0.2489, hc: 0.1848}

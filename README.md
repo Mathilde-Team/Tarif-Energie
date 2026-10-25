@@ -75,6 +75,7 @@ Les offres **indexées sur le TRV** (`type_prix: indexe_trv`) n'ont pas de duré
 pas de réseau `eld:`. Leur grille TTC datée est à mettre à jour à chaque mouvement du TRV :
 EDF Zen Online (Base de 3 à 15 kVA, HC de 6 à 36 kVA), TotalEnergies Access Électricité
 (kWh HT remisé de 10 % pendant 3 ans), TotalEnergies Heures Eco Électricité (prix du TRV),
+elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients),
 Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée et
 Alpiq Électricité Sérénité (kWh HT -0,5 %).
 
