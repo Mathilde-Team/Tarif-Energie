@@ -1,0 +1,27 @@
+# Gaz de Bordeaux NovaFlex Élec (issues #100 Base, #373 Heures creuses ; inventaire #6).
+# Offre indexée sur le TRV (typologie CRE) : abonnement et kWh HT suivent le TRV,
+# kWh HT 5 % moins cher que le TRV ; offre de 2 ans, sans engagement. Fiche
+# descriptive « souscription entre le 01/10/2026 et le 31/10/2026 pour BORDEAUX »
+# (TTC maximum indicatif, taxes locales variables). Base de 3 à 15 kVA seulement,
+# HC de 6 à 36 kVA. Nouvelle fiche chaque mois : grille à relever à nouveau.
+# Fiche FT_NOVAFLEXE2__33000_33063_2026_10_01.pdf (formulaire de la page) ; mêmes
+# abonnements que NovaFixe Élec (#111, #372), kWh à mi-chemin entre le TRV et
+# NovaFixe (-10 % HT), cohérents avec la remise de 5 %.
+id: gaz_de_bordeaux_novaflex
+fournisseur: Gaz de Bordeaux
+offre: NovaFlex Élec
+type_prix: indexe_trv
+grille_du: 2026-10-01
+source: https://www.gazdebordeaux.fr/nos-offres-d-energie/electricite
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.13, 6: 15.87, 9: 19.88, 12: 23.76, 15: 27.40}
+    kwh_ttc_par_puissance:
+      3: {base: 0.19190}
+      6: {base: 0.19190}
+      9: {base: 0.19042}
+      12: {base: 0.19042}
+      15: {base: 0.19042}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.87, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.13, 30: 46.46, 36: 53.88}
+    kwh_ttc: {hp: 0.20536, hc: 0.15280}

@@ -44,6 +44,7 @@ def test_quatre_offres_livrees(offres):
         "gascogne_trv_local",
         "gaz_de_bordeaux_novafixe",
         "gaz_de_bordeaux_novafixe_bonus",
+        "gaz_de_bordeaux_novaflex",
         "gedia_all_inclusive",
         "gedia_trv_local",
         "geg_direct_producteur_3ans",
@@ -223,6 +224,28 @@ def test_alpiq_serenite_trv_moins_un_demi_pourcent(offres):
     assert g.prix == {"hp": Decimal("0.213337"), "hc": Decimal("0.158293")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
         grilles["alpiq_serenite:hphc"].en_vigueur(3, jour)
+
+
+def test_gaz_de_bordeaux_novaflex_indexee_trv(offres):
+    """NovaFlex Élec (#100, #373) : fiche Bordeaux du 01/10/2026, kWh HT du TRV -5 %."""
+    offre = offres["gaz_de_bordeaux_novaflex"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["gaz_de_bordeaux_novaflex:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.44"),  # 15,87 x 12
+        {"base": Decimal("0.19190")},
+    )
+    assert grilles["gaz_de_bordeaux_novaflex:base"].en_vigueur(15, jour).prix == {"base": Decimal("0.19042")}
+    with pytest.raises(TarifIntrouvable, match="18 kVA"):  # Base de 3 à 15 kVA seulement
+        grilles["gaz_de_bordeaux_novaflex:base"].en_vigueur(18, jour)
+    g = grilles["gaz_de_bordeaux_novaflex:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.20536"), "hc": Decimal("0.15280")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["gaz_de_bordeaux_novaflex:hphc"].en_vigueur(3, jour)
 
 
 def test_totalenergies_heures_eco_reprend_le_trv(offres):
