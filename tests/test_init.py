@@ -76,6 +76,9 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Gedia HC (#193) : 36 x 0,15890 + 3/365 x 190,32 = 7,28 €, juste
         # devant le TRV national HC (7,29 €, abonnement un peu plus cher).
         "gedia_trv_local:hphc",
+        # TRV local GEG HC (#196) : 36 x 0,1589 + 3/365 x 190,80 = 7,29 €, à égalité au
+        # centime avec le TRV national HC ; départage par le nom de l'option.
+        "geg_trv_local:hphc",
         "hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
         "sicae_oise_trv_local:hphc",
@@ -108,6 +111,9 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Gedia Base (#192) : 36 x 0,20006 + 3/365 x 190,32 = 8,77 €, à égalité au
         # centime avec le TRV national Base ; départage par le nom de l'option.
         "gedia_trv_local:base",
+        # TRV local GEG Base (#195) : 36 x 0,2001 + 3/365 x 190,80 = 8,77 €, à égalité au
+        # centime avec le TRV national Base ; départage par le nom de l'option.
+        "geg_trv_local:base",
         # TRV local SICAE Oise (#298, #299) Base : 36 x 0,2001 + 3/365 x 190,36 €.
         "sicae_oise_trv_local:base",
         # TRV local ÉS Base (#72) : 36 x 0,20006 + 3/365 x 191,40 = 8,775 € (TRV national : 8,772 €).

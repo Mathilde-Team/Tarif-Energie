@@ -55,6 +55,7 @@ les offres **à prix fixe** avec options Base et Heures creuses — 23 offres :
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux) et
+GEG (GreenAlp, Grenoble).
 Gedia (Dreux).
 SICAE Oise.
 
