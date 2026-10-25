@@ -48,7 +48,8 @@ les offres **à prix fixe** avec options Base et Heures creuses — 18 offres :
 - ilek ÉnRFixe+ Élec,
 - Primeo Energie Offre Fixe Confort,
 - Eni Plenitude Pleniweb 1 an,
-- SÉLIA Mon Contrat élec vert Fixe.
+- SÉLIA Mon Contrat élec vert Fixe,
+- TotalEnergies Fixe 2 ans.
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux) et
