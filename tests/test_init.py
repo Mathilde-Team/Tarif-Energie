@@ -80,6 +80,9 @@ async def test_capteurs(hass: HomeAssistant):
         # centime avec le TRV national HC ; départage par le nom de l'option.
         "geg_trv_local:hphc",
         "hphc",
+        # TRV local Barr HC (#198) : 36 x 0,1589 + 3/365 x 192,48 = 7,30 €, juste
+        # derrière le TRV national HC (abonnement un peu plus cher).
+        "barr_trv_local:hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
         "sicae_oise_trv_local:hphc",
         # TRV local ÉS HC (#190) : 36 x 0,15890 + 3/365 x 194,16 = 7,316 €, juste
@@ -107,6 +110,9 @@ async def test_capteurs(hass: HomeAssistant):
         "hunelec_prix_fixe_1an_vert:hphc",
         # TotalEnergies Verte Fixe HC (#133) : 36 x 0,1992 + 3/365 x 192,60 = 8,75 €.
         "totalenergies_verte_fixe:hphc",
+        # TRV local Barr Base (#197) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €, à égalité au
+        # centime avec le TRV national Base ; départage par le nom de l'option.
+        "barr_trv_local:base",
         "base",
         # TRV local Gedia Base (#192) : 36 x 0,20006 + 3/365 x 190,32 = 8,77 €, à égalité au
         # centime avec le TRV national Base ; départage par le nom de l'option.
