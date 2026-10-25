@@ -29,6 +29,7 @@ def test_quatre_offres_livrees(offres):
         "alterna_du_coin_1an",
         "alterna_fixe_1an",
         "edf_zen_fixe_2ans",
+        "es_trv_local",
         "es_verte_fixe_1an",
         "es_verte_regionale_fixe_1an",
         "gedia_all_inclusive",
@@ -44,6 +45,7 @@ def test_quatre_offres_livrees(offres):
         "plenitude_pleniweb_1an",
         "primeo_fixe_confort",
         "selia_elec_vert_fixe",
+        "sicae_oise_trv_local",
     ]
     assert all(o.grilles["base"] for o in offres.values())
 
@@ -112,6 +114,72 @@ def test_gedia_grille_du_19_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.28965"), "hc": Decimal("0.21082")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["gedia_all_inclusive:hphc"].en_vigueur(3, jour)
+
+
+def test_es_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local ÉS (#72, #190) : type « reglemente », sans durée de fixité, HC dès 3 kVA."""
+    offre = offres["es_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == (
+        "reglemente",
+        "strasbourg_electricite_reseaux",
+        None,
+    )
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("191.40"),  # 15,95 x 12
+        {"base": Decimal("0.20006")},
+    )
+    assert grilles["es_trv_local:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.19850")}
+    g = grilles["es_trv_local:hphc"].en_vigueur(3, jour)  # HC proposée dès 3 kVA
+    assert g.abonnement_an == Decimal("147.48")  # 12,29 x 12
+    assert g.prix == {"hp": Decimal("0.21422"), "hc": Decimal("0.15890")}
+
+
+def test_sicae_oise_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local SICAE Oise (#298, #299) : Base en 3 et 6 kVA seulement, HC dès 3 kVA."""
+    offre = offres["sicae_oise_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", "sicae_oise", None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["sicae_oise_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.36"),
+        {"base": Decimal("0.2001")},
+    )
+    g = grilles["sicae_oise_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("659.92")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    with pytest.raises(TarifIntrouvable, match="9 kVA"):
+        grilles["sicae_oise_trv_local:base"].en_vigueur(9, jour)
+    assert grilles["sicae_oise_trv_local:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("146.68")
+
+
+@pytest.mark.parametrize(
+    ("extra", "chemin_fautif"),
+    [
+        ({"duree_fixite_mois": 12, "eld": "x"}, "offre.duree_fixite_mois"),  # sans objet pour un TRV
+        ({}, "offre.eld"),  # réseau de l'ELD exigé
+    ],
+)
+def test_trv_local_invalide(extra, chemin_fautif):
+    from datetime import date
+
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "TRV local",
+        "type_prix": "reglemente",
+        "grille_du": date(2026, 8, 1),
+        "source": "https://exemple.fr/trv.pdf",
+        "options": {"base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}}},
+        **extra,
+    }
+    with pytest.raises(OffreInvalide, match=chemin_fautif):
+        offre_depuis_dict(donnees, "x")
 
 
 def test_abonnement_annuel_et_mensuel_exclusifs():
