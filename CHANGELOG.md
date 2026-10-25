@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Ajouté
+- **Offres Octopus Energy Eco Fixe Octobre 2026 et Eco Fixe Plus Octobre 2026** (#30, #139, #29, #138), Base et Heures creuses. Les grilles officielles du 30/09/2026 et du 12/10/2026 ont été vérifiées sur les PDF ; abonnement et kWh HTT fixes 24 mois. Le kWh Base change entre 6 et 7 kVA (cellules fusionnées du PDF). L'option HC est proposée dès 3 kVA. Ces offres sont réservées au territoire Enedis.
 - **Offre TotalEnergies Fixe 2 ans** (#25 Base, #126 Heures creuses) : grille officielle du 24/09/2026, vérifiée sur le PDF ; abonnement et kWh HT fixes 24 mois. Pas d'HC en 3 kVA. Les puissances réservées aux compteurs Linky (4, 5, 7 kVA…) ne sont pas reprises.
 - **Offre EDF Zen Fixe 2 ans** (#8 Base, #114 Heures creuses) : grille TTC du 01/10/2026 (nouvelles souscriptions), vérifiée sur le PDF EDF ; kWh HT fixe pendant 25 mois. Pas d'HC en 3 kVA. Les majorations (injection, sans Linky, sans index sur 12 mois) et les évolutions possibles de l'abonnement ne sont pas modélisées.
 - **TRV local SICAE Oise** (#298 Base, #299 HC) : grille du 01/08/2026, abonnements en €/an, lue sur le rendu du PDF. Base en 3 et 6 kVA seulement, HC dès 3 kVA. Tempo (#300) n'est pas repris.
