@@ -58,7 +58,7 @@ S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_p
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr
 Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, Energis
 (Saint-Avold), Gascogne Énergies Services (Aire-sur-l'Adour), Énergies Services Lannemezan (plateau
-de Lannemezan) et Oya énergies.
+de Lannemezan), Oya énergies et Bazas Energies (Bazas).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,

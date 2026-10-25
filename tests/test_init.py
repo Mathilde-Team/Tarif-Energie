@@ -88,6 +88,8 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Barr HC (#198) : 36 x 0,1589 + 3/365 x 192,48 = 7,30 €, juste
         # derrière le TRV national HC (abonnement un peu plus cher).
         "barr_trv_local:hphc",
+        # TRV local Bazas HC (#219) : 7,30 €.
+        "bazas_trv_local:hphc",
         # TRV local Gascogne HC (#206) : abonnement annuel 192,59 €, total 7,30 €.
         "gascogne_trv_local:hphc",
         # TRV local Lannemezan HC (#211) : 7,30 €.
@@ -125,6 +127,9 @@ async def test_capteurs(hass: HomeAssistant):
         # centime avec le TRV national Base ; départage par le nom de l'option.
         "barr_trv_local:base",
         "base",
+        # TRV local Bazas Base (#218) : 8,77 €, à égalité au centime avec
+        # TRV national Base ; départage par le nom de l'option.
+        "bazas_trv_local:base",
         # TRV local Gascogne Base (#205) : 36 x 0,2001 + 3/365 x 190,35 = 8,77 €, à égalité
         # au centime avec le TRV national Base ; départage par le nom de l'option.
         "gascogne_trv_local:base",
