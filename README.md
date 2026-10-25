@@ -35,7 +35,7 @@ Avec moins de 12 mois d'historique, les coûts portent sur la période disponibl
 Les grilles des fournisseurs sont livrées dans `custom_components/tarifenergie/offres/*.yaml`
 (inventaire [#6](https://github.com/Mathide-Team/tarifenergie/issues/6), moteur [#5](https://github.com/Mathide-Team/tarifenergie/issues/5)) :
 une issue par offre documente la grille, sa date d'effet et ses sources. La v0.2 couvre
-les offres **à prix fixe** avec options Base et Heures creuses — 27 offres :
+les offres **à prix fixe** avec options Base et Heures creuses — 28 offres :
 
 - la bellenergie Prudence 1 an, Constance 2 ans et Garance 3 ans,
 - Octopus Energy Eco Fixe Octobre 2026 et Eco Fixe Plus Octobre 2026 (territoire Enedis),
@@ -46,7 +46,7 @@ les offres **à prix fixe** avec options Base et Heures creuses — 27 offres :
 - ÉS Énergies Électricité verte à prix fixe 1 an et sa variante 100 % régionale (Strasbourg Électricité Réseaux),
 - Gaz de Bordeaux NovaFixe Élec et NovaFixe Bonus Élec (fiche de Bordeaux),
 - GEDIA All Inclusive GES Électricité (réseau GEDIA, Dreux ; abonnement publié en €/an),
-- GEG Mon Offre Elec Verte fixe 3 ans (kWh HC/HP selon la puissance),
+- GEG Mon Offre Elec Verte fixe 3 ans et sa variante Direct Producteur (kWh HC/HP selon la puissance),
 - Hunélec Offre à prix fixe 1 an et sa variante 100 % énergie verte (réseau Hunélec, Haut-Rhin),
 - ilek ÉnRFixe+ Élec,
 - Mint Énergie Classic & Green et Smart & Green,
