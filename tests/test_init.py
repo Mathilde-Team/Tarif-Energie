@@ -106,6 +106,8 @@ async def test_capteurs(hass: HomeAssistant):
         "soregies_trv_local:hphc",
         # TRV local Synelva HC (#240) : 7,30 €.
         "synelva_trv_local:hphc",
+        # TRV local UEM HC (#243) : 7,30 €.
+        "uem_trv_local:hphc",
         # TRV local ÉS HC (#190) : 36 x 0,15890 + 3/365 x 194,16 = 7,316 €, juste
         # après le TRV national HC (abonnement un peu plus cher).
         "es_trv_local:hphc",
@@ -135,6 +137,8 @@ async def test_capteurs(hass: HomeAssistant):
         "totalenergies_verte_fixe:hphc",
         # TRV local Amnéville Base (#221) : 8,76 €.
         "amneville_trv_local:base",
+        # TRV local UEM Base (#242) : 8,76 €.
+        "uem_trv_local:base",
         # TRV local Barr Base (#197) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €, à égalité au
         # centime avec le TRV national Base ; départage par le nom de l'option.
         "barr_trv_local:base",

@@ -60,7 +60,8 @@ sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électr
 Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, Energis
 (Saint-Avold), Gascogne Énergies Services (Aire-sur-l'Adour), Énergies Services Lannemezan (plateau
 de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amnéville), SÉOLIS (réseau
-Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne) et Synelva (pays chartrain).
+Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartrain) et UEM (réseau
+réséda, Metz).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
