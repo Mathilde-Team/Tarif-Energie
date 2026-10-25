@@ -233,6 +233,7 @@ async def test_capteurs(hass: HomeAssistant):
     ]
     assert "2026-10-01" in economie.attributes["indisponibles"]["geg_elec_verte_3ans:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["ohm_serente_fixe_1an:base"]
+    assert "2026-10-01" in economie.attributes["indisponibles"]["ohm_premiohm:hphc"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["gedia_all_inclusive:hphc"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["mint_classic_green:base"]
     assert "2026-10-01" in economie.attributes["indisponibles"]["mint_smart_green:hphc"]

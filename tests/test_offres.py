@@ -59,6 +59,7 @@ def test_quatre_offres_livrees(offres):
         "octopus_eco_fixe_oct2026",
         "octopus_eco_fixe_plus_oct2026",
         "ohm_fixe_2ans",
+        "ohm_premiohm",
         "ohm_serente_fixe_1an",
         "oya_trv_local",
         "plenitude_pleniweb_1an",
@@ -141,6 +142,26 @@ def test_gedia_grille_du_19_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.28965"), "hc": Decimal("0.21082")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["gedia_all_inclusive:hphc"].en_vigueur(3, jour)
+
+
+def test_ohm_premiohm_grille_du_14_octobre_2026(offres):
+    """Ohm Premi'Ohm, grille TTC du 14/10/2026 (#39, #147) : kWh unique, fixe 3 ans."""
+    offre = offres["ohm_premiohm"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 36)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["ohm_premiohm:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 14).date(),
+        Decimal("190.56"),  # 15,88 x 12
+        {"base": Decimal("0.2287")},
+    )
+    assert grilles["ohm_premiohm:base"].en_vigueur(36, jour).prix == {"base": Decimal("0.2287")}
+    g = grilles["ohm_premiohm:hphc"].en_vigueur(6, jour)
+    assert g.abonnement_an == Decimal("192.84")  # 16,07 x 12
+    assert g.prix == {"hp": Decimal("0.2455"), "hc": Decimal("0.1799")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["ohm_premiohm:hphc"].en_vigueur(3, jour)
 
 
 def test_mint_classic_green_grille_du_8_octobre_2026(offres):
