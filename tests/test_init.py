@@ -96,6 +96,8 @@ async def test_capteurs(hass: HomeAssistant):
         # le TRV local le moins cher en HC (abonnement ELD sous le TRV national).
         "bitche_trv_local:hphc",
         "la_bellenergie_prudence:hphc",
+        # EDF Vert Électrique Régional HC (#119, révisable) : 36 x 0,1560 + 3/365 x 190,32 = 7,18 €.
+        "edf_vert_electrique_regional:hphc",
         "alterna_fixe_1an:hphc",
         # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
         # derrière Alterna fixe HC, à égalité au centime.
@@ -346,6 +348,8 @@ async def test_capteurs(hass: HomeAssistant):
         # donnerait 8,33 €, consommation du test sans vendredi).
         "edf_zen_week_end_plus:week_end_jour_lundi",
         "edf_zen_week_end_plus:week_end_jour_mercredi",
+        # EDF Vert Électrique Régional Base (#18) : 36 x 0,2037 + 3/365 x 190,32 = 8,90 €.
+        "edf_vert_electrique_regional:base",
         # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
         "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
