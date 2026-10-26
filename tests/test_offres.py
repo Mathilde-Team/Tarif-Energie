@@ -73,6 +73,7 @@ def test_quatre_offres_livrees(offres):
         "papernest_verte_1an",
         "plenitude_pleniweb_1an",
         "primeo_fixe_confort",
+        "primeo_fixe_eco_15",
         "sarre_union_trv_local",
         "selia_elec_vert_fixe",
         "seolis_trv_local",
@@ -329,6 +330,23 @@ def test_indexee_trv_invalide(extra, chemin_fautif):
     }
     with pytest.raises(OffreInvalide, match=chemin_fautif):
         offre_depuis_dict(donnees, "x")
+
+
+def test_primeo_fixe_eco_15_base_jusqu_a_juillet_2027(offres):
+    """Primeo Fixe ECO -15 % (#185) : prix fixe 18 mois, grille du 01/02/2026, Base seule."""
+    offre = offres["primeo_fixe_eco_15"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 18)
+    grilles = grilles_offres(offres)
+    assert "primeo_fixe_eco_15:hphc" not in grilles
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["primeo_fixe_eco_15:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 2, 1).date(),
+        Decimal("196.32"),  # 16,36 x 12
+        {"base": Decimal("0.1704")},
+    )
+    g = grilles["primeo_fixe_eco_15:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("658.32"), {"base": Decimal("0.1693")})
 
 
 def test_papernest_grille_du_22_septembre_2026(offres):
@@ -1346,8 +1364,9 @@ def test_cout_option_prudence_sur_un_kwh(offres):
 def test_comparaison_trv_contre_offres(offres):
     """Le classement mélange TRV et offres.
 
-    Avec 10 kWh dans la journée : Primeo Fixe Confort Base (16,74 c€, 241,92 €/an)
-    bat le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais grille du 05/10).
+    Avec 10 kWh dans la journée : Primeo Fixe ECO -15 % Base (17,04 c€, 196,32 €/an :
+    2,24 €) bat Primeo Fixe Confort Base (16,74 c€, 241,92 €/an : 2,34 €), le TRV Base
+    (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais grille du 05/10).
     """
     from custom_components.tarifenergie.const import OPTIONS
     from custom_components.tarifenergie.modele import Grilles as GrillesTRV
@@ -1355,7 +1374,8 @@ def test_comparaison_trv_contre_offres(offres):
     grilles = {option: GrillesTRV.charger(option) for option in OPTIONS}
     grilles.update(grilles_offres(offres))
     comp = comparer(grilles, 6, DIX_KWH, PLAGES, "base")
-    assert comp.moins_chere.option == "primeo_fixe_confort:base"
+    assert comp.moins_chere.option == "primeo_fixe_eco_15:base"
+    assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]
     assert comp.economie == (trv.total - moins_chere.total).quantize(Decimal("0.01"))

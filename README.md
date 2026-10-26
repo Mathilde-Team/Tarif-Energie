@@ -53,6 +53,7 @@ les offres **à prix fixe** avec options Base et Heures creuses — 30 offres :
 - ilek ÉnRFixe+ Élec,
 - Mint Énergie Classic & Green et Smart & Green,
 - Primeo Energie Offre Fixe Confort,
+- Primeo Energie Offre Fixe ECO -15 % (Base seule, grille du 01/02/2026, prix HT bloqués jusqu'au 31/07/2027),
 - Eni Plenitude Pleniweb 1 an,
 - papernest énergie Électricité verte 1 an,
 - SÉLIA Mon Contrat élec vert Fixe.
