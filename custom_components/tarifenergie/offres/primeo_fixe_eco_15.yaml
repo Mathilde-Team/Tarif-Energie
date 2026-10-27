@@ -1,0 +1,26 @@
+# Primeo Energie Offre Fixe ECO -15 % (issue #185, inventaire #6).
+# Prix HT de l'abonnement et du kWh bloqués jusqu'au 31/07/2027, hors taxes,
+# contributions et TURPE ; kWh HT = TRV HT du 01/02/2026 -15 %. Abonnement
+# au-dessus du TRV. Grille « Applicable à partir du 01/02/2026 », seule en ligne
+# au 26/10/2026 (API WordPress Primeo), relue en image : ses prix TTC n'intègrent
+# pas les évolutions de taxes ou de TURPE postérieures.
+id: primeo_fixe_eco_15
+fournisseur: Primeo Energie France
+offre: Offre Fixe ECO -15 %
+type_prix: fixe
+grille_du: 2026-02-01
+duree_fixite_mois: 18  # jusqu'au 31/07/2027 depuis le 01/02/2026
+source: https://particuliers.primeo-energie.fr/wp-content/uploads/GT_Offre-Fixe-ECO-15.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.59, 6: 16.36, 9: 20.44, 12: 24.36, 15: 28.04, 18: 31.85, 24: 39.95, 30: 47.39, 36: 54.86}
+    kwh_ttc_par_puissance:
+      3: {base: 0.1704}
+      6: {base: 0.1704}
+      9: {base: 0.1693}
+      12: {base: 0.1693}
+      15: {base: 0.1693}
+      18: {base: 0.1693}
+      24: {base: 0.1693}
+      30: {base: 0.1693}
+      36: {base: 0.1693}

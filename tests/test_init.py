@@ -164,6 +164,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
         "edf_zen_fixe_2ans:hphc",
         "la_bellenergie_garance:hphc",
+        # Primeo Fixe ECO -15 % Base (#185) : 36 x 0,1704 + 3/365 x 196,32 = 7,75 €,
+        # juste devant Primeo Fixe Confort Base.
+        "primeo_fixe_eco_15:base",
         "primeo_fixe_confort:base",
         # TotalEnergies Fixe 2 ans HC (#126) : 36 x 0,1791 + 3/365 x 192,60 = 8,03 €.
         "totalenergies_fixe_2ans:hphc",
