@@ -4,6 +4,12 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 
 ## [Non publié]
 
+### Corrigé
+- **Métadonnées** (#474) : `manifest.json` (`documentation`, `issue_tracker`) et liens du README pointent vers `Mathilde-Team/Tarif-Energie` (faute de frappe « Mathide-Team »).
+
+### Documentation
+- **Données et licences** (#474) : section du README sur la source et les conditions de réutilisation des TRV (open data CRE, attribution) et des grilles des fournisseurs.
+
 ### Ajouté
 - **Offre Primeo Energie Fixe ECO -15 %** (#185) : prix HT fixes jusqu'au 31/07/2027 (kWh HT du TRV de février 2026 -15 %), grille TTC du 01/02/2026, seule en ligne, Base de 3 à 36 kVA. Ses prix TTC ne suivent pas les évolutions de taxes ou de TURPE postérieures. L'option HP/HC et l'option Energie Verte n'ont pas d'issue dans ce dépôt et ne sont pas reprises.
 - **Offre Gaz de Bordeaux NovaFlex Élec** (#100 Base, #373 HC) : indexée sur le TRV (kWh HT -5 %, abonnement du TRV), fiche de Bordeaux du 01/10/2026. Base de 3 à 15 kVA, HC de 6 à 36 kVA. Les taxes locales des autres communes ne sont pas modélisées.
