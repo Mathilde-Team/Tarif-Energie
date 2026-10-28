@@ -304,11 +304,11 @@ def test_totalenergies_heures_eco_reprend_le_trv(offres):
 
 
 def test_totalenergies_speciale_reprend_le_trv(offres):
-    """TotalEnergies Spéciale Électricité et Gaz, partie élec — Base (#96) : copie de la grille d'Heures Eco.
+    """TotalEnergies Spéciale Électricité et Gaz, partie élec (#96, #134) : copie de la grille d'Heures Eco.
 
     Décision du 28/10/2026 (commentaire de #96) : un fichier par offre, avec une
     copie de la grille de la partie électricité (duale : seule l'électricité
-    entre dans le comparateur). Base seule ici ; le HP/HC est en #134, la partie
+    entre dans le comparateur). Base et HP/HC (#96, #134), la partie
     gaz est documentée hors moteur (#112). La remise annoncée de 10 % n'est pas
     modélisée (grille PDF hors remise).
     """
@@ -323,7 +323,11 @@ def test_totalenergies_speciale_reprend_le_trv(offres):
         {"base": Decimal("0.2001")},
     )
     assert grilles["totalenergies_speciale:base"].en_vigueur(36, jour).prix == {"base": Decimal("0.1985")}
-    assert "totalenergies_speciale:hphc" not in grilles  # option HP/HC en #134
+    g = grilles["totalenergies_speciale:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["totalenergies_speciale:hphc"].en_vigueur(3, jour)
 
 
 def test_alterna_indexee_grille_du_1er_septembre_2026(offres):
