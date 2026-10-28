@@ -43,6 +43,9 @@ class Grille:
     fin: date | None
     abonnement_an: Decimal
     prix: dict[str, Decimal]
+    # Jour de semaine du « jour choisi » (0 = lundi… 6 = dimanche), option des
+    # offres Zen Week-End Plus (#10, #116) : ``None`` pour les autres grilles.
+    jour_choisi: int | None = None
 
     def couvre(self, jour: date) -> bool:
         _LOGGER.debug("Grille.couvre: entrée")
