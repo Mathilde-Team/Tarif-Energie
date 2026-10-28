@@ -143,9 +143,13 @@ def _postes(d: dict[str, Any], chemin: str) -> dict[str, Decimal]:
 
 
 def _grilles_option(
-    donnees: dict[str, Any], chemin: str, cles: tuple[str, ...], debut: date
+    donnees: dict[str, Any], chemin: str, cles: tuple[str, ...], debut: date, option: str = ""
 ) -> dict[int, Grille]:
-    """Grilles d'une option de l'offre : abonnements mensuels x12, prix par poste."""
+    """Grilles d'une option de l'offre : abonnements mensuels x12, prix par poste.
+
+    L'option « week_end » exige exactement les deux postes semaine + week_end ;
+    les autres (« base », « hphc ») : base seul ou hp + hc.
+    """
     _LOGGER.debug("_grilles_option: entrée")
     abonnements = _puissances(donnees, chemin)
     grilles: dict[int, Grille] = {}
@@ -165,19 +169,25 @@ def _grilles_option(
                 _exiger(poste in POSTES, f"{chemin}[{puissance}]", f"poste inconnu : {poste}")
                 prix[poste] = _decimal(montant, f"{chemin}[{puissance}].{poste}")
             _exiger(
-                set(prix) <= {"base"} or set(prix) == {"hp", "hc"} or set(prix) == {"semaine", "week_end"},
+                set(prix) == {"semaine", "week_end"}
+                if option == "week_end"
+                else set(prix) <= {"base"} or set(prix) == {"hp", "hc"},
                 f"{chemin}[{puissance}]",
-                "base, hp+hc ou semaine+week_end attendus",
+                "semaine+week_end attendus (option week_end)"
+                if option == "week_end"
+                else "base OU hp+hc attendus",
             )
             grilles[puissance] = Grille(cles, puissance, debut, None, abonnements[puissance], prix)
     else:
         prix_uniforme = _postes(donnees, chemin)
         _exiger(
-            set(prix_uniforme) <= {"base"}
-            or set(prix_uniforme) == {"hp", "hc"}
-            or set(prix_uniforme) == {"semaine", "week_end"},
+            set(prix_uniforme) == {"semaine", "week_end"}
+            if option == "week_end"
+            else set(prix_uniforme) <= {"base"} or set(prix_uniforme) == {"hp", "hc"},
             chemin,
-            "base, hp+hc ou semaine+week_end attendus",
+            "semaine+week_end attendus (option week_end)"
+            if option == "week_end"
+            else "base OU hp+hc attendus",
         )
         for puissance, abonnement in abonnements.items():
             grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme)
@@ -248,7 +258,11 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
         if option not in options:
             continue
         grilles_option = _grilles_option(
-            options[option], f"offre.options.{option}", f"{ident}:{option}", donnees["grille_du"]
+            options[option],
+            f"offre.options.{option}",
+            f"{ident}:{option}",
+            donnees["grille_du"],
+            option,
         )
         _exiger(grilles_option != {}, f"offre.options.{option}", "aucune puissance définie")
         grilles[option] = Grilles(tuple(grilles_option[p] for p in sorted(grilles_option)))
