@@ -63,8 +63,18 @@ DOSSIER_OFFRES = Path(__file__).parent / "offres"
 # sans réseau ``eld``.
 TYPE_PRIX: tuple[str, ...] = ("fixe", "reglemente", "indexe_trv")
 SANS_FIXITE: tuple[str, ...] = ("reglemente", "indexe_trv")
-POSTES = ("base", "hp", "hc", "semaine", "week_end")
+POSTES = ("base", "hp", "hc", "semaine", "week_end", "semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc")
 MOIS_PAR_AN = Decimal("12")
+
+# Options à postes imposés : l'option exige exactement cet ensemble de postes
+# (« week_end » : #330 ; « week_end_hphc » : week-end ET heures creuses, #331).
+POSTES_PAR_OPTION: dict[str, tuple[frozenset[str], str]] = {
+    "week_end": (frozenset({"semaine", "week_end"}), "semaine+week_end attendus (option week_end)"),
+    "week_end_hphc": (
+        frozenset({"semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc"}),
+        "semaine_hp+semaine_hc+week_end_hp+week_end_hc attendus (option week_end_hphc)",
+    ),
+}
 
 
 class OffreInvalide(ValueError):
@@ -142,13 +152,29 @@ def _postes(d: dict[str, Any], chemin: str) -> dict[str, Decimal]:
     return postes
 
 
+def _exiger_postes(prix: dict[str, Decimal], option: str, chemin: str) -> None:
+    """Postes d'une option : ensemble imposé pour week_end/week_end_hphc, sinon base ou hp+hc."""
+    _LOGGER.debug("_exiger_postes: entrée")
+    if option in POSTES_PAR_OPTION:
+        attendus, message = POSTES_PAR_OPTION[option]
+        _exiger(set(prix) == attendus, chemin, message)
+    else:
+        _exiger(
+            set(prix) <= {"base"} or set(prix) == {"hp", "hc"},
+            chemin,
+            "base OU hp+hc attendus",
+        )
+    _LOGGER.debug("_exiger_postes: fin")
+
+
 def _grilles_option(
     donnees: dict[str, Any], chemin: str, cles: tuple[str, ...], debut: date, option: str = ""
 ) -> dict[int, Grille]:
     """Grilles d'une option de l'offre : abonnements mensuels x12, prix par poste.
 
-    L'option « week_end » exige exactement les deux postes semaine + week_end ;
-    les autres (« base », « hphc ») : base seul ou hp + hc.
+    Les options « week_end » et « week_end_hphc » exigent leurs postes exacts
+    (cf. ``POSTES_PAR_OPTION``) ; les autres (« base », « hphc ») : base seul
+    ou hp + hc.
     """
     _LOGGER.debug("_grilles_option: entrée")
     abonnements = _puissances(donnees, chemin)
@@ -168,27 +194,11 @@ def _grilles_option(
             for poste, montant in postes.items():
                 _exiger(poste in POSTES, f"{chemin}[{puissance}]", f"poste inconnu : {poste}")
                 prix[poste] = _decimal(montant, f"{chemin}[{puissance}].{poste}")
-            _exiger(
-                set(prix) == {"semaine", "week_end"}
-                if option == "week_end"
-                else set(prix) <= {"base"} or set(prix) == {"hp", "hc"},
-                f"{chemin}[{puissance}]",
-                "semaine+week_end attendus (option week_end)"
-                if option == "week_end"
-                else "base OU hp+hc attendus",
-            )
+            _exiger_postes(prix, option, f"{chemin}[{puissance}]")
             grilles[puissance] = Grille(cles, puissance, debut, None, abonnements[puissance], prix)
     else:
         prix_uniforme = _postes(donnees, chemin)
-        _exiger(
-            set(prix_uniforme) == {"semaine", "week_end"}
-            if option == "week_end"
-            else set(prix_uniforme) <= {"base"} or set(prix_uniforme) == {"hp", "hc"},
-            chemin,
-            "semaine+week_end attendus (option week_end)"
-            if option == "week_end"
-            else "base OU hp+hc attendus",
-        )
+        _exiger_postes(prix_uniforme, option, chemin)
         for puissance, abonnement in abonnements.items():
             grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme)
     _LOGGER.debug("_grilles_option: %s grille(s)", len(grilles))
@@ -249,12 +259,14 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     _texte(donnees, "source", "offre.source")
     options = donnees.get("options")
     _exiger(
-        isinstance(options, dict) and set(options) <= {"base", "hphc", "week_end"} and "base" in options,
+        isinstance(options, dict)
+        and set(options) <= {"base", "hphc", "week_end", "week_end_hphc"}
+        and "base" in options,
         "offre.options",
-        "base attendue, hphc et week_end facultatives",
+        "base attendue ; hphc, week_end et week_end_hphc facultatives",
     )
     grilles: dict[str, Grilles] = {}
-    for option in ("base", "hphc", "week_end"):
+    for option in ("base", "hphc", "week_end", "week_end_hphc"):
         if option not in options:
             continue
         grilles_option = _grilles_option(

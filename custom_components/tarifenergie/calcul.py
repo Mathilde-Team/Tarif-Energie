@@ -2,8 +2,8 @@
 
 Principe (issue #2) :
     - chaque heure consommée est valorisée au prix TTC **en vigueur ce jour-là**
-      (date locale), selon son poste (base, heures pleines / creuses, ou
-      semaine / week-end pour les offres à option Week-end) ;
+      (date locale), selon son poste (base, heures pleines / creuses, semaine /
+      week-end, ou les quatre postes croisés semaine x week-end) ;
     - l'abonnement annuel TTC est compté au jour : 1/365 (ou 1/366) par jour
       couvert, avec la grille du jour ;
     - une heure à cheval sur une limite d'heures creuses (ex. 23:30) est
@@ -178,6 +178,15 @@ def cout_option(
             # jours fériés nationaux (ex. ÉS Énergies, issue #330).
             poste = "week_end" if est_week_end(jour) else "semaine"
             repartition = {poste: quantite}
+        elif set(grille.prix) == {"semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc"}:
+            # Week-end ET heures creuses (#331) : les quatre postes croisés ; les
+            # heures creuses du point de livraison s'appliquent aussi le week-end.
+            if plages is None:
+                _LOGGER.debug("cout_option: lève une exception")
+                raise ValueError("l'option heures creuses demande des plages")
+            prefixe = "week_end_" if est_week_end(jour) else "semaine_"
+            hc = quantite * plages.fraction_hc(debut.hour)
+            repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
         else:
             if plages is None:
                 _LOGGER.debug("cout_option: lève une exception")
