@@ -8,8 +8,9 @@
 # Grille TTC « applicable à compter du 1er octobre 2026 », page 1 (« Mise à
 # jour : 01/10/2026 »), lue sur le rendu de la page. kWh Base : 0,30216 € pour
 # 3 et 6 kVA, 0,29981 € de 9 à 36 kVA (cellules fusionnées). Pas d'HC en 3 kVA.
-# Options Week-end (#330, #331, #333, #334) non reprises : le moteur ne connaît
-# que Base et Heures creuses. Abonnement Linky « légèrement inférieur de
+# Options Week-end : #333 (Base) reprise ci-dessous ; la variante « Week-end et
+# heures creuses » (#334) attend les postes croisés HC × week-end, de même que
+# #331 sur l'offre verte. Abonnement Linky « légèrement inférieur de
 # quelques centimes » selon la fiche : non modélisé (prix affichés retenus).
 id: es_verte_regionale_fixe_1an
 fournisseur: ÉS Énergies
@@ -34,3 +35,10 @@ options:
   hphc:
     abonnement_mensuel_ttc: {6: 18.45, 9: 22.62, 12: 26.66, 15: 30.45, 18: 34.35, 24: 42.66, 30: 50.31, 36: 58.03}
     kwh_ttc: {hp: 0.32356, hc: 0.24000}
+  # Option Week-end Base (#333), même grille du 01/10/2026 que #330, avec le
+  # supplément vert de 2,27 € TTC/mois ajouté à l'abonnement (ex. 6 kVA :
+  # 15,86 + 2,27 = 18,13 € TTC/mois). Tarif week-end les samedis, dimanches et
+  # jours fériés nationaux. Linky exigé : non modélisé.
+  week_end:
+    abonnement_mensuel_ttc: {3: 14.40, 6: 18.13, 9: 22.15, 12: 26.03, 15: 29.67, 18: 33.41, 24: 41.41, 30: 48.74, 36: 56.15}
+    kwh_ttc: {semaine: 0.31108, week_end: 0.22878}
