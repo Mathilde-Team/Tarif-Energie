@@ -1,0 +1,30 @@
+# Mint Énergie Online & Green (issues #35 Base, #143 HC ; inventaire #6).
+# Offre indexée sur le TRV (typologie CRE) : kWh HTT = TRVE -5 %, abonnement HTT =
+# TRVE, niveau d'indexation garanti 1 an ; 25 % d'électricité verte, gestion en
+# ligne, nouveaux clients. Grille TTC applicable au 08/10/2026 (réf. 221, puis 197),
+# page 1 du PDF officiel, à mettre à jour à chaque mouvement du TRV. Base : 19,19 c€
+# de 3 à 6 kVA, 19,04 c€ de 9 à 36 kVA (prix centrés sur leurs lignes, coupure comme
+# au TRV). Pas d'HC en 3 kVA. Non modélisé : au renouvellement, abonnement HTT
+# majoré de 1 €/mois et kWh HTT ramené au TRVE.
+id: mint_online_green
+fournisseur: Mint Énergie
+offre: Online & Green
+type_prix: indexe_trv
+grille_du: 2026-10-08
+source: https://www.mint-energie.com/wp-content/uploads/2026/10/MINT_ENERGIE_Fiche_Tarifs_22112_ONLINE_GREEN.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.13, 6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc_par_puissance:
+      3: {base: 0.1919}
+      6: {base: 0.1919}
+      9: {base: 0.1904}
+      12: {base: 0.1904}
+      15: {base: 0.1904}
+      18: {base: 0.1904}
+      24: {base: 0.1904}
+      30: {base: 0.1904}
+      36: {base: 0.1904}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 16.05, 9: 20.16, 12: 24.13, 15: 27.86, 18: 31.70, 24: 39.88, 30: 47.40, 36: 54.99}
+    kwh_ttc: {hp: 0.2054, hc: 0.1528}
