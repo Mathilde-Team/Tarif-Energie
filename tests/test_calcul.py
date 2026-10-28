@@ -89,6 +89,30 @@ def test_hphc_repartition_au_prorata():
     assert cout.abonnement == Decimal(1)  # un seul jour
 
 
+def test_week_end_repartition():
+    """Option Week-end : kWh au tarif week-end le samedi/dimanche/jour férié, sinon semaine."""
+    grilles = Grilles(
+        [
+            Grille(
+                "es_verte_fixe_1an:week_end",
+                6,
+                date(2026, 1, 1),
+                None,
+                Decimal(0),
+                {"semaine": Decimal("0.31108"), "week_end": Decimal("0.22878")},
+            )
+        ]
+    )
+    conso = [
+        (datetime(2026, 10, 24, 12), 1.0),  # samedi
+        (datetime(2026, 10, 28, 12), 1.0),  # mercredi
+        (datetime(2026, 5, 14, 12), 1.0),  # Ascension, jeudi férié
+    ]
+    cout = cout_option("es_verte_fixe_1an:week_end", grilles, 6, conso)
+    assert cout.kwh == {"semaine": Decimal(1), "week_end": Decimal(2)}
+    assert cout.energie == Decimal("0.31108") + 2 * Decimal("0.22878")
+
+
 def test_annee_bissextile():
     grilles = Grilles([Grille("base", 6, date(2028, 1, 1), None, Decimal(366), {"base": Decimal(0)})])
     assert cout_option("base", grilles, 6, [(datetime(2028, 2, 29), 1.0)]).abonnement == 1

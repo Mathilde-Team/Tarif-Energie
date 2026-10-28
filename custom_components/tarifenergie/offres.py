@@ -3,8 +3,10 @@
 Chaque fichier ``offres/<id>.yaml`` décrit une offre d'électricité pour particuliers,
 telle que publiée dans les grilles des fournisseurs (inventaire #6, une issue par
 offre). Le moteur lit les offres **à prix fixe** et **indexées sur le TRV** (typologie
-CRE), ainsi que les TRV locaux des ELD ; les offres dynamiques ou à coloration de jours
-(OctoTempo…) viendront plus tard avec leurs structures propres.
+CRE), ainsi que les TRV locaux des ELD et les offres à option Week-end (postes
+semaine / week-end : tarif week-end les samedis, dimanches et jours fériés
+nationaux) ; les offres dynamiques ou à coloration de jours (OctoTempo…)
+viendront plus tard avec leurs structures propres.
 
 Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
 
@@ -24,6 +26,9 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
         abonnement_mensuel_ttc: {6: 15.36, …}
         kwh_ttc: {hp: 0.2106, hc: 0.1565}                     # prix uniforme
         # ou abonnement_annuel_ttc: {6: 190.36, …} pour une grille publiée en €/an
+      week_end:                          # option « Week-end » (ex. ÉS Énergies, #330)
+        abonnement_mensuel_ttc: {3: 12.13, …}
+        kwh_ttc: {semaine: 0.31108, week_end: 0.22878}         # les deux postes exigés
 
 Les prix sont TTC, en €/kWh (les grilles des fournisseurs sont en c€ TTC/kWh).
 L'abonnement mensuel est converti en €/an (multiplié par 12, en ``Decimal`` exact) ;
@@ -58,7 +63,7 @@ DOSSIER_OFFRES = Path(__file__).parent / "offres"
 # sans réseau ``eld``.
 TYPE_PRIX: tuple[str, ...] = ("fixe", "reglemente", "indexe_trv")
 SANS_FIXITE: tuple[str, ...] = ("reglemente", "indexe_trv")
-POSTES = ("base", "hp", "hc")
+POSTES = ("base", "hp", "hc", "semaine", "week_end")
 MOIS_PAR_AN = Decimal("12")
 
 
@@ -125,7 +130,7 @@ def _puissances(d: dict[str, Any], chemin: str) -> dict[int, Decimal]:
 
 
 def _postes(d: dict[str, Any], chemin: str) -> dict[str, Decimal]:
-    """Mapping poste (base / hp / hc) → prix € TTC/kWh."""
+    """Mapping poste (base / hp / hc / semaine / week_end) → prix € TTC/kWh."""
     _LOGGER.debug("_postes: entrée")
     brutes = d.get("kwh_ttc")
     _exiger(isinstance(brutes, dict) and brutes != {}, chemin + ".kwh_ttc", "mapping attendu")
@@ -160,17 +165,19 @@ def _grilles_option(
                 _exiger(poste in POSTES, f"{chemin}[{puissance}]", f"poste inconnu : {poste}")
                 prix[poste] = _decimal(montant, f"{chemin}[{puissance}].{poste}")
             _exiger(
-                set(prix) <= {"base"} or set(prix) == {"hp", "hc"},
+                set(prix) <= {"base"} or set(prix) == {"hp", "hc"} or set(prix) == {"semaine", "week_end"},
                 f"{chemin}[{puissance}]",
-                "base OU hp+hc attendus",
+                "base, hp+hc ou semaine+week_end attendus",
             )
             grilles[puissance] = Grille(cles, puissance, debut, None, abonnements[puissance], prix)
     else:
         prix_uniforme = _postes(donnees, chemin)
         _exiger(
-            set(prix_uniforme) <= {"base"} or set(prix_uniforme) == {"hp", "hc"},
+            set(prix_uniforme) <= {"base"}
+            or set(prix_uniforme) == {"hp", "hc"}
+            or set(prix_uniforme) == {"semaine", "week_end"},
             chemin,
-            "base OU hp+hc attendus",
+            "base, hp+hc ou semaine+week_end attendus",
         )
         for puissance, abonnement in abonnements.items():
             grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme)
@@ -232,12 +239,12 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     _texte(donnees, "source", "offre.source")
     options = donnees.get("options")
     _exiger(
-        isinstance(options, dict) and set(options) <= {"base", "hphc"} and "base" in options,
+        isinstance(options, dict) and set(options) <= {"base", "hphc", "week_end"} and "base" in options,
         "offre.options",
-        "base attendue, hphc facultative",
+        "base attendue, hphc et week_end facultatives",
     )
     grilles: dict[str, Grilles] = {}
-    for option in ("base", "hphc"):
+    for option in ("base", "hphc", "week_end"):
         if option not in options:
             continue
         grilles_option = _grilles_option(

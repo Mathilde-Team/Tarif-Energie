@@ -40,7 +40,7 @@ def _libelle(cle: str, offres: dict[str, Offre]) -> str:
     if offre is None:
         _LOGGER.debug("_libelle: %s", cle)
         return cle
-    option_lisible = {"base": "Base", "hphc": "Off-peak"}.get(option, option)
+    option_lisible = {"base": "Base", "hphc": "Off-peak", "week_end": "Week-end"}.get(option, option)
     _LOGGER.debug("_libelle: sortie")
     return f"{offre.fournisseur} {offre.offre} ({option_lisible})"
 

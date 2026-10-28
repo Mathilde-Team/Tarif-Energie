@@ -2,7 +2,8 @@
 
 Principe (issue #2) :
     - chaque heure consommée est valorisée au prix TTC **en vigueur ce jour-là**
-      (date locale), selon son poste (base, ou heures pleines / creuses) ;
+      (date locale), selon son poste (base, heures pleines / creuses, ou
+      semaine / week-end pour les offres à option Week-end) ;
     - l'abonnement annuel TTC est compté au jour : 1/365 (ou 1/366) par jour
       couvert, avec la grille du jour ;
     - une heure à cheval sur une limite d'heures creuses (ex. 23:30) est
@@ -22,6 +23,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
+from .jours import est_week_end
 from .modele import Grilles, TarifIntrouvable
 
 _LOGGER = logging.getLogger(__name__)
@@ -167,10 +169,15 @@ def cout_option(
         grille = grilles.en_vigueur(puissance, jour)
         cout.grilles.add(grille.debut)
         quantite = Decimal(str(kwh))
-        # Base ou Heures creuses : selon les postes de la grille (TRV « base »/«hphc »
-        # ou offre de marché « <id>:<option> »), pas selon la clé exacte.
+        # Base, Heures creuses ou Week-end : selon les postes de la grille (TRV
+        # « base »/« hphc » ou offre de marché « <id>:<option> »), pas selon la clé exacte.
         if set(grille.prix) == {"base"}:
             repartition = {"base": quantite}
+        elif set(grille.prix) == {"semaine", "week_end"}:
+            # Offre à option Week-end : tarif week-end les samedis, dimanches et
+            # jours fériés nationaux (ex. ÉS Énergies, issue #330).
+            poste = "week_end" if est_week_end(jour) else "semaine"
+            repartition = {poste: quantite}
         else:
             if plages is None:
                 _LOGGER.debug("cout_option: lève une exception")
