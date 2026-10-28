@@ -45,6 +45,12 @@ def _libelle(cle: str, offres: dict[str, Offre]) -> str:
         "hphc": "Off-peak",
         "week_end": "Week-end",
         "week_end_hphc": "Week-end and off-peak",
+        "week_end_jour_lundi": "Week-end and Monday",
+        "week_end_jour_mercredi": "Week-end and Wednesday",
+        "week_end_jour_vendredi": "Week-end and Friday",
+        "week_end_hphc_jour_lundi": "Week-end, off-peak and Monday",
+        "week_end_hphc_jour_mercredi": "Week-end, off-peak and Wednesday",
+        "week_end_hphc_jour_vendredi": "Week-end, off-peak and Friday",
     }.get(option, option)
     _LOGGER.debug("_libelle: sortie")
     return f"{offre.fournisseur} {offre.offre} ({option_lisible})"

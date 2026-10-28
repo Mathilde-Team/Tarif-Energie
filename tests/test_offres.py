@@ -35,6 +35,7 @@ def test_quatre_offres_livrees(offres):
         "bazas_trv_local",
         "edf_zen_fixe_2ans",
         "edf_zen_online",
+        "edf_zen_week_end_plus",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
         "engie_elec_reference_3ans",
@@ -95,7 +96,14 @@ def test_quatre_offres_livrees(offres):
         "ume_trv_local",
         "vialis_trv_local",
     ]
-    assert all(o.grilles["base"] for o in offres.values())
+    # Chaque offre propose au moins une option sans heures creuses (sa « Base ») :
+    # base, week_end ou une variante à jour choisi (#10) — Zen Week-End Plus n'a
+    # pas de Base classique, son option Base est « week-end + jour choisi ».
+    assert all(
+        {"base", "week_end", "week_end_jour_lundi", "week_end_jour_mercredi", "week_end_jour_vendredi"}
+        & set(o.grilles)
+        for o in offres.values()
+    )
 
 
 def test_hunelec_grilles_du_1er_juillet_2026(offres):
@@ -1483,9 +1491,11 @@ def test_cout_option_prudence_sur_un_kwh(offres):
 def test_comparaison_trv_contre_offres(offres):
     """Le classement mélange TRV et offres.
 
-    Avec 10 kWh dans la journée : Primeo Fixe ECO -15 % Base (17,04 c€, 196,32 €/an :
-    2,24 €) bat Primeo Fixe Confort Base (16,74 c€, 241,92 €/an : 2,34 €), le TRV Base
-    (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais grille du 05/10).
+    Avec 10 kWh un lundi (19/10/2026) : EDF Zen Week-End Plus jour choisi lundi
+    (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO -15 % Base (17,04 c€,
+    196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
+    241,92 €/an : 2,34 €), le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais
+    grille du 05/10).
     """
     from custom_components.tarifenergie.const import OPTIONS
     from custom_components.tarifenergie.modele import Grilles as GrillesTRV
@@ -1493,7 +1503,7 @@ def test_comparaison_trv_contre_offres(offres):
     grilles = {option: GrillesTRV.charger(option) for option in OPTIONS}
     grilles.update(grilles_offres(offres))
     comp = comparer(grilles, 6, DIX_KWH, PLAGES, "base")
-    assert comp.moins_chere.option == "primeo_fixe_eco_15:base"
+    assert comp.moins_chere.option == "edf_zen_week_end_plus:week_end_jour_lundi"
     assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]
@@ -1649,3 +1659,153 @@ def test_charger_offre_contenu_invalide(tmp_path):
     chemin.write_text("id: x\n", encoding="utf-8")
     with pytest.raises(OffreInvalide, match=r"^incomplete\.yaml : "):
         charger_offre(chemin)
+
+
+# Grille EDF Zen Week-End Plus (#10 Base, #116 HC), du 15/09/2026 : abonnements
+# € TTC/mois (pas de 3 kVA), identiques pour toutes les options de l'offre.
+GRILLE_ZEN_WEEK_END_PLUS = {
+    6: 15.86,
+    9: 19.88,
+    12: 23.76,
+    15: 27.40,
+    18: 31.14,
+    24: 39.14,
+    30: 46.47,
+    36: 53.88,
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_ZEN_WEEK_END_PLUS.items()))
+def test_zen_week_end_plus_grilles_et_jour_choisi(offres, puissance, mensuel):
+    """EDF Zen Week-End Plus (#10, #116), grille du 15/09/2026 : huit abonnements, le
+    jour choisi (lundi/mercredi/vendredi) porté par chaque variante, sans 3 kVA."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    for option, numero in (("lundi", 0), ("mercredi", 2), ("vendredi", 4)):
+        g = grilles[f"edf_zen_week_end_plus:week_end_jour_{option}"].en_vigueur(puissance, jour)
+        assert (g.debut, g.abonnement_an, g.jour_choisi) == (
+            datetime(2026, 9, 15).date(),
+            Decimal(str(mensuel)) * 12,
+            numero,
+        )
+        assert g.prix == {
+            "semaine": Decimal("0.2259"),
+            "week_end": Decimal("0.1691"),
+            "jour_choisi": Decimal("0.1691"),
+        }
+        g = grilles[f"edf_zen_week_end_plus:week_end_hphc_jour_{option}"].en_vigueur(puissance, jour)
+        assert (g.abonnement_an, g.jour_choisi) == (Decimal(str(mensuel)) * 12, numero)
+        assert g.prix == {
+            "semaine_hp": Decimal("0.2314"),
+            "semaine_hc": Decimal("0.1731"),
+            "week_end_hp": Decimal("0.1731"),
+            "week_end_hc": Decimal("0.1731"),
+            "jour_choisi_hp": Decimal("0.1731"),
+            "jour_choisi_hc": Decimal("0.1731"),
+        }
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas de 3 kVA
+        grilles["edf_zen_week_end_plus:week_end_jour_lundi"].en_vigueur(3, jour)
+
+
+def test_zen_week_end_plus_un_kwh_selon_le_jour(offres):
+    """1 kWh selon le jour : semaine 22,59 c€, samedi et jour choisi 16,91 c€ (#10)."""
+    grilles = grilles_offres(offres)
+    # Lundi 19/10 avec jour choisi lundi : poste jour_choisi.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_jour_lundi",
+        grilles["edf_zen_week_end_plus:week_end_jour_lundi"],
+        6,
+        [(datetime(2026, 10, 19, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"jour_choisi": Decimal("1.0")}
+    # Mercredi 21/10 avec jour choisi lundi : poste semaine.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_jour_lundi",
+        grilles["edf_zen_week_end_plus:week_end_jour_lundi"],
+        6,
+        [(datetime(2026, 10, 21, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"semaine": Decimal("1.0")}
+    # Samedi 24/10 : poste week_end.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_jour_lundi",
+        grilles["edf_zen_week_end_plus:week_end_jour_lundi"],
+        6,
+        [(datetime(2026, 10, 24, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"week_end": Decimal("1.0")}
+
+
+def test_zen_week_end_plus_jour_choisi_hphc_repartition(offres):
+    """Option HC (#116) : samedi tout en week_end_hc, vendredi choisi coupé HP/HC."""
+    grilles = grilles_offres(offres)
+    # Samedi 24/10, 2 kWh de 0 h à 1 h (heures creuses) : week_end_hc.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_hphc_jour_lundi",
+        grilles["edf_zen_week_end_plus:week_end_hphc_jour_lundi"],
+        6,
+        [(datetime(2026, 10, 24, 0), 2.0), (datetime(2026, 10, 24, 14), 2.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"week_end_hc": Decimal("2.0"), "week_end_hp": Decimal("2.0")}
+    # Vendredi 23/10 avec jour choisi vendredi : jour_choisi_hp/hc.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
+        grilles["edf_zen_week_end_plus:week_end_hphc_jour_vendredi"],
+        6,
+        [(datetime(2026, 10, 23, 0), 2.0), (datetime(2026, 10, 23, 14), 2.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"jour_choisi_hc": Decimal("2.0"), "jour_choisi_hp": Decimal("2.0")}
+    # Mardi 20/10 avec jour choisi vendredi : semaine_hp/hc.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
+        grilles["edf_zen_week_end_plus:week_end_hphc_jour_vendredi"],
+        6,
+        [(datetime(2026, 10, 20, 0), 2.0), (datetime(2026, 10, 20, 14), 2.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"semaine_hc": Decimal("2.0"), "semaine_hp": Decimal("2.0")}
+
+
+def test_offre_a_jour_choisi_schema_invalide():
+    """Une option à jour choisi exige ses postes exacts ; une offre sans option
+    sans heures creuses (Base, week_end ou jour choisi) est refusée."""
+    from datetime import date
+
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Jour choisi",
+        "type_prix": "fixe",
+        "duree_fixite_mois": 6,
+        "grille_du": date(2026, 9, 15),
+        "source": "https://exemple.fr/grille.pdf",
+        "options": {
+            "week_end_jour_lundi": {
+                "abonnement_mensuel_ttc": {6: 15.86},
+                "kwh_ttc": {"semaine": 0.2259, "week_end": 0.1691},  # jour_choisi manquant
+            }
+        },
+    }
+    with pytest.raises(OffreInvalide, match="attendus"):
+        offre_depuis_dict(donnees, "x")
+    # Seule une option à heures creuses : pas d'option Base pour comparer.
+    donnees["options"] = {
+        "week_end_hphc_jour_lundi": {
+            "abonnement_mensuel_ttc": {6: 15.86},
+            "kwh_ttc": {
+                "semaine_hp": 0.2314,
+                "semaine_hc": 0.1731,
+                "week_end_hp": 0.1731,
+                "week_end_hc": 0.1731,
+                "jour_choisi_hp": 0.1731,
+                "jour_choisi_hc": 0.1731,
+            },
+        }
+    }
+    with pytest.raises(OffreInvalide, match="option Base attendue"):
+        offre_depuis_dict(donnees, "x")

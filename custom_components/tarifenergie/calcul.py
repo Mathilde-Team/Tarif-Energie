@@ -178,6 +178,16 @@ def cout_option(
             # jours fériés nationaux (ex. ÉS Énergies, issue #330).
             poste = "week_end" if est_week_end(jour) else "semaine"
             repartition = {poste: quantite}
+        elif set(grille.prix) == {"semaine", "week_end", "jour_choisi"}:
+            # Zen Week-End Plus, option Base (#10) : le jour choisi par le client
+            # (lundi, mercredi ou vendredi, porté par la grille) a son propre poste.
+            if est_week_end(jour):
+                poste = "week_end"
+            elif grille.jour_choisi is not None and jour.weekday() == grille.jour_choisi:
+                poste = "jour_choisi"
+            else:
+                poste = "semaine"
+            repartition = {poste: quantite}
         elif set(grille.prix) == {"semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc"}:
             # Week-end ET heures creuses (#331) : les quatre postes croisés ; les
             # heures creuses du point de livraison s'appliquent aussi le week-end.
@@ -185,6 +195,28 @@ def cout_option(
                 _LOGGER.debug("cout_option: lève une exception")
                 raise ValueError("l'option heures creuses demande des plages")
             prefixe = "week_end_" if est_week_end(jour) else "semaine_"
+            hc = quantite * plages.fraction_hc(debut.hour)
+            repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
+        elif set(grille.prix) == {
+            "semaine_hp",
+            "semaine_hc",
+            "week_end_hp",
+            "week_end_hc",
+            "jour_choisi_hp",
+            "jour_choisi_hc",
+        }:
+            # Zen Week-End Plus, option heures creuses (#116) : les six postes
+            # croisés, le jour choisi (lundi, mercredi ou vendredi) s'ajoutant
+            # au week-end ; les heures creuses du point de livraison s'y appliquent.
+            if plages is None:
+                _LOGGER.debug("cout_option: lève une exception")
+                raise ValueError("l'option heures creuses demande des plages")
+            if est_week_end(jour):
+                prefixe = "week_end_"
+            elif grille.jour_choisi is not None and jour.weekday() == grille.jour_choisi:
+                prefixe = "jour_choisi_"
+            else:
+                prefixe = "semaine_"
             hc = quantite * plages.fraction_hc(debut.hour)
             repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
         else:

@@ -63,7 +63,20 @@ DOSSIER_OFFRES = Path(__file__).parent / "offres"
 # sans réseau ``eld``.
 TYPE_PRIX: tuple[str, ...] = ("fixe", "reglemente", "indexe_trv")
 SANS_FIXITE: tuple[str, ...] = ("reglemente", "indexe_trv")
-POSTES = ("base", "hp", "hc", "semaine", "week_end", "semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc")
+POSTES = (
+    "base",
+    "hp",
+    "hc",
+    "semaine",
+    "week_end",
+    "jour_choisi",
+    "semaine_hp",
+    "semaine_hc",
+    "week_end_hp",
+    "week_end_hc",
+    "jour_choisi_hp",
+    "jour_choisi_hc",
+)
 MOIS_PAR_AN = Decimal("12")
 
 # Options à postes imposés : l'option exige exactement cet ensemble de postes
@@ -75,6 +88,34 @@ POSTES_PAR_OPTION: dict[str, tuple[frozenset[str], str]] = {
         "semaine_hp+semaine_hc+week_end_hp+week_end_hc attendus (option week_end_hphc)",
     ),
 }
+
+# Jour de semaine du « jour choisi » des offres Zen Week-End Plus (#10, #116) :
+# le client choisit lundi, mercredi ou vendredi, et le moteur simule les trois
+# variantes (une clé de comparaison par jour choisi).
+JOUR_CHOISI: dict[str, int] = {
+    "week_end_jour_lundi": 0,
+    "week_end_jour_mercredi": 2,
+    "week_end_jour_vendredi": 4,
+    "week_end_hphc_jour_lundi": 0,
+    "week_end_hphc_jour_mercredi": 2,
+    "week_end_hphc_jour_vendredi": 4,
+}
+POSTES_PAR_OPTION.update(
+    (option, (frozenset({"semaine", "week_end", "jour_choisi"}), "semaine+week_end+jour_choisi attendus"))
+    for option in ("week_end_jour_lundi", "week_end_jour_mercredi", "week_end_jour_vendredi")
+)
+POSTES_PAR_OPTION.update(
+    (
+        option,
+        (
+            frozenset(
+                {"semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc", "jour_choisi_hp", "jour_choisi_hc"}
+            ),
+            "semaine_hp+semaine_hc+week_end_hp+week_end_hc+jour_choisi_hp+jour_choisi_hc attendus",
+        ),
+    )
+    for option in ("week_end_hphc_jour_lundi", "week_end_hphc_jour_mercredi", "week_end_hphc_jour_vendredi")
+)
 
 
 class OffreInvalide(ValueError):
@@ -168,13 +209,19 @@ def _exiger_postes(prix: dict[str, Decimal], option: str, chemin: str) -> None:
 
 
 def _grilles_option(
-    donnees: dict[str, Any], chemin: str, cles: tuple[str, ...], debut: date, option: str = ""
+    donnees: dict[str, Any],
+    chemin: str,
+    cles: tuple[str, ...],
+    debut: date,
+    option: str = "",
+    jour_choisi: int | None = None,
 ) -> dict[int, Grille]:
     """Grilles d'une option de l'offre : abonnements mensuels x12, prix par poste.
 
     Les options « week_end » et « week_end_hphc » exigent leurs postes exacts
     (cf. ``POSTES_PAR_OPTION``) ; les autres (« base », « hphc ») : base seul
-    ou hp + hc.
+    ou hp + hc. ``jour_choisi`` (lundi/mercredi/vendredi des offres à jour
+    choisi, #10/#116) est porté par la grille pour le moteur de calcul.
     """
     _LOGGER.debug("_grilles_option: entrée")
     abonnements = _puissances(donnees, chemin)
@@ -195,12 +242,14 @@ def _grilles_option(
                 _exiger(poste in POSTES, f"{chemin}[{puissance}]", f"poste inconnu : {poste}")
                 prix[poste] = _decimal(montant, f"{chemin}[{puissance}].{poste}")
             _exiger_postes(prix, option, f"{chemin}[{puissance}]")
-            grilles[puissance] = Grille(cles, puissance, debut, None, abonnements[puissance], prix)
+            grilles[puissance] = Grille(
+                cles, puissance, debut, None, abonnements[puissance], prix, jour_choisi
+            )
     else:
         prix_uniforme = _postes(donnees, chemin)
         _exiger_postes(prix_uniforme, option, chemin)
         for puissance, abonnement in abonnements.items():
-            grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme)
+            grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme, jour_choisi)
     _LOGGER.debug("_grilles_option: %s grille(s)", len(grilles))
     return grilles
 
@@ -258,15 +307,19 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     )
     _texte(donnees, "source", "offre.source")
     options = donnees.get("options")
+    # Au moins une option sans heures creuses (la « Base » de l'offre) : base,
+    # week_end ou une variante à jour choisi (#10) ; hphc/week_end_hphc seules
+    # ne permettraient aucun comparatif pour un client sans heures creuses.
     _exiger(
         isinstance(options, dict)
-        and set(options) <= {"base", "hphc", "week_end", "week_end_hphc"}
-        and "base" in options,
+        and set(options) <= {"base", "hphc", "week_end", "week_end_hphc", *JOUR_CHOISI}
+        and set(options)
+        & {"base", "week_end", "week_end_jour_lundi", "week_end_jour_mercredi", "week_end_jour_vendredi"},
         "offre.options",
-        "base attendue ; hphc, week_end et week_end_hphc facultatives",
+        "option Base attendue (base, week_end ou week_end_jour_*) ; les autres sont facultatives",
     )
     grilles: dict[str, Grilles] = {}
-    for option in ("base", "hphc", "week_end", "week_end_hphc"):
+    for option in ("base", "hphc", "week_end", "week_end_hphc", *JOUR_CHOISI):
         if option not in options:
             continue
         grilles_option = _grilles_option(
@@ -275,6 +328,7 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
             f"{ident}:{option}",
             donnees["grille_du"],
             option,
+            JOUR_CHOISI.get(option),
         )
         _exiger(grilles_option != {}, f"offre.options.{option}", "aucune puissance définie")
         grilles[option] = Grilles(tuple(grilles_option[p] for p in sorted(grilles_option)))

@@ -219,3 +219,84 @@ def test_cas_reel_une_annee_constante():
     assert Decimal(8760) * Decimal("0.1940") + Decimal("185.94") < base.total
     assert base.total < Decimal(8760) * Decimal("0.2001") + Decimal("190.81")
     assert comp.couts["hphc"].kwh["hc"] == 8760 / 3
+
+
+def test_week_end_jour_choisi_repartition():
+    """Zen Week-End Plus option Base (#10) : poste jour_choisi pour le jour choisi,
+    week_end pour samedi/dimanche/férié, semaine sinon."""
+    grilles = Grilles(
+        [
+            Grille(
+                "edf_zen_week_end_plus:week_end_jour_lundi",
+                6,
+                date(2026, 1, 1),
+                None,
+                Decimal(0),
+                {
+                    "semaine": Decimal("0.2259"),
+                    "week_end": Decimal("0.1691"),
+                    "jour_choisi": Decimal("0.1691"),
+                },
+                jour_choisi=0,
+            )
+        ]
+    )
+    conso = [
+        (datetime(2026, 10, 19, 12), 1.0),  # lundi : jour choisi
+        (datetime(2026, 10, 21, 12), 1.0),  # mercredi : semaine
+        (datetime(2026, 10, 24, 12), 1.0),  # samedi : week-end
+        (datetime(2026, 10, 25, 12), 1.0),  # dimanche : week-end
+        (datetime(2026, 11, 11, 12), 1.0),  # mercredi 11/11 : férié national
+    ]
+    cout = cout_option("edf_zen_week_end_plus:week_end_jour_lundi", grilles, 6, conso)
+    assert cout.kwh == {
+        "jour_choisi": Decimal(1),
+        "semaine": Decimal(1),
+        "week_end": Decimal(3),
+    }
+    assert cout.energie == Decimal("0.2259") + 4 * Decimal("0.1691")
+
+
+def test_week_end_hphc_jour_choisi_repartition():
+    """Zen Week-End Plus option heures creuses (#116) : six postes croisés, le jour
+    choisi s'ajoute au week-end, les heures creuses s'y appliquent aussi."""
+    grilles = Grilles(
+        [
+            Grille(
+                "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
+                6,
+                date(2026, 1, 1),
+                None,
+                Decimal(0),
+                {
+                    "semaine_hp": Decimal("0.2314"),
+                    "semaine_hc": Decimal("0.1731"),
+                    "week_end_hp": Decimal("0.1731"),
+                    "week_end_hc": Decimal("0.1731"),
+                    "jour_choisi_hp": Decimal("0.1731"),
+                    "jour_choisi_hc": Decimal("0.1731"),
+                },
+                jour_choisi=4,
+            )
+        ]
+    )
+    conso = [
+        (datetime(2026, 10, 20, 12), 1.0),  # mardi midi : heures pleines, semaine
+        (datetime(2026, 10, 21, 2), 1.0),  # mercredi 2 h : heures creuses, semaine
+        (datetime(2026, 10, 23, 12), 1.0),  # vendredi midi : heures pleines, jour choisi
+        (datetime(2026, 10, 23, 2), 1.0),  # vendredi 2 h : heures creuses, jour choisi
+        (datetime(2026, 10, 24, 12), 1.0),  # samedi midi : heures pleines, week-end
+        (datetime(2026, 10, 25, 2), 1.0),  # dimanche 2 h : heures creuses, week-end
+    ]
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_hphc_jour_vendredi", grilles, 6, conso, PlagesHC.lire("22:00-06:00")
+    )
+    assert cout.kwh == {
+        "semaine_hp": Decimal(1),
+        "semaine_hc": Decimal(1),
+        "jour_choisi_hp": Decimal(1),
+        "jour_choisi_hc": Decimal(1),
+        "week_end_hp": Decimal(1),
+        "week_end_hc": Decimal(1),
+    }
+    assert cout.energie == Decimal("0.2314") + 5 * Decimal("0.1731")

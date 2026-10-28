@@ -170,6 +170,12 @@ async def test_capteurs(hass: HomeAssistant):
         # Primeo Fixe ECO -15 % Base (#185) : 36 x 0,1704 + 3/365 x 196,32 = 7,75 €,
         # juste devant Primeo Fixe Confort Base.
         "primeo_fixe_eco_15:base",
+        # EDF Zen Week-End Plus HC (#116) : tout à 17,31 c€ (nuit HC + samedi 03/10,
+        # vendredi choisi ou non) + 3/365 x 190,32 = 7,80 €, les trois variantes
+        # ex æquo départagées par la clé.
+        "edf_zen_week_end_plus:week_end_hphc_jour_lundi",
+        "edf_zen_week_end_plus:week_end_hphc_jour_mercredi",
+        "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
         "primeo_fixe_confort:base",
         # TotalEnergies Fixe 2 ans HC (#126) : 36 x 0,1791 + 3/365 x 192,60 = 8,03 €.
         "totalenergies_fixe_2ans:hphc",
@@ -178,6 +184,9 @@ async def test_capteurs(hass: HomeAssistant):
         "gaz_de_bordeaux_novafixe_bonus:base",
         # TotalEnergies Access Base (#23) : 36 x 0,1837 + 3/365 x 190,32 = 8,18 €.
         "totalenergies_access:base",
+        # EDF Zen Week-End Plus Base, jour choisi vendredi (#10) : 24 x 0,2259
+        # + 12 x 0,1691 (vendredi choisi) + 3/365 x 190,32 = 8,33 €.
+        "edf_zen_week_end_plus:week_end_jour_vendredi",
         "plenitude_pleniweb_1an:base",
         # Hunélec HC (#326) : 36 x 0,19129 + 3/365 x 191,52 = 8,46 € ;
         # 100 % vert (#328) : + 2,27 €/mois = 8,68 € ; TRV Base : 8,77 €.
@@ -275,6 +284,11 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_constance:base",
         # Octopus Eco Fixe Base (#30) : 36 x 0,2033 + 3/365 x 190,32 = 8,88 €.
         "octopus_eco_fixe_oct2026:base",
+        # EDF Zen Week-End Plus Base, jour choisi lundi ou mercredi (#10) : 24 x 0,2259
+        # + 12 x 0,1691 (samedi) + 3/365 x 190,32 = 9,02 € (le vendredi choisi
+        # donnerait 8,33 €, consommation du test sans vendredi).
+        "edf_zen_week_end_plus:week_end_jour_lundi",
+        "edf_zen_week_end_plus:week_end_jour_mercredi",
         # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
         "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
