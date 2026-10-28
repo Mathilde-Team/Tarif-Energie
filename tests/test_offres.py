@@ -1300,17 +1300,46 @@ def test_alterna_hc_des_3_kva(offres):
     assert g.prix["base"] == Decimal("0.1919")
 
 
-def test_es_verte_fixe_1an_option_week_end(offres):
-    """Option Week-end Base (#330), grille du 01/10/2026 : 6 kVA 15,86 €/mois, 31,108/22,878 c€."""
+# Grille Week-end de l'offre verte (#330), du 01/10/2026 : abonnements € TTC/mois.
+GRILLE_WEEK_END_ES = {
+    3: 12.13,
+    6: 15.86,
+    9: 19.88,
+    12: 23.76,
+    15: 27.40,
+    18: 31.14,
+    24: 39.14,
+    30: 46.47,
+    36: 53.88,
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_WEEK_END_ES.items()))
+def test_es_verte_fixe_1an_option_week_end_toutes_puissances(offres, puissance, mensuel):
+    """Option Week-end Base (#330), grille du 01/10/2026 : les neuf abonnements."""
     grilles = grilles_offres(offres)
     jour = datetime(2026, 10, 19).date()
-    g = grilles["es_verte_fixe_1an:week_end"].en_vigueur(6, jour)
-    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal("190.32"))  # 15,86 x 12
+    g = grilles["es_verte_fixe_1an:week_end"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal(str(mensuel)) * 12)
     assert g.prix == {"semaine": Decimal("0.31108"), "week_end": Decimal("0.22878")}
-    # Abonnements extrêmes de la grille : 3 kVA 12,13 €/mois, 36 kVA 53,88 €/mois.
-    assert grilles["es_verte_fixe_1an:week_end"].en_vigueur(3, jour).abonnement_an == Decimal("145.56")
-    assert grilles["es_verte_fixe_1an:week_end"].en_vigueur(36, jour).abonnement_an == Decimal("646.56")
-    # 1 kWh un samedi (24/10/2026) : 22,878 c€ + abonnement au prorata.
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_WEEK_END_ES.items()))
+def test_es_verte_regionale_fixe_1an_option_week_end_supplement_vert(offres, puissance, mensuel):
+    """Option Week-end #333 : la régionale ajoute exactement 2,27 €/mois à chaque puissance."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_regionale_fixe_1an:week_end"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (
+        datetime(2026, 10, 1).date(),
+        (Decimal(str(mensuel)) + Decimal("2.27")) * 12,
+    )
+    assert g.prix == {"semaine": Decimal("0.31108"), "week_end": Decimal("0.22878")}
+
+
+def test_es_verte_fixe_1an_option_week_end_un_kwh_samedi(offres):
+    """1 kWh un samedi (24/10/2026) : 22,878 c€ + abonnement 6 kVA au prorata."""
+    grilles = grilles_offres(offres)
     cout = cout_option(
         "es_verte_fixe_1an:week_end",
         grilles["es_verte_fixe_1an:week_end"],
@@ -1319,19 +1348,6 @@ def test_es_verte_fixe_1an_option_week_end(offres):
         PLAGES,
     )
     assert cout.total == (Decimal("190.32") / Decimal("365") + Decimal("0.22878")).quantize(Decimal("0.01"))
-
-
-def test_es_verte_regionale_fixe_1an_option_week_end(offres):
-    """Option Week-end Base (#333), grille du 01/10/2026 : supplément vert 2,27 € ajouté."""
-    grilles = grilles_offres(offres)
-    jour = datetime(2026, 10, 19).date()
-    g = grilles["es_verte_regionale_fixe_1an:week_end"].en_vigueur(6, jour)
-    # 6 kVA : (15,86 + 2,27) x 12 ; 3 kVA : (12,13 + 2,27) x 12 ; 36 kVA : (53,88 + 2,27) x 12.
-    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal("217.56"))
-    assert g.prix == {"semaine": Decimal("0.31108"), "week_end": Decimal("0.22878")}
-    week_end_regionale = grilles["es_verte_regionale_fixe_1an:week_end"]
-    assert week_end_regionale.en_vigueur(3, jour).abonnement_an == Decimal("172.80")
-    assert week_end_regionale.en_vigueur(36, jour).abonnement_an == Decimal("673.80")
 
 
 def test_lot_2_offres_fixes(offres):
@@ -1470,6 +1486,41 @@ def test_comparaison_trv_contre_offres(offres):
                 "options": {
                     "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
                     "week_end": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"semaine": 0.3}},
+                },
+            },
+            "offre.options.week_end",
+        ),
+        (
+            {
+                "id": "x",
+                "type_prix": "fixe",
+                "grille_du": "2026-10-01",
+                "duree_fixite_mois": 12,
+                "source": "https://exemple.fr",
+                "fournisseur": "F",
+                "offre": "O",
+                "options": {
+                    "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+                    "week_end": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.3}},
+                },
+            },
+            "offre.options.week_end",
+        ),
+        (
+            {
+                "id": "x",
+                "type_prix": "fixe",
+                "grille_du": "2026-10-01",
+                "duree_fixite_mois": 12,
+                "source": "https://exemple.fr",
+                "fournisseur": "F",
+                "offre": "O",
+                "options": {
+                    "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+                    "week_end": {
+                        "abonnement_mensuel_ttc": {6: 15.0},
+                        "kwh_ttc": {"hp": 0.3, "hc": 0.2},
+                    },
                 },
             },
             "offre.options.week_end",
