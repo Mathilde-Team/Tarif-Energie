@@ -321,6 +321,10 @@ async def test_capteurs(hass: HomeAssistant):
         # Hunélec vert Base (10,2385 €) ; ÉS 100 % régionale HC (#332) : 10,46 €.
         "es_verte_fixe_1an:hphc",
         "hunelec_prix_fixe_1an_vert:base",
+        # Engie Duo Référence 3 ans, partie élec, Base (#98) : même grille qu'Elec
+        # Référence 3 ans (décision du 28/10/2026 : un fichier par offre), donc
+        # 10,32 € aussi ; départage par le nom de l'option.
+        "engie_duo_reference_3ans:base",
         # Engie Elec Référence 3 ans Base (#28) : 36 x 0,24205 + 3/365 x 195,18 = 10,32 €.
         "engie_elec_reference_3ans:base",
         # ÉS 100 % régionale Week-end et heures creuses (#334) : 10,13 € + 2,27 x 12 x

@@ -40,6 +40,7 @@ def test_quatre_offres_livrees(offres):
         "edf_zen_week_end_plus",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
+        "engie_duo_reference_3ans",
         "engie_elec_reference_3ans",
         "es_trv_local",
         "es_verte_fixe_1an",
@@ -526,6 +527,28 @@ def test_engie_elec_reference_grille_d_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.24999"), "hc": Decimal("0.20683")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["engie_elec_reference_3ans:hphc"].en_vigueur(3, jour)
+
+
+def test_engie_duo_reference_grille_d_octobre_2026(offres):
+    """Engie Duo Référence 3 ans, partie électricité — Base (#98) : copie de la grille d'Elec Référence.
+
+    Décision du 28/10/2026 (commentaire de #98) : un fichier par offre, avec une
+    copie de la grille de la partie électricité. Base seule ici (CU) ; le HP/HC
+    est en #135, la partie gaz est documentée hors moteur (#113).
+    """
+    offre = offres["engie_duo_reference_3ans"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 36)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["engie_duo_reference_3ans:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("195.18"),
+        {"base": Decimal("0.24205")},
+    )
+    g = grilles["engie_duo_reference_3ans:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("667.55"), {"base": Decimal("0.24377")})
+    assert "engie_duo_reference_3ans:hphc" not in grilles  # option HP/HC en #135
 
 
 def test_es_trv_local_grille_du_1er_aout_2026(offres):
