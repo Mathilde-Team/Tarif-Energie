@@ -72,6 +72,9 @@ async def test_capteurs(hass: HomeAssistant):
         # (remise de 100 € du Bonus non modélisée : même total).
         "gaz_de_bordeaux_novafixe:hphc",
         "gaz_de_bordeaux_novafixe_bonus:hphc",
+        # Duo (#336) : partie électricité identique à NovaFixe Bonus Élec
+        # (même grille) ; la remise de 100 € du Bonus n'est pas modélisée.
+        "gaz_de_bordeaux_novafixe_bonus_duo:hphc",
         # TotalEnergies Access HC (#125, indexée TRV, kWh HT -10 %) : 36 x 0,1467
         # + 3/365 x 190,32 = 6,85 €.
         "totalenergies_access:hphc",
@@ -190,6 +193,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Gaz de Bordeaux NovaFixe Base (#111, #99) : 36 x 0,18373 + 3/365 x 190,44 = 8,18 €.
         "gaz_de_bordeaux_novafixe:base",
         "gaz_de_bordeaux_novafixe_bonus:base",
+        # Duo (#181) : Base de la même grille que NovaFixe Bonus Élec.
+        "gaz_de_bordeaux_novafixe_bonus_duo:base",
         # TotalEnergies Access Base (#23) : 36 x 0,1837 + 3/365 x 190,32 = 8,18 €.
         "totalenergies_access:base",
         # EDF Zen Week-End Plus Base, jour choisi vendredi (#10) : 24 x 0,2259
