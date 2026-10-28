@@ -1278,6 +1278,27 @@ def test_alterna_hc_des_3_kva(offres):
     assert g.prix["base"] == Decimal("0.1919")
 
 
+def test_es_verte_fixe_1an_option_week_end(offres):
+    """Option Week-end Base (#330), grille du 01/10/2026 : 6 kVA 15,86 €/mois, 31,108/22,878 c€."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_fixe_1an:week_end"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal("190.32"))  # 15,86 x 12
+    assert g.prix == {"semaine": Decimal("0.31108"), "week_end": Decimal("0.22878")}
+    # Abonnements extrêmes de la grille : 3 kVA 12,13 €/mois, 36 kVA 53,88 €/mois.
+    assert grilles["es_verte_fixe_1an:week_end"].en_vigueur(3, jour).abonnement_an == Decimal("145.56")
+    assert grilles["es_verte_fixe_1an:week_end"].en_vigueur(36, jour).abonnement_an == Decimal("646.56")
+    # 1 kWh un samedi (24/10/2026) : 22,878 c€ + abonnement au prorata.
+    cout = cout_option(
+        "es_verte_fixe_1an:week_end",
+        grilles["es_verte_fixe_1an:week_end"],
+        6,
+        [(datetime(2026, 10, 24, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.total == (Decimal("190.32") / Decimal("365") + Decimal("0.22878")).quantize(Decimal("0.01"))
+
+
 def test_lot_2_offres_fixes(offres):
     """Lot 2 (issues #38, #43, #56, #57, #61, #62, #65, #68) : valeurs citées des grilles."""
     grilles = grilles_offres(offres)
@@ -1401,6 +1422,22 @@ def test_comparaison_trv_contre_offres(offres):
                 "options": {"base": {"abonnement_mensuel_ttc": {42: 11.0}, "kwh_ttc": {"base": 0.2}}},
             },
             "abonnement_mensuel_ttc",
+        ),
+        (
+            {
+                "id": "x",
+                "type_prix": "fixe",
+                "grille_du": "2026-10-01",
+                "duree_fixite_mois": 12,
+                "source": "https://exemple.fr",
+                "fournisseur": "F",
+                "offre": "O",
+                "options": {
+                    "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+                    "week_end": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"semaine": 0.3}},
+                },
+            },
+            "offre.options.week_end",
         ),
         (
             {
