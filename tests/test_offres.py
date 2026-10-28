@@ -94,6 +94,7 @@ def test_quatre_offres_livrees(offres):
         "totalenergies_access",
         "totalenergies_fixe_2ans",
         "totalenergies_heures_eco",
+        "totalenergies_speciale",
         "totalenergies_verte_fixe",
         "uem_trv_local",
         "ume_trv_local",
@@ -300,6 +301,29 @@ def test_totalenergies_heures_eco_reprend_le_trv(offres):
     assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
         grilles["totalenergies_heures_eco:hphc"].en_vigueur(3, jour)
+
+
+def test_totalenergies_speciale_reprend_le_trv(offres):
+    """TotalEnergies Spéciale Électricité et Gaz, partie élec — Base (#96) : copie de la grille d'Heures Eco.
+
+    Décision du 28/10/2026 (commentaire de #96) : un fichier par offre, avec une
+    copie de la grille de la partie électricité (duale : seule l'électricité
+    entre dans le comparateur). Base seule ici ; le HP/HC est en #134, la partie
+    gaz est documentée hors moteur (#112). La remise annoncée de 10 % n'est pas
+    modélisée (grille PDF hors remise).
+    """
+    offre = offres["totalenergies_speciale"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["totalenergies_speciale:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.2001")},
+    )
+    assert grilles["totalenergies_speciale:base"].en_vigueur(36, jour).prix == {"base": Decimal("0.1985")}
+    assert "totalenergies_speciale:hphc" not in grilles  # option HP/HC en #134
 
 
 def test_alterna_indexee_grille_du_1er_septembre_2026(offres):
