@@ -116,6 +116,10 @@ async def test_capteurs(hass: HomeAssistant):
         # TotalEnergies Heures Eco HC (#132) : mêmes prix HT que le TRV ; les prix TTC
         # arrondis du PDF la placent un centime sous le TRV national (7,28 € contre 7,29 €).
         "totalenergies_heures_eco:hphc",
+        # TotalEnergies Spéciale partie élec, HC (#134) : même grille qu'Heures Eco
+        # (décision du 28/10/2026 : un fichier par offre), donc 7,28 € aussi ;
+        # départage par le nom de l'option.
+        "totalenergies_speciale:hphc",
         # TRV local GEG HC (#196) : 36 x 0,1589 + 3/365 x 190,80 = 7,29 €, à égalité au
         # centime avec le TRV national HC ; départage par le nom de l'option.
         "geg_trv_local:hphc",
