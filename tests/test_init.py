@@ -54,7 +54,8 @@ async def test_capteurs(hass: HomeAssistant):
     assert base.attributes["jours_couverts"] == 3
     assert base.attributes["grilles"] == ["2026-08-01"]
     # Offres de marché (issues #40, #44, #63, #64 et lot 2) : à cette consommation
-    # nocturne, Primeo Fixe Confort HC (13,44 c€) est la moins chère ; les grilles
+    # nocturne, Charge'Heures (#24) est la moins chère (24 kWh en HSC à 13,35 c€,
+    # 12 kWh en HC à 15,76 c€) ; les grilles
     # postérieures au 3 octobre (GEG 05/10, Mint 08/10, Ohm 14/10 et 16/10, GEDIA 19/10)
     # sont indisponibles.
     # postérieures au 3 octobre (GEG 05/10, Ohm 14/10 et 16/10, Octopus Eco Fixe Plus 12/10,
@@ -63,10 +64,13 @@ async def test_capteurs(hass: HomeAssistant):
     assert prudence is not None
     assert prudence.state == "7.15"
     assert prudence.attributes["kwh"] == {"hp": 0.0, "hc": 36.0}
-    assert hass.states.get("sensor.maison_cheapest_option").state == "primeo_fixe_confort:hphc"
+    moins_chere = hass.states.get("sensor.maison_cheapest_option").state
+    assert moins_chere == "totalenergies_charge_heures:hphc_saisonnieres"
     economie = hass.states.get("sensor.maison_possible_12_month_saving")
-    assert economie.state == "1.94"
+    assert economie.state == "2.13"
     assert [e["option"] for e in economie.attributes["classement"]] == [
+        # Charge'Heures (#24) : 24 x 0,1335 + 12 x 0,1576 + 3/365 x 188,28 = 6,64 €.
+        "totalenergies_charge_heures:hphc_saisonnieres",
         "primeo_fixe_confort:hphc",
         # Gaz de Bordeaux NovaFixe HC (#372, #371) : 36 x 0,14669 + 3/365 x 190,44 = 6,85 €
         # (remise de 100 € du Bonus non modélisée : même total).
@@ -382,11 +386,13 @@ async def test_option_indisponible_au_dela_de_15_kva(hass: HomeAssistant):
     base = hass.states.get("sensor.maison_12_month_cost_base_option")
     assert base.state == "unknown"
     assert "36 kVA" in base.attributes["indisponible"]
-    # À 36 kVA, Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, juste
+    # À 36 kVA, Charge'Heures (#24, 632,64 €/an, HSC 13,35 c€) : 10,29 €, devant
+    # Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, juste
     # devant TotalEnergies Access HC (même abonnement, 14,67 c€), EDF Zen Online HC (15,31 c€ :
     # 10,83 €), Plenitude HC (681,72 €/an, 14,67 c€ : 10,88 €), Prudence HC et le TRV HC.
-    assert hass.states.get("sensor.maison_cheapest_option").state == "gaz_de_bordeaux_novafixe:hphc"
-    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.47"
+    moins_chere = hass.states.get("sensor.maison_cheapest_option").state
+    assert moins_chere == "totalenergies_charge_heures:hphc_saisonnieres"
+    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.78"
 
 
 async def test_sans_donnees(hass: HomeAssistant):

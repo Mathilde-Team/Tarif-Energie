@@ -78,13 +78,17 @@ POSTES = (
     "week_end_hc",
     "jour_choisi_hp",
     "jour_choisi_hc",
-    # Postes saisonniers des offres été/hiver (Zen Estival, #20) : le préfixe
-    # est la saison, portée par la grille avec ses plages (cf. ``_saisons``).
+    # Postes saisonniers des offres été/hiver (Zen Estival, #20) ou à plages
+    # constantes toute l'année (Charge'Heures, #24) : le préfixe est la saison,
+    # portée par la grille avec ses plages (cf. ``_saisons``).
     "ete_hsc",
     "ete_hc",
     "ete_hp",
     "hiver_hc",
     "hiver_hp",
+    "annee_hsc",
+    "annee_hc",
+    "annee_hp",
 )
 MOIS_PAR_AN = Decimal("12")
 
@@ -244,30 +248,38 @@ def _plages_saison(
 
 
 def _saisons(donnees: dict[str, Any], chemin: str) -> tuple[tuple[Saison, ...], dict[str, Decimal]]:
-    """Saisons été/hiver d'une offre à postes saisonniers (#20) : bornes, plages, prix.
+    """Saisons d'une offre à postes et plages portées par l'offre (#20, #24).
 
-    L'été exige les trois postes (HSC/HC/HP), l'hiver deux (HC/HP) — forme de
-    Zen Estival ; les HSC et HC d'une saison ne se chevauchent pas. Les saisons
-    doivent partitionner l'année (aucun jour hors saison, aucun doublon).
+    Deux formes : été+hiver (postes saisonniers, ex. Zen Estival) ou une saison
+    unique ``annee`` pour des plages constantes toute l'année (ex. Charge'Heures).
+    Chaque saison exige hc et hp, plus hsc facultatif ; les HSC et HC d'une
+    saison ne se chevauchent pas. Les saisons doivent partitionner l'année
+    (aucun jour hors saison, aucun doublon).
     """
     _LOGGER.debug("_saisons: entrée")
     saisons_brutes = donnees.get("saisons")
     _exiger(
-        isinstance(saisons_brutes, dict) and set(saisons_brutes) == {"ete", "hiver"},
+        isinstance(saisons_brutes, dict)
+        and (set(saisons_brutes) == {"ete", "hiver"} or set(saisons_brutes) == {"annee"}),
         f"{chemin}.saisons",
-        "saisons ete et hiver attendues",
+        "saisons ete+hiver attendues, ou annee seule (plages constantes)",
     )
     saisons: list[Saison] = []
     prix: dict[str, Decimal] = {}
-    postes_attendus = {"ete": {"hsc", "hc", "hp"}, "hiver": {"hc", "hp"}}
-    for nom in ("ete", "hiver"):
+    for nom in saisons_brutes:
         saison = saisons_brutes[nom]
         chemin_saison = f"{chemin}.saisons.{nom}"
         _exiger(isinstance(saison, dict), chemin_saison, "mapping attendu")
         debut = _jour_annee(saison.get("du"), f"{chemin_saison}.du")
         fin = _jour_annee(saison.get("au"), f"{chemin_saison}.au")
         _exiger(debut != fin, chemin_saison, "saison vide (du == au)")
-        hsc = _plages_saison(saison.get("plages", {}), "hsc", f"{chemin_saison}.plages", nom == "ete")
+        brutes = saison.get("kwh_ttc")
+        _exiger(
+            isinstance(brutes, dict) and {"hc", "hp"} <= set(brutes) <= {"hsc", "hc", "hp"},
+            f"{chemin_saison}.kwh_ttc",
+            "postes attendus : hc et hp, plus hsc facultatif",
+        )
+        hsc = _plages_saison(saison.get("plages", {}), "hsc", f"{chemin_saison}.plages", "hsc" in brutes)
         hc = _plages_saison(saison.get("plages", {}), "hc", f"{chemin_saison}.plages", True)
         intervalles_hsc = sorted(PlagesHC(plages=hsc)._intervalles())
         intervalles_hc = sorted(PlagesHC(plages=hc)._intervalles())
@@ -281,13 +293,7 @@ def _saisons(donnees: dict[str, Any], chemin: str) -> tuple[tuple[Saison, ...], 
             "les plages HSC et HC ne doivent pas se chevaucher",
         )
         saisons.append(Saison(nom, debut, fin, hsc, hc))
-        brutes = saison.get("kwh_ttc")
-        _exiger(
-            isinstance(brutes, dict) and set(brutes) == postes_attendus[nom],
-            f"{chemin_saison}.kwh_ttc",
-            f"postes attendus pour {nom} : {', '.join(sorted(postes_attendus[nom]))}",
-        )
-        for poste in postes_attendus[nom]:
+        for poste in brutes:
             prix[f"{nom}_{poste}"] = _decimal(brutes[poste], f"{chemin_saison}.kwh_ttc[{poste}]")
     _exiger(
         _saisons_couvre_annee(tuple(saisons)),
