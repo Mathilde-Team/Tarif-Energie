@@ -276,6 +276,10 @@ async def test_capteurs(hass: HomeAssistant):
         # TotalEnergies Heures Eco Base (#94) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €,
         # à égalité au centime avec le TRV national.
         "totalenergies_heures_eco:base",
+        # TotalEnergies Spéciale Électricité et Gaz, partie élec, Base (#96) :
+        # même grille qu'Heures Eco (décision du 28/10/2026 : un fichier par
+        # offre), donc 8,77 € aussi ; départage par le nom de l'option.
+        "totalenergies_speciale:base",
         # TRV local Enes Creutzwald Base (#275) : 8,78 €, à égalité au centime avec
         # es_trv_local:base ; départage par le nom de l'option.
         "enes_creutzwald_trv_local:base",
