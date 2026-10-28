@@ -93,6 +93,7 @@ def test_quatre_offres_livrees(offres):
         "soregies_trv_local",
         "synelva_trv_local",
         "totalenergies_access",
+        "totalenergies_charge_heures",
         "totalenergies_fixe_2ans",
         "totalenergies_heures_eco",
         "totalenergies_speciale",
@@ -2126,7 +2127,7 @@ def _zen_estival_dict(**remplacements):
                     "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607},
                 }
             },
-            "postes attendus pour ete",
+            "postes attendus : hc et hp",
         ),
         # Borne illisible.
         (
@@ -2155,5 +2156,45 @@ def test_zen_estival_saisons_invalides(remplacement, message):
 def test_zen_estival_hiver_seul_refuse():
     """Une offre saisonnière sans l'été : postes et partitionnement impossibles."""
     donnees = _zen_estival_dict(ete=None)
-    with pytest.raises(OffreInvalide, match="ete et hiver"):
+    with pytest.raises(OffreInvalide, match="ete\\+hiver attendues, ou annee seule"):
+        offre_depuis_dict(donnees, "x")
+
+
+def test_charge_heures_grille_et_plages(offres):
+    """Charge'Heures (#24) : grille du 01/10/2026, saison unique aux plages constantes."""
+    grilles = grilles_offres(offres)
+    g = grilles["totalenergies_charge_heures:hphc_saisonnieres"].en_vigueur(6, datetime(2026, 10, 19).date())
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal("188.28"))  # 15,69 x 12
+    assert g.prix == {
+        "annee_hsc": Decimal("0.1335"),
+        "annee_hc": Decimal("0.1576"),
+        "annee_hp": Decimal("0.2302"),
+    }
+    assert [(s.nom, s.debut, s.fin, s.hsc, s.hc) for s in g.saisons] == [
+        ("annee", (1, 1), (12, 31), ((120, 360),), ((1380, 120), (360, 420)))
+    ]
+
+
+def test_charge_heures_cout(offres):
+    """HSC 02-06, HC 23-02 et 06-07, HP le reste — plages constantes toute l'année."""
+    grilles = grilles_offres(offres)
+    conso = [(datetime(2026, 10, 19, h, 0), 1.0) for h in (0, 3, 6, 12)]
+    grilles_option = grilles["totalenergies_charge_heures:hphc_saisonnieres"]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso)
+    assert cout.kwh == {"annee_hc": Decimal(2), "annee_hsc": Decimal(1), "annee_hp": Decimal(1)}
+    assert cout.energie == 2 * Decimal("0.1576") + Decimal("0.1335") + Decimal("0.2302")
+
+
+def test_saison_annee_incomplete_refusee():
+    """Une saison unique « annee » doit couvrir toute l'année."""
+    donnees = _zen_estival_dict()
+    del donnees["options"]["hphc_saisonnieres"]["saisons"]["ete"]
+    del donnees["options"]["hphc_saisonnieres"]["saisons"]["hiver"]
+    donnees["options"]["hphc_saisonnieres"]["saisons"]["annee"] = {
+        "du": "02-01",  # le 1er janvier n'est dans aucune saison
+        "au": "12-31",
+        "plages": {"hsc": "02:00-06:00", "hc": "23:00-02:00, 06:00-07:00"},
+        "kwh_ttc": {"hsc": 0.1335, "hc": 0.1576, "hp": 0.2302},
+    }
+    with pytest.raises(OffreInvalide, match="partitionner"):
         offre_depuis_dict(donnees, "x")
