@@ -167,6 +167,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
         "edf_zen_fixe_2ans:hphc",
         "la_bellenergie_garance:hphc",
+        # EDF Vert Électrique Week-End HC (#120) : tout à 16,91 c€ (nuit HC + samedi
+        # 03/10) + 3/365 x 190,32 = 7,65 €.
+        "edf_vert_electrique_week_end:week_end_hphc",
         # Primeo Fixe ECO -15 % Base (#185) : 36 x 0,1704 + 3/365 x 196,32 = 7,75 €,
         # juste devant Primeo Fixe Confort Base.
         "primeo_fixe_eco_15:base",
@@ -207,6 +210,9 @@ async def test_capteurs(hass: HomeAssistant):
         # Alterna indexée Base (#45) : 36 x 0,1919 + 3/365 x 211,92 = 8,65 €.
         "alterna_indexee:base",
         "hunelec_prix_fixe_1an_vert:hphc",
+        # EDF Vert Électrique Week-End Base (#19) : 24 x 0,2171 + 12 x 0,163 (samedi
+        # 03/10) + 3/365 x 190,32 = 8,73 €.
+        "edf_vert_electrique_week_end:week_end",
         # Alpiq Sérénité Base (#42) : 36 x 0,199247 + 3/365 x 190,32 = 8,74 €.
         "alpiq_serenite:base",
         # TotalEnergies Verte Fixe HC (#133) : 36 x 0,1992 + 3/365 x 192,60 = 8,75 €.
