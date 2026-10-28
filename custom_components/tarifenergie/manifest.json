@@ -4,10 +4,10 @@
   "codeowners": ["@MathildeDec"],
   "config_flow": true,
   "dependencies": ["recorder"],
-  "documentation": "https://github.com/Mathide-Team/tarifenergie",
+  "documentation": "https://github.com/Mathilde-Team/Tarif-Energie",
   "integration_type": "service",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/Mathide-Team/tarifenergie/issues",
+  "issue_tracker": "https://github.com/Mathilde-Team/Tarif-Energie/issues",
   "requirements": [],
   "version": "0.1.0"
 }
