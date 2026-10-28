@@ -1321,6 +1321,19 @@ def test_es_verte_fixe_1an_option_week_end(offres):
     assert cout.total == (Decimal("190.32") / Decimal("365") + Decimal("0.22878")).quantize(Decimal("0.01"))
 
 
+def test_es_verte_regionale_fixe_1an_option_week_end(offres):
+    """Option Week-end Base (#333), grille du 01/10/2026 : supplément vert 2,27 € ajouté."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_regionale_fixe_1an:week_end"].en_vigueur(6, jour)
+    # 6 kVA : (15,86 + 2,27) x 12 ; 3 kVA : (12,13 + 2,27) x 12 ; 36 kVA : (53,88 + 2,27) x 12.
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal("217.56"))
+    assert g.prix == {"semaine": Decimal("0.31108"), "week_end": Decimal("0.22878")}
+    week_end_regionale = grilles["es_verte_regionale_fixe_1an:week_end"]
+    assert week_end_regionale.en_vigueur(3, jour).abonnement_an == Decimal("172.80")
+    assert week_end_regionale.en_vigueur(36, jour).abonnement_an == Decimal("673.80")
+
+
 def test_lot_2_offres_fixes(offres):
     """Lot 2 (issues #38, #43, #56, #57, #61, #62, #65, #68) : valeurs citées des grilles."""
     grilles = grilles_offres(offres)

@@ -304,6 +304,9 @@ async def test_capteurs(hass: HomeAssistant):
         # ÉS Week-end Base (#330) : 24 x 0,31108 + 12 x 0,22878 (samedi 03/10)
         # + 3/365 x 190,32 = 11,78 €.
         "es_verte_fixe_1an:week_end",
+        # ÉS 100 % régionale Week-end Base (#333) : 11,78 € + 2,27 x 12 x 3/365
+        # = 12,00 € (même kWh, supplément vert sur l'abonnement).
+        "es_verte_regionale_fixe_1an:week_end",
         # ÉS Base (#73) : 36 x 0,30216 + 3/365 x 191,40 = 12,45 € ; régionale (#74) : 12,67 €.
         "es_verte_fixe_1an:base",
         # papernest HC (#169) : 36 x 0,24528 + 3/365 x 464,40 = 12,65 €, juste devant
