@@ -297,6 +297,9 @@ async def test_capteurs(hass: HomeAssistant):
         "hunelec_prix_fixe_1an_vert:base",
         # Engie Elec Référence 3 ans Base (#28) : 36 x 0,24205 + 3/365 x 195,18 = 10,32 €.
         "engie_elec_reference_3ans:base",
+        # ÉS 100 % régionale Week-end et heures creuses (#334) : 10,13 € + 2,27 x 12 x
+        # 3/365 = 10,36 € (même kWh que #331, supplément vert sur l'abonnement).
+        "es_verte_regionale_fixe_1an:week_end_hphc",
         "es_verte_regionale_fixe_1an:hphc",
         # TotalEnergies Verte Fixe Base (#95) : 36 x 0,2540 + 3/365 x 145,56 = 10,71 €.
         "totalenergies_verte_fixe:base",

@@ -1379,6 +1379,24 @@ def test_es_verte_fixe_1an_option_week_end_hphc(offres, puissance, mensuel):
     }
 
 
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_WEEK_END_HPHC_ES.items()))
+def test_es_verte_regionale_fixe_1an_option_week_end_hphc_supplement_vert(offres, puissance, mensuel):
+    """Option Week-end et heures creuses #334 : la régionale ajoute 2,27 €/mois à chaque puissance."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_regionale_fixe_1an:week_end_hphc"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (
+        datetime(2026, 10, 1).date(),
+        (Decimal(str(mensuel)) + Decimal("2.27")) * 12,
+    )
+    assert g.prix == {
+        "semaine_hp": Decimal("0.32357"),
+        "semaine_hc": Decimal("0.23752"),
+        "week_end_hp": Decimal("0.23752"),
+        "week_end_hc": Decimal("0.23752"),
+    }
+
+
 def test_lot_2_offres_fixes(offres):
     """Lot 2 (issues #38, #43, #56, #57, #61, #62, #65, #68) : valeurs citées des grilles."""
     grilles = grilles_offres(offres)
