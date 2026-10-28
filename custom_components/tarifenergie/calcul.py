@@ -24,7 +24,7 @@ from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
 from .jours import est_week_end
-from .modele import Grilles, TarifIntrouvable
+from .modele import Grilles, Saison, TarifIntrouvable
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -141,6 +141,17 @@ def _jours_annee(jour: date) -> int:
     return 366 if calendar.isleap(jour.year) else 365
 
 
+def _saison_du(jour: date, saisons: tuple[Saison, ...]) -> Saison:
+    """Saison couvrant ce jour (une seule : validé à la lecture de l'offre)."""
+    _LOGGER.debug("_saison_du: entrée")
+    for saison in saisons:
+        if saison.couvre(jour):
+            _LOGGER.debug("_saison_du: %s", saison.nom)
+            return saison
+    _LOGGER.debug("_saison_du: lève une exception")
+    raise ValueError(f"aucune saison ne couvre le {jour.isoformat()}")
+
+
 def cout_option(
     option: str,
     grilles: Grilles,
@@ -219,6 +230,17 @@ def cout_option(
                 prefixe = "semaine_"
             hc = quantite * plages.fraction_hc(debut.hour)
             repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
+        elif grille.saisons is not None:
+            # Offre à postes saisonniers (Zen Estival, #20) : l'été compte
+            # HSC/HC/HP et l'hiver HC/HP, chacun dans sa saison ; les plages
+            # sont portées par la grille (fixées par l'offre), pas par le
+            # compteur du client.
+            saison = _saison_du(jour, grille.saisons)
+            hsc = quantite * PlagesHC(plages=saison.hsc).fraction_hc(debut.hour) if saison.hsc else Decimal(0)
+            hc = quantite * PlagesHC(plages=saison.hc).fraction_hc(debut.hour)
+            repartition = {f"{saison.nom}_hc": hc, f"{saison.nom}_hp": quantite - hsc - hc}
+            if saison.hsc:
+                repartition[f"{saison.nom}_hsc"] = hsc
         else:
             if plages is None:
                 _LOGGER.debug("cout_option: lève une exception")

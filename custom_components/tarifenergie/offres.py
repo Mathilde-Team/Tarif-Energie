@@ -40,16 +40,18 @@ concerné, avec la raison, comme pour les options du TRV.
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from .calcul import PlagesHC
 from .const import PUISSANCES
-from .modele import Grille, Grilles
+from .modele import Grille, Grilles, Saison
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,6 +78,13 @@ POSTES = (
     "week_end_hc",
     "jour_choisi_hp",
     "jour_choisi_hc",
+    # Postes saisonniers des offres été/hiver (Zen Estival, #20) : le préfixe
+    # est la saison, portée par la grille avec ses plages (cf. ``_saisons``).
+    "ete_hsc",
+    "ete_hc",
+    "ete_hp",
+    "hiver_hc",
+    "hiver_hp",
 )
 MOIS_PAR_AN = Decimal("12")
 
@@ -208,6 +217,101 @@ def _exiger_postes(prix: dict[str, Decimal], option: str, chemin: str) -> None:
     _LOGGER.debug("_exiger_postes: fin")
 
 
+def _jour_annee(texte: str, chemin: str) -> tuple[int, int]:
+    """« 04-15 » → (4, 15) : borne de saison en mois/jour (issue #20)."""
+    _LOGGER.debug("_jour_annee: entrée")
+    _exiger(isinstance(texte, str) and re.match(r"^\d{2}-\d{2}$", texte), chemin, "attendu : MM-JJ")
+    mois, jour = (int(x) for x in texte.split("-"))
+    _exiger(1 <= mois <= 12 and 1 <= jour <= 31, chemin, "mois ou jour impossible")
+    _LOGGER.debug("_jour_annee: %s-%s", mois, jour)
+    return mois, jour
+
+
+def _plages_saison(
+    donnees: dict[str, Any], cle: str, chemin: str, exigees: bool
+) -> tuple[tuple[int, int], ...]:
+    """Plages HSC/HC d'une saison : texte ``PlagesHC`` validé, en minutes."""
+    _LOGGER.debug("_plages_saison: entrée")
+    texte = donnees.get(cle)
+    if texte is None:
+        _exiger(not exigees, chemin, f"plages {cle} attendues")
+        _LOGGER.debug("_plages_saison: vide")
+        return ()
+    _exiger(isinstance(texte, str) and texte.strip() != "", chemin, "texte de plages attendu")
+    plages = PlagesHC.lire(texte).plages
+    _LOGGER.debug("_plages_saison: %s plage(s)", len(plages))
+    return plages
+
+
+def _saisons(donnees: dict[str, Any], chemin: str) -> tuple[tuple[Saison, ...], dict[str, Decimal]]:
+    """Saisons été/hiver d'une offre à postes saisonniers (#20) : bornes, plages, prix.
+
+    L'été exige les trois postes (HSC/HC/HP), l'hiver deux (HC/HP) — forme de
+    Zen Estival ; les HSC et HC d'une saison ne se chevauchent pas. Les saisons
+    doivent partitionner l'année (aucun jour hors saison, aucun doublon).
+    """
+    _LOGGER.debug("_saisons: entrée")
+    saisons_brutes = donnees.get("saisons")
+    _exiger(
+        isinstance(saisons_brutes, dict) and set(saisons_brutes) == {"ete", "hiver"},
+        f"{chemin}.saisons",
+        "saisons ete et hiver attendues",
+    )
+    saisons: list[Saison] = []
+    prix: dict[str, Decimal] = {}
+    postes_attendus = {"ete": {"hsc", "hc", "hp"}, "hiver": {"hc", "hp"}}
+    for nom in ("ete", "hiver"):
+        saison = saisons_brutes[nom]
+        chemin_saison = f"{chemin}.saisons.{nom}"
+        _exiger(isinstance(saison, dict), chemin_saison, "mapping attendu")
+        debut = _jour_annee(saison.get("du"), f"{chemin_saison}.du")
+        fin = _jour_annee(saison.get("au"), f"{chemin_saison}.au")
+        _exiger(debut != fin, chemin_saison, "saison vide (du == au)")
+        hsc = _plages_saison(saison.get("plages", {}), "hsc", f"{chemin_saison}.plages", nom == "ete")
+        hc = _plages_saison(saison.get("plages", {}), "hc", f"{chemin_saison}.plages", True)
+        intervalles_hsc = sorted(PlagesHC(plages=hsc)._intervalles())
+        intervalles_hc = sorted(PlagesHC(plages=hc)._intervalles())
+        _exiger(
+            not any(
+                hsc_d < hc_f and hc_d < hsc_f
+                for hsc_d, hsc_f in intervalles_hsc
+                for hc_d, hc_f in intervalles_hc
+            ),
+            f"{chemin_saison}.plages",
+            "les plages HSC et HC ne doivent pas se chevaucher",
+        )
+        saisons.append(Saison(nom, debut, fin, hsc, hc))
+        brutes = saison.get("kwh_ttc")
+        _exiger(
+            isinstance(brutes, dict) and set(brutes) == postes_attendus[nom],
+            f"{chemin_saison}.kwh_ttc",
+            f"postes attendus pour {nom} : {', '.join(sorted(postes_attendus[nom]))}",
+        )
+        for poste in postes_attendus[nom]:
+            prix[f"{nom}_{poste}"] = _decimal(brutes[poste], f"{chemin_saison}.kwh_ttc[{poste}]")
+    _exiger(
+        _saisons_couvre_annee(tuple(saisons)),
+        f"{chemin}.saisons",
+        "les saisons doivent partitionner l'année (chaque jour dans exactement une saison)",
+    )
+    _LOGGER.debug("_saisons: %s saison(s)", len(saisons))
+    return tuple(saisons), prix
+
+
+def _saisons_couvre_annee(saisons: tuple[Saison, ...]) -> bool:
+    """Chaque jour d'une année bissextile tombe dans exactement une saison."""
+    _LOGGER.debug("_saisons_couvre_annee: entrée")
+    vues: set[tuple[int, int]] = set()
+    for jour in (date(2024, 1, 1) + timedelta(days=n) for n in range(366)):
+        couvertes = [s for s in saisons if s.couvre(jour)]
+        if len(couvertes) != 1:
+            _LOGGER.debug("_saisons_couvre_annee: %s couvert(s) le %s", len(couvertes), jour)
+            return False
+        vues.add((jour.month, jour.day))
+    _LOGGER.debug("_saisons_couvre_annee: %s", len(vues) == 366)
+    return len(vues) == 366
+
+
 def _grilles_option(
     donnees: dict[str, Any],
     chemin: str,
@@ -251,6 +355,21 @@ def _grilles_option(
         for puissance, abonnement in abonnements.items():
             grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme, jour_choisi)
     _LOGGER.debug("_grilles_option: %s grille(s)", len(grilles))
+    return grilles
+
+
+def _grilles_saisonniere(
+    donnees: dict[str, Any], chemin: str, cles: tuple[str, ...], debut: date
+) -> dict[int, Grille]:
+    """Grilles d'une option à postes saisonniers (#20) : abonnement unique, prix par saison."""
+    _LOGGER.debug("_grilles_saisonniere: entrée")
+    abonnements = _puissances(donnees, chemin)
+    saisons, prix = _saisons(donnees, chemin)
+    grilles = {
+        puissance: Grille(cles, puissance, debut, None, abonnement, dict(prix), None, saisons)
+        for puissance, abonnement in abonnements.items()
+    }
+    _LOGGER.debug("_grilles_saisonniere: %s grille(s)", len(grilles))
     return grilles
 
 
@@ -308,19 +427,36 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     _texte(donnees, "source", "offre.source")
     options = donnees.get("options")
     # Au moins une option sans heures creuses (la « Base » de l'offre) : base,
-    # week_end ou une variante à jour choisi (#10) ; hphc/week_end_hphc seules
-    # ne permettraient aucun comparatif pour un client sans heures creuses.
+    # week_end, une variante à jour choisi (#10) ou des postes saisonniers
+    # (#20 : les plages HSC/HC sont portées par l'offre, pas par le compteur —
+    # un client sans heures creuses y est simulable aussi) ; hphc/week_end_hphc
+    # seules ne permettraient aucun comparatif pour un client sans heures creuses.
     _exiger(
         isinstance(options, dict)
-        and set(options) <= {"base", "hphc", "week_end", "week_end_hphc", *JOUR_CHOISI}
+        and set(options) <= {"base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", *JOUR_CHOISI}
         and set(options)
-        & {"base", "week_end", "week_end_jour_lundi", "week_end_jour_mercredi", "week_end_jour_vendredi"},
+        & {
+            "base",
+            "week_end",
+            "week_end_jour_lundi",
+            "week_end_jour_mercredi",
+            "week_end_jour_vendredi",
+            "hphc_saisonnieres",
+        },
         "offre.options",
-        "option Base attendue (base, week_end ou week_end_jour_*) ; les autres sont facultatives",
+        "option Base attendue (base, week_end, week_end_jour_* ou hphc_saisonnieres) ;"
+        " les autres sont facultatives",
     )
     grilles: dict[str, Grilles] = {}
-    for option in ("base", "hphc", "week_end", "week_end_hphc", *JOUR_CHOISI):
+    for option in ("base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", *JOUR_CHOISI):
         if option not in options:
+            continue
+        if option == "hphc_saisonnieres":
+            grilles_saison = _grilles_saisonniere(
+                options[option], f"offre.options.{option}", f"{ident}:{option}", donnees["grille_du"]
+            )
+            _exiger(grilles_saison != {}, f"offre.options.{option}", "aucune puissance définie")
+            grilles[option] = Grilles(tuple(grilles_saison[p] for p in sorted(grilles_saison)))
             continue
         grilles_option = _grilles_option(
             options[option],

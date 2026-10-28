@@ -164,6 +164,8 @@ async def test_capteurs(hass: HomeAssistant):
         "octopus_eco_fixe_oct2026:hphc",
         "alterna_du_coin_1an:hphc",
         "la_bellenergie_constance:hphc",
+        # EDF Zen Estival hiver (#20) : 36 x 0,1738 + 3/365 x 151,20 = 7,50 €.
+        "edf_zen_estival:hphc_saisonnieres",
         # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
         "edf_zen_fixe_2ans:hphc",
         "la_bellenergie_garance:hphc",

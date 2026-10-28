@@ -34,6 +34,7 @@ def test_quatre_offres_livrees(offres):
         "barr_trv_local",
         "bazas_trv_local",
         "edf_vert_electrique_week_end",
+        "edf_zen_estival",
         "edf_zen_fixe_2ans",
         "edf_zen_online",
         "edf_zen_week_end",
@@ -100,10 +101,18 @@ def test_quatre_offres_livrees(offres):
         "vialis_trv_local",
     ]
     # Chaque offre propose au moins une option sans heures creuses (sa « Base ») :
-    # base, week_end ou une variante à jour choisi (#10) — Zen Week-End Plus n'a
-    # pas de Base classique, son option Base est « week-end + jour choisi ».
+    # base, week_end, une variante à jour choisi (#10) ou des postes saisonniers
+    # (#20 : Zen Estival porte ses plages, un client sans HC y est simulable).
+    # Zen Week-End Plus n'a pas de Base classique : « week-end + jour choisi ».
     assert all(
-        {"base", "week_end", "week_end_jour_lundi", "week_end_jour_mercredi", "week_end_jour_vendredi"}
+        {
+            "base",
+            "week_end",
+            "week_end_jour_lundi",
+            "week_end_jour_mercredi",
+            "week_end_jour_vendredi",
+            "hphc_saisonnieres",
+        }
         & set(o.grilles)
         for o in offres.values()
     )
@@ -1947,3 +1956,180 @@ def test_vert_electrique_week_end_jour_ferie(offres):
     )
     assert cout.kwh == {"week_end": Decimal("1.0")}
     assert cout.energie == Decimal("0.1630")
+
+
+def test_zen_estival_grille_et_saisons(offres):
+    """Zen Estival HP/HC (#20) : grille du 15/09/2026, postes saisonniers été/hiver."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["edf_zen_estival:hphc_saisonnieres"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.option) == (
+        datetime(2026, 9, 15).date(),
+        Decimal("151.20"),  # 12,60 x 12
+        "edf_zen_estival:hphc_saisonnieres",
+    )
+    assert g.prix == {
+        "ete_hsc": Decimal("0.1252"),
+        "ete_hc": Decimal("0.1607"),
+        "ete_hp": Decimal("0.2707"),
+        "hiver_hc": Decimal("0.1738"),
+        "hiver_hp": Decimal("0.2802"),
+    }
+    assert [(s.nom, s.debut, s.fin) for s in g.saisons] == [
+        ("ete", (4, 15), (9, 30)),
+        ("hiver", (10, 1), (4, 14)),
+    ]
+    assert [s.hsc for s in g.saisons] == [((120, 360), (1320, 1440)), ()]
+    assert [s.hc for s in g.saisons] == [((360, 450), (780, 960)), ((1350, 390), (750, 870))]
+
+
+def test_zen_estival_cout_saisonnier(offres):
+    """Été : HSC 02-06/22-24, HC 06-07:30/13-16 ; hiver : HC 22:30-06:30/12:30-14:30."""
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["edf_zen_estival:hphc_saisonnieres"]
+    # Été (20/09/2026) : 3 h en HSC, 6 h en HC (06:00-07:30), 8 h et 20 h en HP.
+    conso_ete = [(datetime(2026, 9, 20, h, 0), 1.0) for h in (3, 6, 8, 20)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso_ete)
+    assert cout.kwh == {"ete_hsc": Decimal(1), "ete_hc": Decimal(1), "ete_hp": Decimal(2)}
+    assert cout.energie == Decimal("0.1252") + Decimal("0.1607") + 2 * Decimal("0.2707")
+    # Hiver (19/10/2026) : 3 h en HC (22:30-06:30), 13 h en HC (12:30-14:30), 20 h en HP.
+    conso_hiver = [(datetime(2026, 10, 19, h, 0), 1.0) for h in (3, 13, 20)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso_hiver)
+    assert cout.kwh == {"hiver_hc": Decimal(2), "hiver_hp": Decimal(1)}
+    assert cout.energie == 2 * Decimal("0.1738") + Decimal("0.2802")
+    # Charnières : le 14/04 est hiver, le 15/04 été (plages d'été dès le 15/04).
+    conso_charniere = [(datetime(2027, 4, 14, 3, 0), 1.0), (datetime(2027, 4, 15, 3, 0), 1.0)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso_charniere)
+    assert cout.kwh == {
+        "hiver_hc": Decimal(1),
+        "hiver_hp": Decimal(0),
+        "ete_hsc": Decimal(1),
+        "ete_hc": Decimal(0),
+        "ete_hp": Decimal(0),
+    }
+
+
+def test_zen_estival_comparable_sans_heures_creuses(offres):
+    """Les plages sont portées par l'offre : aucun client n'est exclu (issue #20)."""
+    grilles = grilles_offres(offres)
+    conso = [(datetime(2026, 9, 20, 20, 0), 2.0)]  # 20 h : heures pleines d'été
+    comparaison = comparer(
+        {k: v for k, v in grilles.items() if k.startswith("edf_zen_estival")},
+        6,
+        conso,
+        PlagesHC.lire("23:30-06:30"),  # plages du compteur : sans effet ici
+        "base",
+    )
+    assert "edf_zen_estival:hphc_saisonnieres" in comparaison.couts
+    assert comparaison.couts["edf_zen_estival:hphc_saisonnieres"].kwh == {
+        "ete_hsc": Decimal(0),
+        "ete_hc": Decimal(0),
+        "ete_hp": Decimal(2),
+    }
+
+
+def _zen_estival_dict(**remplacements):
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Saisonnière",
+        "type_prix": "fixe",
+        "grille_du": datetime(2026, 9, 15).date(),
+        "duree_fixite_mois": 12,
+        "source": "https://exemple.fr/grille.pdf",
+        "options": {
+            "hphc_saisonnieres": {
+                "abonnement_mensuel_ttc": {6: 12.6},
+                "saisons": {
+                    "ete": {
+                        "du": "04-15",
+                        "au": "09-30",
+                        "plages": {"hsc": "02:00-06:00", "hc": "13:00-16:00"},
+                        "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607, "hp": 0.2707},
+                    },
+                    "hiver": {
+                        "du": "10-01",
+                        "au": "04-14",
+                        "plages": {"hc": "22:30-06:30"},
+                        "kwh_ttc": {"hc": 0.1738, "hp": 0.2802},
+                    },
+                },
+            }
+        },
+    }
+    for cle, valeur in remplacements.items():
+        if valeur is None:
+            donnees["options"]["hphc_saisonnieres"]["saisons"].pop(cle)
+        else:
+            donnees["options"]["hphc_saisonnieres"]["saisons"][cle] = valeur
+    return donnees
+
+
+@pytest.mark.parametrize(
+    ("remplacement", "message"),
+    [
+        # L'été ne commence que le 01/05 : l'année n'est plus partitionnée.
+        (
+            {
+                "ete": {
+                    "du": "05-01",
+                    "au": "09-30",
+                    "plages": {"hsc": "02:00-06:00", "hc": "13:00-16:00"},
+                    "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607, "hp": 0.2707},
+                }
+            },
+            "partitionner",
+        ),
+        # HSC à l'intérieur des HC : chevauchement interdit.
+        (
+            {
+                "ete": {
+                    "du": "04-15",
+                    "au": "09-30",
+                    "plages": {"hsc": "13:30-14:00", "hc": "13:00-16:00"},
+                    "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607, "hp": 0.2707},
+                }
+            },
+            "chevaucher",
+        ),
+        # Postes incomplets pour l'été (HP manquant).
+        (
+            {
+                "ete": {
+                    "du": "04-15",
+                    "au": "09-30",
+                    "plages": {"hsc": "02:00-06:00", "hc": "13:00-16:00"},
+                    "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607},
+                }
+            },
+            "postes attendus pour ete",
+        ),
+        # Borne illisible.
+        (
+            {
+                "ete": {
+                    "du": "15/04",
+                    "au": "09-30",
+                    "plages": {"hsc": "02:00-06:00", "hc": "13:00-16:00"},
+                    "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607, "hp": 0.2707},
+                }
+            },
+            "MM-JJ",
+        ),
+        # Hiver sans ses plages HC.
+        (
+            {"hiver": {"du": "10-01", "au": "04-14", "kwh_ttc": {"hc": 0.1738, "hp": 0.2802}}},
+            "plages hc attendues",
+        ),
+    ],
+)
+def test_zen_estival_saisons_invalides(remplacement, message):
+    with pytest.raises(OffreInvalide, match=message):
+        offre_depuis_dict(_zen_estival_dict(**remplacement), "x")
+
+
+def test_zen_estival_hiver_seul_refuse():
+    """Une offre saisonnière sans l'été : postes et partitionnement impossibles."""
+    donnees = _zen_estival_dict(ete=None)
+    with pytest.raises(OffreInvalide, match="ete et hiver"):
+        offre_depuis_dict(donnees, "x")

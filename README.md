@@ -35,7 +35,7 @@ Avec moins de 12 mois d'historique, les coûts portent sur la période disponibl
 Les grilles des fournisseurs sont livrées dans `custom_components/tarifenergie/offres/*.yaml`
 (inventaire [#6](https://github.com/Mathilde-Team/Tarif-Energie/issues/6), moteur [#5](https://github.com/Mathilde-Team/Tarif-Energie/issues/5)) :
 une issue par offre documente la grille, sa date d'effet et ses sources. La v0.2 couvre
-les offres **à prix fixe** avec options Base et Heures creuses — 34 offres :
+les offres **à prix fixe** avec options Base et Heures creuses — 35 offres :
 
 - la bellenergie Prudence 1 an, Constance 2 ans et Garance 3 ans,
 - Octopus Energy Eco Fixe Octobre 2026 et Eco Fixe Plus Octobre 2026 (territoire Enedis),
@@ -43,6 +43,8 @@ les offres **à prix fixe** avec options Base et Heures creuses — 34 offres :
 - Alterna Mon électricité française fixe 1 an et Mon électricité du coin 1 an,
 - Engie Elec Référence 3 ans (prix fixe de la part fourniture ; acheminement CU en Base, MUDT en Heures creuses),
 - Engie Duo Référence 3 ans, partie électricité (mixte ; Base, même grille qu'Elec Référence 3 ans — option HP/HC en #135, partie gaz documentée hors moteur),
+- EDF Zen Estival (prix fixe 12 mois, heures super creuses et heures creuses
+  d'été, heures creuses d'hiver — postes et plages saisonniers portés par l'offre),
 - EDF Zen Fixe 2 ans (kWh HT fixe 2 ans et 1 mois),
 - EDF Vert Électrique Week-End (électricité verte, remise week-end et jours fériés, prix révisables 2 fois par an),
 - EDF Zen Week-End (remise week-end et jours fériés ; sans jour choisi, contrairement à la Plus) et EDF Zen Week-End Plus (remise week-end, jours fériés et jour choisi — lundi, mercredi ou vendredi ; trois variantes simulées) ; prix révisables 2 fois par an,
