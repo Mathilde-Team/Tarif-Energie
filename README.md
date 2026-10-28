@@ -98,6 +98,7 @@ YAML sur le modèle des existants, une issue d'inventaire la documentant.
 - La CRE ne publie l'option Base que jusqu'à 15 kVA : au-delà, elle est signalée indisponible.
 - Statistiques horaires : une heure à cheval sur une limite d'heures creuses (ex. 23:30) est répartie au prorata des minutes.
 - Pas encore de Tempo (#3), de gaz (#4) ni d'offres de marché des fournisseurs (#5).
+- Parties gaz des offres mixtes (TotalEnergies Spéciale #112, Engie Duo Référence #113) : hors comparateur, grilles documentées dans [docs/sources.md](docs/sources.md).
 
 Sources et particularités des données : [docs/sources.md](docs/sources.md).
 
