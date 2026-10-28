@@ -1,5 +1,5 @@
-# TotalEnergies Spéciale Électricité et Gaz, partie électricité — Base
-# (issues #96 ; option HP/HC en #134 ; partie gaz documentée hors moteur, #112 ;
+# TotalEnergies Spéciale Électricité et Gaz, partie électricité — Base et HP/HC
+# (issues #96 Base, #134 Heures creuses ; partie gaz documentée hors moteur, #112 ;
 # inventaire #6). Offre duale électricité + gaz : le moteur ne compare que
 # l'électricité. Décision du 28/10/2026 (commentaire de #96) : un fichier par
 # offre, avec une copie de la grille de la partie électricité ; la grille élec
@@ -31,3 +31,6 @@ options:
       24: {base: 0.1985}
       30: {base: 0.1985}
       36: {base: 0.1985}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.86, 9: 20.16, 12: 24.39, 15: 28.18, 18: 31.70, 24: 39.88, 30: 47.40, 36: 53.88}
+    kwh_ttc: {hp: 0.2142, hc: 0.1589}

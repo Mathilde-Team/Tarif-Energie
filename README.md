@@ -84,7 +84,7 @@ pas de réseau `eld:`. Leur grille TTC datée est à mettre à jour à chaque mo
 EDF Zen Online (Base de 3 à 15 kVA, HC de 6 à 36 kVA), TotalEnergies Access Électricité
 (kWh HT remisé de 10 % pendant 3 ans), TotalEnergies Heures Eco Électricité (prix du TRV),
 TotalEnergies Spéciale Électricité et Gaz (duale : partie électricité au prix du TRV,
-Base ici, HP/HC à venir ; remise annoncée de 10 % non modélisée, partie gaz documentée hors moteur),
+Base et HP/HC ; remise annoncée de 10 % non modélisée, partie gaz documentée hors moteur),
 Gaz de Bordeaux NovaFlex Élec (kWh HT -5 %, fiche de Bordeaux ; Base de 3 à 15 kVA),
 Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée et
 Alpiq Électricité Sérénité (kWh HT -0,5 %) et Primeo Offre Essentielle Verte (kWh HT -5 %).
