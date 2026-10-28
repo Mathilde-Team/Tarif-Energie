@@ -33,7 +33,7 @@ Avec moins de 12 mois d'historique, les coûts portent sur la période disponibl
 ## Offres de marché (v0.2)
 
 Les grilles des fournisseurs sont livrées dans `custom_components/tarifenergie/offres/*.yaml`
-(inventaire [#6](https://github.com/Mathide-Team/tarifenergie/issues/6), moteur [#5](https://github.com/Mathide-Team/tarifenergie/issues/5)) :
+(inventaire [#6](https://github.com/Mathilde-Team/Tarif-Energie/issues/6), moteur [#5](https://github.com/Mathilde-Team/Tarif-Energie/issues/5)) :
 une issue par offre documente la grille, sa date d'effet et ses sources. La v0.2 couvre
 les offres **à prix fixe** avec options Base et Heures creuses — 30 offres :
 
@@ -88,7 +88,7 @@ YAML sur le modèle des existants, une issue d'inventaire la documentant.
 
 ## Installation
 
-1. HACS → Dépôts personnalisés → `https://github.com/Mathide-Team/tarifenergie`, catégorie « Intégration ».
+1. HACS → Dépôts personnalisés → `https://github.com/Mathilde-Team/Tarif-Energie`, catégorie « Intégration ».
 2. Installer tarifenergie, redémarrer Home Assistant.
 3. Paramètres → Appareils et services → Ajouter une intégration → tarifenergie.
 
@@ -99,6 +99,15 @@ YAML sur le modèle des existants, une issue d'inventaire la documentant.
 - Pas encore de Tempo (#3), de gaz (#4) ni d'offres de marché des fournisseurs (#5).
 
 Sources et particularités des données : [docs/sources.md](docs/sources.md).
+
+## Données et licences
+
+Le code de l'intégration est sous licence [MIT](LICENSE) (exception Home Assistant du socle de l'équipe). Les données livrées avec l'intégration ne sont pas couvertes par cette licence :
+
+- **Tarifs réglementés (TRV)** — `custom_components/tarifenergie/tarifs/*.csv` : fichiers open data de la [Commission de régulation de l'énergie (CRE)](https://www.cre.fr/documents/open-data.html) (`Option_Base.csv`, `Option_HPHC.csv`, `Option_Tempo.csv`), copiés **sans modification** par `scripts/maj_tarifs_cre.py`. La CRE les présente comme « réutilisables librement » ; ses [mentions légales](https://www.cre.fr/mentions-legales-et-politique-de-confidentialite.html) demandent de respecter l'intégrité des documents, de citer la source et la date du document (à défaut sa date de mise à jour) et de donner un lien vers la page d'origine. Le jeu de données [data.gouv.fr](https://www.data.gouv.fr/datasets/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels) n'indique pas de licence (« License Not Specified »).
+  Attribution : « Source : Commission de régulation de l'énergie (CRE), open data Marchés de détail, https://www.cre.fr/documents/open-data.html », avec la date de mise à jour des fichiers.
+- **Offres de marché** — `custom_components/tarifenergie/offres/*.yaml` : prix relevés à la main dans les grilles tarifaires publiques des fournisseurs. Chaque fichier cite sa grille dans le champ `source:` et la date d'effet ; l'issue de l'offre documente le relevé. Seuls les prix (des faits) sont repris, pas les documents : ces grilles restent la propriété de leurs fournisseurs et font foi en cas d'écart.
+- **Consommation** : lue dans le recorder de votre Home Assistant, elle ne quitte pas votre installation.
 
 ## Développement
 
