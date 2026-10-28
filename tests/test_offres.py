@@ -72,6 +72,7 @@ def test_quatre_offres_livrees(offres):
         "oya_trv_local",
         "papernest_verte_1an",
         "plenitude_pleniweb_1an",
+        "primeo_essentielle_verte",
         "primeo_fixe_confort",
         "primeo_fixe_eco_15",
         "sarre_union_trv_local",
@@ -225,6 +226,27 @@ def test_alpiq_serenite_trv_moins_un_demi_pourcent(offres):
     assert g.prix == {"hp": Decimal("0.213337"), "hc": Decimal("0.158293")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
         grilles["alpiq_serenite:hphc"].en_vigueur(3, jour)
+
+
+def test_primeo_essentielle_verte_trv_moins_cinq_pourcent(offres):
+    """Primeo Offre Essentielle Verte (#60, #162) : grille du 14/09/2026 (TRV du 01/08/2026 -5 %
+    sur le kWh HT), Base de 3 à 36 kVA, sans HC en 3 kVA."""
+    offre = offres["primeo_essentielle_verte"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 28).date()
+    g = grilles["primeo_essentielle_verte:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 9, 14).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.1919")},
+    )
+    assert grilles["primeo_essentielle_verte:base"].en_vigueur(36, jour).prix == {"base": Decimal("0.1904")}
+    g = grilles["primeo_essentielle_verte:hphc"].en_vigueur(30, jour)
+    assert g.abonnement_an == Decimal("557.76")  # 46,48 x 12
+    assert g.prix == {"hp": Decimal("0.2054"), "hc": Decimal("0.1528")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["primeo_essentielle_verte:hphc"].en_vigueur(3, jour)
 
 
 def test_gaz_de_bordeaux_novaflex_indexee_trv(offres):

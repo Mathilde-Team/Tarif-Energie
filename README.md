@@ -78,7 +78,7 @@ EDF Zen Online (Base de 3 à 15 kVA, HC de 6 à 36 kVA), TotalEnergies Access É
 (kWh HT remisé de 10 % pendant 3 ans), TotalEnergies Heures Eco Électricité (prix du TRV),
 Gaz de Bordeaux NovaFlex Élec (kWh HT -5 %, fiche de Bordeaux ; Base de 3 à 15 kVA),
 Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée et
-Alpiq Électricité Sérénité (kWh HT -0,5 %).
+Alpiq Électricité Sérénité (kWh HT -0,5 %) et Primeo Offre Essentielle Verte (kWh HT -5 %).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
