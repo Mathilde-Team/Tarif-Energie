@@ -110,6 +110,10 @@ async def test_capteurs(hass: HomeAssistant):
         # centime avec le TRV national HC ; départage par le nom de l'option.
         "geg_trv_local:hphc",
         "hphc",
+        # Jeety Elec-Dom HC (#161, indexée TRV) : 36 x 0,1579 + 3/365 x 195,12 = 7,29 €,
+        # à égalité au centime avec le TRV national HC (grille de février 2026 non
+        # revue au mouvement du TRV du 01/08/2026) ; départage par le nom de l'option.
+        "jeety_elec_dom:hphc",
         # TRV local Amnéville HC (#222) : 7,30 €.
         "amneville_trv_local:hphc",
         # TRV local Barr HC (#198) : 36 x 0,1589 + 3/365 x 192,48 = 7,30 €, juste
@@ -183,6 +187,8 @@ async def test_capteurs(hass: HomeAssistant):
         "gaz_de_bordeaux_novaflex:base",
         # EDF Zen Online Base (#21) : 36 x 0,1925 + 3/365 x 190,32 = 8,49 €.
         "edf_zen_online:base",
+        # Jeety Elec-Dom Base (#59, indexée TRV) : 36 x 0,1940 + 3/365 x 188,40 = 8,53 €.
+        "jeety_elec_dom:base",
         # TRV local Energis Base (#200) : 36 x 0,19522 + 3/365 x 190,32 = 8,59 €.
         "energis_trv_local:base",
         "la_bellenergie_prudence:base",
