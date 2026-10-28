@@ -13,6 +13,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ### Ajouté
 - **Offre Primeo Energie Fixe ECO -15 %** (#185) : prix HT fixes jusqu'au 31/07/2027 (kWh HT du TRV de février 2026 -15 %), grille TTC du 01/02/2026, seule en ligne, Base de 3 à 36 kVA. Ses prix TTC ne suivent pas les évolutions de taxes ou de TURPE postérieures. L'option HP/HC et l'option Energie Verte n'ont pas d'issue dans ce dépôt et ne sont pas reprises.
 - **Offre Gaz de Bordeaux NovaFlex Élec** (#100 Base, #373 HC) : indexée sur le TRV (kWh HT -5 %, abonnement du TRV), fiche de Bordeaux du 01/10/2026. Base de 3 à 15 kVA, HC de 6 à 36 kVA. Les taxes locales des autres communes ne sont pas modélisées.
+- **Offre Primeo Energie Offre Essentielle Verte** (#60 Base, #162 HC) : indexée sur le TRV, kWh HT au TRV -5 % et abonnement du TRV, grille du 14/09/2026 (TRV du 01/08/2026) ; Base de 3 à 36 kVA, HC à partir de 6 kVA. L'option Energie Verte (#402) n'est pas reprise.
 - **Offre Alpiq Électricité Sérénité** (#42 Base, #150 HC) : indexée sur le TRV, kWh HT au TRV -0,5 % et abonnement du TRV, grille du 01/08/2026 ; HC à partir de 6 kVA. L'option électricité verte n'est pas reprise.
 - **Offre TotalEnergies Heures Eco Électricité** (#94 Base, #132 HC) : indexée sur le TRV avec les mêmes prix, sans remise ni engagement, grille du 01/10/2026 ; HC à partir de 6 kVA.
 - **Offre Alterna Mon électricité française indexée** (#45 Base, #153 HC) : indexée sur le TRV, grille TTC du 01/09/2026, avec un abonnement propre à Alterna. L'option HC est proposée dès 3 kVA.
