@@ -33,6 +33,7 @@ def test_quatre_offres_livrees(offres):
         "amneville_trv_local",
         "barr_trv_local",
         "bazas_trv_local",
+        "edf_vert_electrique_week_end",
         "edf_zen_fixe_2ans",
         "edf_zen_online",
         "edf_zen_week_end",
@@ -1866,3 +1867,60 @@ def test_zen_week_end_un_kwh_samedi(offres):
     )
     assert cout.kwh == {"week_end": Decimal("1.0")}
     assert cout.total == (Decimal("190.32") / Decimal("365") + Decimal("0.1710")).quantize(Decimal("0.01"))
+
+
+# Grille EDF Vert Électrique Week-End (#19 Base, #120 HC), du 15/09/2026 : abonnements
+# € TTC/mois (pas de 3 kVA) ; l'option HC publie 39,88 et 47,40 € en 24 et 30 kVA.
+GRILLE_VERT_WEEK_END = {
+    6: (15.86, 15.86),
+    9: (19.88, 19.88),
+    12: (23.76, 23.76),
+    15: (27.40, 27.40),
+    18: (31.14, 31.14),
+    24: (39.14, 39.88),
+    30: (46.47, 47.40),
+    36: (53.88, 53.88),
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuels"), sorted(GRILLE_VERT_WEEK_END.items()))
+def test_vert_electrique_week_end_grilles(offres, puissance, mensuels):
+    """EDF Vert Électrique Week-End (#19, #120), grille du 15/09/2026 : huit abonnements
+    par option, ceux de 24 et 30 kVA propres à l'option HC, sans 3 kVA."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    base, hc = mensuels
+    g = grilles["edf_vert_electrique_week_end:week_end"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 9, 15).date(), Decimal(str(base)) * 12)
+    assert g.prix == {"semaine": Decimal("0.2171"), "week_end": Decimal("0.1630")}
+    g = grilles["edf_vert_electrique_week_end:week_end_hphc"].en_vigueur(puissance, jour)
+    assert g.abonnement_an == Decimal(str(hc)) * 12
+    assert g.prix == {
+        "semaine_hp": Decimal("0.2259"),
+        "semaine_hc": Decimal("0.1691"),
+        "week_end_hp": Decimal("0.1691"),
+        "week_end_hc": Decimal("0.1691"),
+    }
+
+
+def test_vert_electrique_week_end_sans_3_kva(offres):
+    """Ni l'option Week-End ni l'option HC ne sont proposées en 3 kVA (#19, #120)."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    for option in ("week_end", "week_end_hphc"):
+        with pytest.raises(TarifIntrouvable, match="3 kVA"):
+            grilles[f"edf_vert_electrique_week_end:{option}"].en_vigueur(3, jour)
+
+
+def test_vert_electrique_week_end_jour_ferie(offres):
+    """1 kWh le mercredi 11/11/2026 (férié national) : tarif week-end 16,30 c€ (#19)."""
+    grilles = grilles_offres(offres)
+    cout = cout_option(
+        "edf_vert_electrique_week_end:week_end",
+        grilles["edf_vert_electrique_week_end:week_end"],
+        6,
+        [(datetime(2026, 11, 11, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"week_end": Decimal("1.0")}
+    assert cout.energie == Decimal("0.1630")
