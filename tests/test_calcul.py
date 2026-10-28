@@ -113,6 +113,64 @@ def test_week_end_repartition():
     assert cout.energie == Decimal("0.31108") + 2 * Decimal("0.22878")
 
 
+def test_week_end_hphc_repartition():
+    """Week-end ET heures creuses (#331) : postes croisés, HC du point de livraison aussi le week-end."""
+    grilles = Grilles(
+        [
+            Grille(
+                "es_verte_fixe_1an:week_end_hphc",
+                6,
+                date(2026, 1, 1),
+                None,
+                Decimal(0),
+                {
+                    "semaine_hp": Decimal("0.32357"),
+                    "semaine_hc": Decimal("0.23752"),
+                    "week_end_hp": Decimal("0.23752"),
+                    "week_end_hc": Decimal("0.23752"),
+                },
+            )
+        ]
+    )
+    conso = [
+        (datetime(2026, 10, 23, 23), 1.0),  # vendredi 23 h : heures creuses, semaine
+        (datetime(2026, 10, 28, 12), 1.0),  # mercredi midi : heures pleines, semaine
+        (datetime(2026, 10, 24, 12), 1.0),  # samedi midi : heures pleines, week-end
+        (datetime(2026, 10, 25, 2), 1.0),  # dimanche 2 h : heures creuses, week-end
+    ]
+    cout = cout_option("es_verte_fixe_1an:week_end_hphc", grilles, 6, conso, PlagesHC.lire("23:00-07:00"))
+    assert cout.kwh == {
+        "semaine_hp": Decimal(1),
+        "semaine_hc": Decimal(1),
+        "week_end_hp": Decimal(1),
+        "week_end_hc": Decimal(1),
+    }
+    assert cout.energie == Decimal("0.32357") + 3 * Decimal("0.23752")
+
+
+def test_week_end_hphc_sans_plages():
+    """L'option croisée week-end x heures creuses exige les plages d'heures creuses."""
+    grilles = Grilles(
+        [
+            Grille(
+                "x:week_end_hphc",
+                6,
+                date(2026, 1, 1),
+                None,
+                Decimal(0),
+                {
+                    "semaine_hp": Decimal("0.32"),
+                    "semaine_hc": Decimal("0.24"),
+                    "week_end_hp": Decimal("0.24"),
+                    "week_end_hc": Decimal("0.24"),
+                },
+            )
+        ]
+    )
+    with pytest.raises(ValueError, match="demande des plages"):
+        cout_option("x:week_end_hphc", grilles, 6, [(datetime(2026, 10, 24, 12), 1.0)])
+
+
 def test_annee_bissextile():
     grilles = Grilles([Grille("base", 6, date(2028, 1, 1), None, Decimal(366), {"base": Decimal(0)})])
     assert cout_option("base", grilles, 6, [(datetime(2028, 2, 29), 1.0)]).abonnement == 1

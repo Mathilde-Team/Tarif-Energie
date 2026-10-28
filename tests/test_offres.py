@@ -1350,6 +1350,35 @@ def test_es_verte_fixe_1an_option_week_end_un_kwh_samedi(offres):
     assert cout.total == (Decimal("190.32") / Decimal("365") + Decimal("0.22878")).quantize(Decimal("0.01"))
 
 
+# Grille « Week-end et heures creuses » de l'offre verte (#331), du 01/10/2026
+# (à partir de 6 kVA) : abonnements € TTC/mois.
+GRILLE_WEEK_END_HPHC_ES = {
+    6: 16.05,
+    9: 20.16,
+    12: 24.13,
+    15: 27.86,
+    18: 31.70,
+    24: 39.88,
+    30: 47.40,
+    36: 54.99,
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_WEEK_END_HPHC_ES.items()))
+def test_es_verte_fixe_1an_option_week_end_hphc(offres, puissance, mensuel):
+    """Option Week-end et heures creuses (#331), grille du 01/10/2026 : les 4 postes croisés."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_fixe_1an:week_end_hphc"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal(str(mensuel)) * 12)
+    assert g.prix == {
+        "semaine_hp": Decimal("0.32357"),
+        "semaine_hc": Decimal("0.23752"),
+        "week_end_hp": Decimal("0.23752"),
+        "week_end_hc": Decimal("0.23752"),
+    }
+
+
 def test_lot_2_offres_fixes(offres):
     """Lot 2 (issues #38, #43, #56, #57, #61, #62, #65, #68) : valeurs citées des grilles."""
     grilles = grilles_offres(offres)
@@ -1473,6 +1502,25 @@ def test_comparaison_trv_contre_offres(offres):
                 "options": {"base": {"abonnement_mensuel_ttc": {42: 11.0}, "kwh_ttc": {"base": 0.2}}},
             },
             "abonnement_mensuel_ttc",
+        ),
+        (
+            {
+                "id": "x",
+                "type_prix": "fixe",
+                "grille_du": "2026-10-01",
+                "duree_fixite_mois": 12,
+                "source": "https://exemple.fr",
+                "fournisseur": "F",
+                "offre": "O",
+                "options": {
+                    "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+                    "week_end_hphc": {
+                        "abonnement_mensuel_ttc": {6: 15.0},
+                        "kwh_ttc": {"semaine_hp": 0.3, "semaine_hc": 0.2},
+                    },
+                },
+            },
+            "offre.options.week_end_hphc",
         ),
         (
             {

@@ -6,10 +6,10 @@
 # jour : 01/10/2026 »), lue sur le rendu de la page. kWh Base : 0,30216 € pour
 # 3 et 6 kVA, 0,29981 € de 9 à 36 kVA (cellules fusionnées). Pas d'HC en 3 kVA.
 # Option Week-end Base (#330) : reprise ci-dessous (grille du 01/10/2026, même
-# PDF). La variante « Week-end et heures creuses » (#331) et les options 100 %
-# régionales (#333, #334) attendent les postes croisés HC × week-end. Abonnement
-# Linky « légèrement inférieur de quelques centimes » selon la fiche : non
-# modélisé (prix affichés retenus).
+# PDF), ainsi que la variante « Week-end et heures creuses » (#331). Les options
+# 100 % régionales (#333, #334) sont dans es_verte_regionale_fixe_1an.yaml.
+# Abonnement Linky « légèrement inférieur de quelques centimes » selon la fiche :
+# non modélisé (prix affichés retenus).
 id: es_verte_fixe_1an
 fournisseur: ÉS Énergies
 offre: Électricité verte à prix fixe 1 an
@@ -41,3 +41,11 @@ options:
   week_end:
     abonnement_mensuel_ttc: {3: 12.13, 6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
     kwh_ttc: {semaine: 0.31108, week_end: 0.22878}
+  # Option Week-end et Heures creuses (#331), grille du 01/10/2026 : les quatre
+  # postes croisés, « les heures creuses sont celles du point de livraison »
+  # (plages configurées par l'utilisateur dans l'intégration). Offre à partir
+  # de 6 kVA. Ici le week-end est uniforme (HP = HC = 0,23752 €). Linky exigé
+  # par la fiche : non modélisé.
+  week_end_hphc:
+    abonnement_mensuel_ttc: {6: 16.05, 9: 20.16, 12: 24.13, 15: 27.86, 18: 31.70, 24: 39.88, 30: 47.40, 36: 54.99}
+    kwh_ttc: {semaine_hp: 0.32357, semaine_hc: 0.23752, week_end_hp: 0.23752, week_end_hc: 0.23752}

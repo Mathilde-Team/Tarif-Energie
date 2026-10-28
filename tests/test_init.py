@@ -288,6 +288,9 @@ async def test_capteurs(hass: HomeAssistant):
         "ilek_enrfixe_plus:hphc",
         # Hunélec Base (#325, #327) : 36 x 0,23506 + 3/365 x 188,88 = 10,01 € (vert : 10,24 €).
         "hunelec_prix_fixe_1an:base",
+        # ÉS Week-end et heures creuses (#331) : tout à 23,752 c€ (nuit HC + samedi
+        # 03/10) + 3/365 x 192,60 = 10,13 €.
+        "es_verte_fixe_1an:week_end_hphc",
         # ÉS HC (#329) : 36 x 0,24 + 3/365 x 194,16 = 10,2358 €, juste devant
         # Hunélec vert Base (10,2385 €) ; ÉS 100 % régionale HC (#332) : 10,46 €.
         "es_verte_fixe_1an:hphc",
