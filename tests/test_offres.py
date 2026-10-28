@@ -35,6 +35,7 @@ def test_quatre_offres_livrees(offres):
         "bazas_trv_local",
         "edf_zen_fixe_2ans",
         "edf_zen_online",
+        "edf_zen_week_end",
         "edf_zen_week_end_plus",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
@@ -1809,3 +1810,59 @@ def test_offre_a_jour_choisi_schema_invalide():
     }
     with pytest.raises(OffreInvalide, match="option Base attendue"):
         offre_depuis_dict(donnees, "x")
+
+
+# Grille EDF Zen Week-End (#12 Base, #117 HC), du 15/09/2026 : abonnements
+# € TTC/mois, identiques aux deux options (la Base existe dès 3 kVA).
+GRILLE_ZEN_WEEK_END = {
+    3: 12.13,
+    6: 15.86,
+    9: 19.88,
+    12: 23.76,
+    15: 27.40,
+    18: 31.14,
+    24: 39.14,
+    30: 46.47,
+    36: 53.88,
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_ZEN_WEEK_END.items()))
+def test_zen_week_end_grilles(offres, puissance, mensuel):
+    """EDF Zen Week-End (#12, #117), grille du 15/09/2026 : neuf abonnements en Base
+    (week_end), huit en heures creuses (week_end_hphc, pas de 3 kVA)."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["edf_zen_week_end:week_end"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an, g.jour_choisi) == (
+        datetime(2026, 9, 15).date(),
+        Decimal(str(mensuel)) * 12,
+        None,
+    )
+    assert g.prix == {"semaine": Decimal("0.2285"), "week_end": Decimal("0.1710")}
+    if puissance == 3:
+        with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+            grilles["edf_zen_week_end:week_end_hphc"].en_vigueur(3, jour)
+    else:
+        g = grilles["edf_zen_week_end:week_end_hphc"].en_vigueur(puissance, jour)
+        assert (g.abonnement_an, g.jour_choisi) == (Decimal(str(mensuel)) * 12, None)
+        assert g.prix == {
+            "semaine_hp": Decimal("0.2359"),
+            "semaine_hc": Decimal("0.1762"),
+            "week_end_hp": Decimal("0.1762"),
+            "week_end_hc": Decimal("0.1762"),
+        }
+
+
+def test_zen_week_end_un_kwh_samedi(offres):
+    """1 kWh un samedi (24/10/2026) : 17,10 c€ + abonnement 6 kVA au prorata (#12)."""
+    grilles = grilles_offres(offres)
+    cout = cout_option(
+        "edf_zen_week_end:week_end",
+        grilles["edf_zen_week_end:week_end"],
+        6,
+        [(datetime(2026, 10, 24, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"week_end": Decimal("1.0")}
+    assert cout.total == (Decimal("190.32") / Decimal("365") + Decimal("0.1710")).quantize(Decimal("0.01"))

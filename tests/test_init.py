@@ -176,6 +176,9 @@ async def test_capteurs(hass: HomeAssistant):
         "edf_zen_week_end_plus:week_end_hphc_jour_lundi",
         "edf_zen_week_end_plus:week_end_hphc_jour_mercredi",
         "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
+        # EDF Zen Week-End HC (#117) : tout à 17,62 c€ (nuit HC + samedi 03/10)
+        # + 3/365 x 190,32 = 7,91 €.
+        "edf_zen_week_end:week_end_hphc",
         "primeo_fixe_confort:base",
         # TotalEnergies Fixe 2 ans HC (#126) : 36 x 0,1791 + 3/365 x 192,60 = 8,03 €.
         "totalenergies_fixe_2ans:hphc",
@@ -292,6 +295,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
         "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
+        # EDF Zen Week-End Base (#12) : 24 x 0,2285 + 12 x 0,171 (samedi 03/10)
+        # + 3/365 x 190,32 = 9,10 €.
+        "edf_zen_week_end:week_end",
         # Engie Elec Référence 3 ans HC (#127) : 36 x 0,20683 + 3/365 x 215,79 = 9,22 €.
         "engie_elec_reference_3ans:hphc",
         "selia_elec_vert_fixe:hphc",
