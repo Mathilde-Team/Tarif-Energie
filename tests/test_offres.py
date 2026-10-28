@@ -49,6 +49,7 @@ def test_quatre_offres_livrees(offres):
         "gascogne_trv_local",
         "gaz_de_bordeaux_novafixe",
         "gaz_de_bordeaux_novafixe_bonus",
+        "gaz_de_bordeaux_novafixe_bonus_duo",
         "gaz_de_bordeaux_novaflex",
         "gedia_all_inclusive",
         "gedia_trv_local",
@@ -1233,6 +1234,36 @@ def test_gaz_de_bordeaux_novafixe_grille_d_octobre_2026(offres):
         with pytest.raises(TarifIntrouvable, match="3 kVA"):
             grilles[f"{ident}:hphc"].en_vigueur(3, jour)
         assert offres[ident].duree_fixite_mois == 36
+
+
+def test_gaz_de_bordeaux_novafixe_bonus_duo_grille_d_octobre_2026(offres):
+    """Partie électricité du Duo, fiche Bordeaux du 01/10/2026 (#181, #336).
+
+    Même grille que NovaFixe Bonus Élec (#99, #371) : la partie électricité
+    de l'offre duale est le contrat NovaFixe Bonus Élec (règlement de l'offre).
+    """
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["gaz_de_bordeaux_novafixe_bonus_duo:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.44"),  # 15,87 x 12
+        {"base": Decimal("0.18373")},
+    )
+    g = grilles["gaz_de_bordeaux_novafixe_bonus_duo:hphc"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.44"),  # 15,87 x 12
+        {"hp": Decimal("0.19648"), "hc": Decimal("0.14669")},
+    )
+    assert grilles["gaz_de_bordeaux_novafixe_bonus_duo:hphc"].en_vigueur(36, jour).abonnement_an == (
+        Decimal("646.56")  # 53,88 x 12
+    )
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # HP/HC dès 6 kVA seulement
+        grilles["gaz_de_bordeaux_novafixe_bonus_duo:hphc"].en_vigueur(3, jour)
+    with pytest.raises(TarifIntrouvable, match="18 kVA"):  # Base de 3 à 15 kVA seulement
+        grilles["gaz_de_bordeaux_novafixe_bonus_duo:base"].en_vigueur(18, jour)
+    assert offres["gaz_de_bordeaux_novafixe_bonus_duo"].duree_fixite_mois == 36
 
 
 def test_totalenergies_verte_fixe_grille_du_24_septembre_2026(offres):
