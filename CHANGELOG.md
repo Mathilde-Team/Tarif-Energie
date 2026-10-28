@@ -8,6 +8,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 - **Métadonnées** (#474) : `manifest.json` (`documentation`, `issue_tracker`) et liens du README pointent vers `Mathilde-Team/Tarif-Energie` (faute de frappe « Mathide-Team »).
 
 ### Documentation
+- **Parties gaz des offres mixtes** (#112, #113) : section « Documentées hors moteur » dans `docs/sources.md` (grilles TotalEnergies Spéciale et Engie Duo Référence relevées le 19/10/2026) et limite connue du README — hors comparateur, le moteur restant électrique.
 - **Données et licences** (#474) : section du README sur la source et les conditions de réutilisation des TRV (open data CRE, attribution) et des grilles des fournisseurs.
 
 ### Ajouté
