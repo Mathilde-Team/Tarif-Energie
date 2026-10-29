@@ -3,8 +3,10 @@
 Chaque fichier ``offres/<id>.yaml`` décrit une offre d'électricité pour particuliers,
 telle que publiée dans les grilles des fournisseurs (inventaire #6, une issue par
 offre). Le moteur lit les offres **à prix fixe** et **indexées sur le TRV** (typologie
-CRE), ainsi que les TRV locaux des ELD ; les offres dynamiques ou à coloration de jours
-(OctoTempo…) viendront plus tard avec leurs structures propres.
+CRE), ainsi que les TRV locaux des ELD et les offres à option Week-end (postes
+semaine / week-end : tarif week-end les samedis, dimanches et jours fériés
+nationaux) ; les offres dynamiques ou à coloration de jours (OctoTempo…)
+viendront plus tard avec leurs structures propres.
 
 Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
 
@@ -24,6 +26,9 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
         abonnement_mensuel_ttc: {6: 15.36, …}
         kwh_ttc: {hp: 0.2106, hc: 0.1565}                     # prix uniforme
         # ou abonnement_annuel_ttc: {6: 190.36, …} pour une grille publiée en €/an
+      week_end:                          # option « Week-end » (ex. ÉS Énergies, #330)
+        abonnement_mensuel_ttc: {3: 12.13, …}
+        kwh_ttc: {semaine: 0.31108, week_end: 0.22878}         # les deux postes exigés
 
 Les prix sont TTC, en €/kWh (les grilles des fournisseurs sont en c€ TTC/kWh).
 L'abonnement mensuel est converti en €/an (multiplié par 12, en ``Decimal`` exact) ;
@@ -35,16 +40,18 @@ concerné, avec la raison, comme pour les options du TRV.
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from .calcul import PlagesHC
 from .const import PUISSANCES
-from .modele import Grille, Grilles
+from .modele import Grille, Grilles, Saison
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,8 +65,70 @@ DOSSIER_OFFRES = Path(__file__).parent / "offres"
 # sans réseau ``eld``.
 TYPE_PRIX: tuple[str, ...] = ("fixe", "reglemente", "indexe_trv")
 SANS_FIXITE: tuple[str, ...] = ("reglemente", "indexe_trv")
-POSTES = ("base", "hp", "hc")
+POSTES = (
+    "base",
+    "hp",
+    "hc",
+    "semaine",
+    "week_end",
+    "jour_choisi",
+    "semaine_hp",
+    "semaine_hc",
+    "week_end_hp",
+    "week_end_hc",
+    "jour_choisi_hp",
+    "jour_choisi_hc",
+    # Postes saisonniers des offres été/hiver (Zen Estival, #20) ou à plages
+    # constantes toute l'année (Charge'Heures, #24) : le préfixe est la saison,
+    # portée par la grille avec ses plages (cf. ``_saisons``).
+    "ete_hsc",
+    "ete_hc",
+    "ete_hp",
+    "hiver_hc",
+    "hiver_hp",
+    "annee_hsc",
+    "annee_hc",
+    "annee_hp",
+)
 MOIS_PAR_AN = Decimal("12")
+
+# Options à postes imposés : l'option exige exactement cet ensemble de postes
+# (« week_end » : #330 ; « week_end_hphc » : week-end ET heures creuses, #331).
+POSTES_PAR_OPTION: dict[str, tuple[frozenset[str], str]] = {
+    "week_end": (frozenset({"semaine", "week_end"}), "semaine+week_end attendus (option week_end)"),
+    "week_end_hphc": (
+        frozenset({"semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc"}),
+        "semaine_hp+semaine_hc+week_end_hp+week_end_hc attendus (option week_end_hphc)",
+    ),
+}
+
+# Jour de semaine du « jour choisi » des offres Zen Week-End Plus (#10, #116) :
+# le client choisit lundi, mercredi ou vendredi, et le moteur simule les trois
+# variantes (une clé de comparaison par jour choisi).
+JOUR_CHOISI: dict[str, int] = {
+    "week_end_jour_lundi": 0,
+    "week_end_jour_mercredi": 2,
+    "week_end_jour_vendredi": 4,
+    "week_end_hphc_jour_lundi": 0,
+    "week_end_hphc_jour_mercredi": 2,
+    "week_end_hphc_jour_vendredi": 4,
+}
+POSTES_PAR_OPTION.update(
+    (option, (frozenset({"semaine", "week_end", "jour_choisi"}), "semaine+week_end+jour_choisi attendus"))
+    for option in ("week_end_jour_lundi", "week_end_jour_mercredi", "week_end_jour_vendredi")
+)
+POSTES_PAR_OPTION.update(
+    (
+        option,
+        (
+            frozenset(
+                {"semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc", "jour_choisi_hp", "jour_choisi_hc"}
+            ),
+            "semaine_hp+semaine_hc+week_end_hp+week_end_hc+jour_choisi_hp+jour_choisi_hc attendus",
+        ),
+    )
+    for option in ("week_end_hphc_jour_lundi", "week_end_hphc_jour_mercredi", "week_end_hphc_jour_vendredi")
+)
 
 
 class OffreInvalide(ValueError):
@@ -125,7 +194,7 @@ def _puissances(d: dict[str, Any], chemin: str) -> dict[int, Decimal]:
 
 
 def _postes(d: dict[str, Any], chemin: str) -> dict[str, Decimal]:
-    """Mapping poste (base / hp / hc) → prix € TTC/kWh."""
+    """Mapping poste (base / hp / hc / semaine / week_end) → prix € TTC/kWh."""
     _LOGGER.debug("_postes: entrée")
     brutes = d.get("kwh_ttc")
     _exiger(isinstance(brutes, dict) and brutes != {}, chemin + ".kwh_ttc", "mapping attendu")
@@ -137,10 +206,133 @@ def _postes(d: dict[str, Any], chemin: str) -> dict[str, Decimal]:
     return postes
 
 
+def _exiger_postes(prix: dict[str, Decimal], option: str, chemin: str) -> None:
+    """Postes d'une option : ensemble imposé pour week_end/week_end_hphc, sinon base ou hp+hc."""
+    _LOGGER.debug("_exiger_postes: entrée")
+    if option in POSTES_PAR_OPTION:
+        attendus, message = POSTES_PAR_OPTION[option]
+        _exiger(set(prix) == attendus, chemin, message)
+    else:
+        _exiger(
+            set(prix) <= {"base"} or set(prix) == {"hp", "hc"},
+            chemin,
+            "base OU hp+hc attendus",
+        )
+    _LOGGER.debug("_exiger_postes: fin")
+
+
+def _jour_annee(texte: str, chemin: str) -> tuple[int, int]:
+    """« 04-15 » → (4, 15) : borne de saison en mois/jour (issue #20)."""
+    _LOGGER.debug("_jour_annee: entrée")
+    _exiger(isinstance(texte, str) and re.match(r"^\d{2}-\d{2}$", texte), chemin, "attendu : MM-JJ")
+    mois, jour = (int(x) for x in texte.split("-"))
+    _exiger(1 <= mois <= 12 and 1 <= jour <= 31, chemin, "mois ou jour impossible")
+    _LOGGER.debug("_jour_annee: %s-%s", mois, jour)
+    return mois, jour
+
+
+def _plages_saison(
+    donnees: dict[str, Any], cle: str, chemin: str, exigees: bool
+) -> tuple[tuple[int, int], ...]:
+    """Plages HSC/HC d'une saison : texte ``PlagesHC`` validé, en minutes."""
+    _LOGGER.debug("_plages_saison: entrée")
+    texte = donnees.get(cle)
+    if texte is None:
+        _exiger(not exigees, chemin, f"plages {cle} attendues")
+        _LOGGER.debug("_plages_saison: vide")
+        return ()
+    _exiger(isinstance(texte, str) and texte.strip() != "", chemin, "texte de plages attendu")
+    plages = PlagesHC.lire(texte).plages
+    _LOGGER.debug("_plages_saison: %s plage(s)", len(plages))
+    return plages
+
+
+def _saisons(donnees: dict[str, Any], chemin: str) -> tuple[tuple[Saison, ...], dict[str, Decimal]]:
+    """Saisons d'une offre à postes et plages portées par l'offre (#20, #24).
+
+    Deux formes : été+hiver (postes saisonniers, ex. Zen Estival) ou une saison
+    unique ``annee`` pour des plages constantes toute l'année (ex. Charge'Heures).
+    Chaque saison exige hc et hp, plus hsc facultatif ; les HSC et HC d'une
+    saison ne se chevauchent pas. Les saisons doivent partitionner l'année
+    (aucun jour hors saison, aucun doublon).
+    """
+    _LOGGER.debug("_saisons: entrée")
+    saisons_brutes = donnees.get("saisons")
+    _exiger(
+        isinstance(saisons_brutes, dict)
+        and (set(saisons_brutes) == {"ete", "hiver"} or set(saisons_brutes) == {"annee"}),
+        f"{chemin}.saisons",
+        "saisons ete+hiver attendues, ou annee seule (plages constantes)",
+    )
+    saisons: list[Saison] = []
+    prix: dict[str, Decimal] = {}
+    for nom in saisons_brutes:
+        saison = saisons_brutes[nom]
+        chemin_saison = f"{chemin}.saisons.{nom}"
+        _exiger(isinstance(saison, dict), chemin_saison, "mapping attendu")
+        debut = _jour_annee(saison.get("du"), f"{chemin_saison}.du")
+        fin = _jour_annee(saison.get("au"), f"{chemin_saison}.au")
+        _exiger(debut != fin, chemin_saison, "saison vide (du == au)")
+        brutes = saison.get("kwh_ttc")
+        _exiger(
+            isinstance(brutes, dict) and {"hc", "hp"} <= set(brutes) <= {"hsc", "hc", "hp"},
+            f"{chemin_saison}.kwh_ttc",
+            "postes attendus : hc et hp, plus hsc facultatif",
+        )
+        hsc = _plages_saison(saison.get("plages", {}), "hsc", f"{chemin_saison}.plages", "hsc" in brutes)
+        hc = _plages_saison(saison.get("plages", {}), "hc", f"{chemin_saison}.plages", True)
+        intervalles_hsc = sorted(PlagesHC(plages=hsc)._intervalles())
+        intervalles_hc = sorted(PlagesHC(plages=hc)._intervalles())
+        _exiger(
+            not any(
+                hsc_d < hc_f and hc_d < hsc_f
+                for hsc_d, hsc_f in intervalles_hsc
+                for hc_d, hc_f in intervalles_hc
+            ),
+            f"{chemin_saison}.plages",
+            "les plages HSC et HC ne doivent pas se chevaucher",
+        )
+        saisons.append(Saison(nom, debut, fin, hsc, hc))
+        for poste in brutes:
+            prix[f"{nom}_{poste}"] = _decimal(brutes[poste], f"{chemin_saison}.kwh_ttc[{poste}]")
+    _exiger(
+        _saisons_couvre_annee(tuple(saisons)),
+        f"{chemin}.saisons",
+        "les saisons doivent partitionner l'année (chaque jour dans exactement une saison)",
+    )
+    _LOGGER.debug("_saisons: %s saison(s)", len(saisons))
+    return tuple(saisons), prix
+
+
+def _saisons_couvre_annee(saisons: tuple[Saison, ...]) -> bool:
+    """Chaque jour d'une année bissextile tombe dans exactement une saison."""
+    _LOGGER.debug("_saisons_couvre_annee: entrée")
+    vues: set[tuple[int, int]] = set()
+    for jour in (date(2024, 1, 1) + timedelta(days=n) for n in range(366)):
+        couvertes = [s for s in saisons if s.couvre(jour)]
+        if len(couvertes) != 1:
+            _LOGGER.debug("_saisons_couvre_annee: %s couvert(s) le %s", len(couvertes), jour)
+            return False
+        vues.add((jour.month, jour.day))
+    _LOGGER.debug("_saisons_couvre_annee: %s", len(vues) == 366)
+    return len(vues) == 366
+
+
 def _grilles_option(
-    donnees: dict[str, Any], chemin: str, cles: tuple[str, ...], debut: date
+    donnees: dict[str, Any],
+    chemin: str,
+    cles: tuple[str, ...],
+    debut: date,
+    option: str = "",
+    jour_choisi: int | None = None,
 ) -> dict[int, Grille]:
-    """Grilles d'une option de l'offre : abonnements mensuels x12, prix par poste."""
+    """Grilles d'une option de l'offre : abonnements mensuels x12, prix par poste.
+
+    Les options « week_end » et « week_end_hphc » exigent leurs postes exacts
+    (cf. ``POSTES_PAR_OPTION``) ; les autres (« base », « hphc ») : base seul
+    ou hp + hc. ``jour_choisi`` (lundi/mercredi/vendredi des offres à jour
+    choisi, #10/#116) est porté par la grille pour le moteur de calcul.
+    """
     _LOGGER.debug("_grilles_option: entrée")
     abonnements = _puissances(donnees, chemin)
     grilles: dict[int, Grille] = {}
@@ -159,22 +351,31 @@ def _grilles_option(
             for poste, montant in postes.items():
                 _exiger(poste in POSTES, f"{chemin}[{puissance}]", f"poste inconnu : {poste}")
                 prix[poste] = _decimal(montant, f"{chemin}[{puissance}].{poste}")
-            _exiger(
-                set(prix) <= {"base"} or set(prix) == {"hp", "hc"},
-                f"{chemin}[{puissance}]",
-                "base OU hp+hc attendus",
+            _exiger_postes(prix, option, f"{chemin}[{puissance}]")
+            grilles[puissance] = Grille(
+                cles, puissance, debut, None, abonnements[puissance], prix, jour_choisi
             )
-            grilles[puissance] = Grille(cles, puissance, debut, None, abonnements[puissance], prix)
     else:
         prix_uniforme = _postes(donnees, chemin)
-        _exiger(
-            set(prix_uniforme) <= {"base"} or set(prix_uniforme) == {"hp", "hc"},
-            chemin,
-            "base OU hp+hc attendus",
-        )
+        _exiger_postes(prix_uniforme, option, chemin)
         for puissance, abonnement in abonnements.items():
-            grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme)
+            grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme, jour_choisi)
     _LOGGER.debug("_grilles_option: %s grille(s)", len(grilles))
+    return grilles
+
+
+def _grilles_saisonniere(
+    donnees: dict[str, Any], chemin: str, cles: tuple[str, ...], debut: date
+) -> dict[int, Grille]:
+    """Grilles d'une option à postes saisonniers (#20) : abonnement unique, prix par saison."""
+    _LOGGER.debug("_grilles_saisonniere: entrée")
+    abonnements = _puissances(donnees, chemin)
+    saisons, prix = _saisons(donnees, chemin)
+    grilles = {
+        puissance: Grille(cles, puissance, debut, None, abonnement, dict(prix), None, saisons)
+        for puissance, abonnement in abonnements.items()
+    }
+    _LOGGER.debug("_grilles_saisonniere: %s grille(s)", len(grilles))
     return grilles
 
 
@@ -231,17 +432,45 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     )
     _texte(donnees, "source", "offre.source")
     options = donnees.get("options")
+    # Au moins une option sans heures creuses (la « Base » de l'offre) : base,
+    # week_end, une variante à jour choisi (#10) ou des postes saisonniers
+    # (#20 : les plages HSC/HC sont portées par l'offre, pas par le compteur —
+    # un client sans heures creuses y est simulable aussi) ; hphc/week_end_hphc
+    # seules ne permettraient aucun comparatif pour un client sans heures creuses.
     _exiger(
-        isinstance(options, dict) and set(options) <= {"base", "hphc"} and "base" in options,
+        isinstance(options, dict)
+        and set(options) <= {"base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", *JOUR_CHOISI}
+        and set(options)
+        & {
+            "base",
+            "week_end",
+            "week_end_jour_lundi",
+            "week_end_jour_mercredi",
+            "week_end_jour_vendredi",
+            "hphc_saisonnieres",
+        },
         "offre.options",
-        "base attendue, hphc facultative",
+        "option Base attendue (base, week_end, week_end_jour_* ou hphc_saisonnieres) ;"
+        " les autres sont facultatives",
     )
     grilles: dict[str, Grilles] = {}
-    for option in ("base", "hphc"):
+    for option in ("base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", *JOUR_CHOISI):
         if option not in options:
             continue
+        if option == "hphc_saisonnieres":
+            grilles_saison = _grilles_saisonniere(
+                options[option], f"offre.options.{option}", f"{ident}:{option}", donnees["grille_du"]
+            )
+            _exiger(grilles_saison != {}, f"offre.options.{option}", "aucune puissance définie")
+            grilles[option] = Grilles(tuple(grilles_saison[p] for p in sorted(grilles_saison)))
+            continue
         grilles_option = _grilles_option(
-            options[option], f"offre.options.{option}", f"{ident}:{option}", donnees["grille_du"]
+            options[option],
+            f"offre.options.{option}",
+            f"{ident}:{option}",
+            donnees["grille_du"],
+            option,
+            JOUR_CHOISI.get(option),
         )
         _exiger(grilles_option != {}, f"offre.options.{option}", "aucune puissance définie")
         grilles[option] = Grilles(tuple(grilles_option[p] for p in sorted(grilles_option)))

@@ -1,5 +1,14 @@
 # CLAUDE.md — tarifenergie
 
+
+## Mission
+
+Avant toute intervention autonome sur ce dépôt : lire et appliquer la
+mission d'équipe :
+https://github.com/Mathilde-Team/.github/blob/dev/MISSION.md
+(le socle qualité, SOCLE.md, prime sur la mission en cas de conflit ; si
+le fichier est absent sur `dev`, le chercher sur `main`).
+
 Intégration Home Assistant : comparaison des tarifs d'électricité (puis de gaz) sur la consommation réelle. Feuille de route : #1.
 
 ## Architecture
@@ -21,7 +30,7 @@ custom_components/tarifenergie/
 - Une valeur vérifiée dans un fichier CRE est citée dans les tests avec sa grille (ex. « 01/08/2026, 6 kVA »).
 - Couverture 100 % ; `recorder_mock` activé pour tous les tests (`tests/conftest.py`).
 - Journalisation (SOCLE §8, #418) : `custom_components/` → `logging` (`_LOGGER`, `%s`, jamais de f-string ni loguru) ; ailleurs → loguru (`{}`). `debug` en entrée et avant chaque sortie/`raise` volontaire, chaque `except` journalise ; vérifié par `tests/test_journal_regles.py`, référence `scripts/audit_debug_sorties.baseline` à 0 (`uv run --only-group scripts python scripts/audit_debug_sorties.py --details`).
-- Socle Mathide-Team : PR vers `dev` (modèle Objet / Closes / Vérifications), relais `dev` → `main`, merge commit, pas de force push.
+- Socle Mathilde-Team : PR vers `dev` (modèle Objet / Closes / Vérifications), relais `dev` → `main`, merge commit, pas de force push.
 
 ## Instructions reçues dans le chat
 

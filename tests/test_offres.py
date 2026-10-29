@@ -33,11 +33,16 @@ def test_quatre_offres_livrees(offres):
         "amneville_trv_local",
         "barr_trv_local",
         "bazas_trv_local",
+        "edf_vert_electrique_week_end",
+        "edf_zen_estival",
         "edf_zen_fixe_2ans",
         "edf_zen_online",
+        "edf_zen_week_end",
+        "edf_zen_week_end_plus",
         "elmy_prix_fixe_2ans",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
+        "engie_duo_reference_3ans",
         "engie_elec_reference_3ans",
         "es_trv_local",
         "es_verte_fixe_1an",
@@ -45,6 +50,8 @@ def test_quatre_offres_livrees(offres):
         "gascogne_trv_local",
         "gaz_de_bordeaux_novafixe",
         "gaz_de_bordeaux_novafixe_bonus",
+        "gaz_de_bordeaux_novafixe_bonus_duo",
+        "gaz_de_bordeaux_novaflex",
         "gedia_all_inclusive",
         "gedia_trv_local",
         "geg_direct_producteur_3ans",
@@ -72,7 +79,9 @@ def test_quatre_offres_livrees(offres):
         "oya_trv_local",
         "papernest_verte_1an",
         "plenitude_pleniweb_1an",
+        "primeo_essentielle_verte",
         "primeo_fixe_confort",
+        "primeo_fixe_eco_15",
         "sarre_union_trv_local",
         "selia_elec_vert_fixe",
         "seolis_trv_local",
@@ -86,14 +95,31 @@ def test_quatre_offres_livrees(offres):
         "soregies_trv_local",
         "synelva_trv_local",
         "totalenergies_access",
+        "totalenergies_charge_heures",
         "totalenergies_fixe_2ans",
         "totalenergies_heures_eco",
+        "totalenergies_speciale",
         "totalenergies_verte_fixe",
         "uem_trv_local",
         "ume_trv_local",
         "vialis_trv_local",
     ]
-    assert all(o.grilles["base"] for o in offres.values())
+    # Chaque offre propose au moins une option sans heures creuses (sa « Base ») :
+    # base, week_end, une variante à jour choisi (#10) ou des postes saisonniers
+    # (#20 : Zen Estival porte ses plages, un client sans HC y est simulable).
+    # Zen Week-End Plus n'a pas de Base classique : « week-end + jour choisi ».
+    assert all(
+        {
+            "base",
+            "week_end",
+            "week_end_jour_lundi",
+            "week_end_jour_mercredi",
+            "week_end_jour_vendredi",
+            "hphc_saisonnieres",
+        }
+        & set(o.grilles)
+        for o in offres.values()
+    )
 
 
 def test_hunelec_grilles_du_1er_juillet_2026(offres):
@@ -226,6 +252,49 @@ def test_alpiq_serenite_trv_moins_un_demi_pourcent(offres):
         grilles["alpiq_serenite:hphc"].en_vigueur(3, jour)
 
 
+def test_primeo_essentielle_verte_trv_moins_cinq_pourcent(offres):
+    """Primeo Offre Essentielle Verte (#60, #162) : grille du 14/09/2026 (TRV du 01/08/2026 -5 %
+    sur le kWh HT), Base de 3 à 36 kVA, sans HC en 3 kVA."""
+    offre = offres["primeo_essentielle_verte"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 28).date()
+    g = grilles["primeo_essentielle_verte:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 9, 14).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.1919")},
+    )
+    assert grilles["primeo_essentielle_verte:base"].en_vigueur(36, jour).prix == {"base": Decimal("0.1904")}
+    g = grilles["primeo_essentielle_verte:hphc"].en_vigueur(30, jour)
+    assert g.abonnement_an == Decimal("557.76")  # 46,48 x 12
+    assert g.prix == {"hp": Decimal("0.2054"), "hc": Decimal("0.1528")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["primeo_essentielle_verte:hphc"].en_vigueur(3, jour)
+
+
+def test_gaz_de_bordeaux_novaflex_indexee_trv(offres):
+    """NovaFlex Élec (#100, #373) : fiche Bordeaux du 01/10/2026, kWh HT du TRV -5 %."""
+    offre = offres["gaz_de_bordeaux_novaflex"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["gaz_de_bordeaux_novaflex:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.44"),  # 15,87 x 12
+        {"base": Decimal("0.19190")},
+    )
+    assert grilles["gaz_de_bordeaux_novaflex:base"].en_vigueur(15, jour).prix == {"base": Decimal("0.19042")}
+    with pytest.raises(TarifIntrouvable, match="18 kVA"):  # Base de 3 à 15 kVA seulement
+        grilles["gaz_de_bordeaux_novaflex:base"].en_vigueur(18, jour)
+    g = grilles["gaz_de_bordeaux_novaflex:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.20536"), "hc": Decimal("0.15280")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["gaz_de_bordeaux_novaflex:hphc"].en_vigueur(3, jour)
+
+
 def test_totalenergies_heures_eco_reprend_le_trv(offres):
     """TotalEnergies Heures Eco (#94, #132) : grille du 01/10/2026, sans HC en 3 kVA."""
     offre = offres["totalenergies_heures_eco"]
@@ -244,6 +313,33 @@ def test_totalenergies_heures_eco_reprend_le_trv(offres):
     assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
         grilles["totalenergies_heures_eco:hphc"].en_vigueur(3, jour)
+
+
+def test_totalenergies_speciale_reprend_le_trv(offres):
+    """TotalEnergies Spéciale Électricité et Gaz, partie élec (#96, #134) : copie de la grille d'Heures Eco.
+
+    Décision du 28/10/2026 (commentaire de #96) : un fichier par offre, avec une
+    copie de la grille de la partie électricité (duale : seule l'électricité
+    entre dans le comparateur). Base et HP/HC (#96, #134), la partie
+    gaz est documentée hors moteur (#112). La remise annoncée de 10 % n'est pas
+    modélisée (grille PDF hors remise).
+    """
+    offre = offres["totalenergies_speciale"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["totalenergies_speciale:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.2001")},
+    )
+    assert grilles["totalenergies_speciale:base"].en_vigueur(36, jour).prix == {"base": Decimal("0.1985")}
+    g = grilles["totalenergies_speciale:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["totalenergies_speciale:hphc"].en_vigueur(3, jour)
 
 
 def test_alterna_indexee_grille_du_1er_septembre_2026(offres):
@@ -307,6 +403,23 @@ def test_indexee_trv_invalide(extra, chemin_fautif):
     }
     with pytest.raises(OffreInvalide, match=chemin_fautif):
         offre_depuis_dict(donnees, "x")
+
+
+def test_primeo_fixe_eco_15_base_jusqu_a_juillet_2027(offres):
+    """Primeo Fixe ECO -15 % (#185) : prix fixe 18 mois, grille du 01/02/2026, Base seule."""
+    offre = offres["primeo_fixe_eco_15"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 18)
+    grilles = grilles_offres(offres)
+    assert "primeo_fixe_eco_15:hphc" not in grilles
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["primeo_fixe_eco_15:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 2, 1).date(),
+        Decimal("196.32"),  # 16,36 x 12
+        {"base": Decimal("0.1704")},
+    )
+    g = grilles["primeo_fixe_eco_15:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("658.32"), {"base": Decimal("0.1693")})
 
 
 def test_papernest_grille_du_22_septembre_2026(offres):
@@ -454,6 +567,28 @@ def test_engie_elec_reference_grille_d_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.24999"), "hc": Decimal("0.20683")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["engie_elec_reference_3ans:hphc"].en_vigueur(3, jour)
+
+
+def test_engie_duo_reference_grille_d_octobre_2026(offres):
+    """Engie Duo Référence 3 ans, partie électricité — Base (#98) : copie de la grille d'Elec Référence.
+
+    Décision du 28/10/2026 (commentaire de #98) : un fichier par offre, avec une
+    copie de la grille de la partie électricité. Base seule ici (CU) ; le HP/HC
+    est en #135, la partie gaz est documentée hors moteur (#113).
+    """
+    offre = offres["engie_duo_reference_3ans"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 36)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["engie_duo_reference_3ans:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("195.18"),
+        {"base": Decimal("0.24205")},
+    )
+    g = grilles["engie_duo_reference_3ans:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("667.55"), {"base": Decimal("0.24377")})
+    assert "engie_duo_reference_3ans:hphc" not in grilles  # option HP/HC en #135
 
 
 def test_es_trv_local_grille_du_1er_aout_2026(offres):
@@ -1102,6 +1237,36 @@ def test_gaz_de_bordeaux_novafixe_grille_d_octobre_2026(offres):
         assert offres[ident].duree_fixite_mois == 36
 
 
+def test_gaz_de_bordeaux_novafixe_bonus_duo_grille_d_octobre_2026(offres):
+    """Partie électricité du Duo, fiche Bordeaux du 01/10/2026 (#181, #336).
+
+    Même grille que NovaFixe Bonus Élec (#99, #371) : la partie électricité
+    de l'offre duale est le contrat NovaFixe Bonus Élec (règlement de l'offre).
+    """
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["gaz_de_bordeaux_novafixe_bonus_duo:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.44"),  # 15,87 x 12
+        {"base": Decimal("0.18373")},
+    )
+    g = grilles["gaz_de_bordeaux_novafixe_bonus_duo:hphc"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("190.44"),  # 15,87 x 12
+        {"hp": Decimal("0.19648"), "hc": Decimal("0.14669")},
+    )
+    assert grilles["gaz_de_bordeaux_novafixe_bonus_duo:hphc"].en_vigueur(36, jour).abonnement_an == (
+        Decimal("646.56")  # 53,88 x 12
+    )
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # HP/HC dès 6 kVA seulement
+        grilles["gaz_de_bordeaux_novafixe_bonus_duo:hphc"].en_vigueur(3, jour)
+    with pytest.raises(TarifIntrouvable, match="18 kVA"):  # Base de 3 à 15 kVA seulement
+        grilles["gaz_de_bordeaux_novafixe_bonus_duo:base"].en_vigueur(18, jour)
+    assert offres["gaz_de_bordeaux_novafixe_bonus_duo"].duree_fixite_mois == 36
+
+
 def test_totalenergies_verte_fixe_grille_du_24_septembre_2026(offres):
     """Grille TTC TotalEnergies Verte Fixe du 24/09/2026, PDF officiel (#95 Base, #133 HC)."""
     grilles = grilles_offres(offres)
@@ -1261,6 +1426,103 @@ def test_alterna_hc_des_3_kva(offres):
     assert g.prix["base"] == Decimal("0.1919")
 
 
+# Grille Week-end de l'offre verte (#330), du 01/10/2026 : abonnements € TTC/mois.
+GRILLE_WEEK_END_ES = {
+    3: 12.13,
+    6: 15.86,
+    9: 19.88,
+    12: 23.76,
+    15: 27.40,
+    18: 31.14,
+    24: 39.14,
+    30: 46.47,
+    36: 53.88,
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_WEEK_END_ES.items()))
+def test_es_verte_fixe_1an_option_week_end_toutes_puissances(offres, puissance, mensuel):
+    """Option Week-end Base (#330), grille du 01/10/2026 : les neuf abonnements."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_fixe_1an:week_end"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal(str(mensuel)) * 12)
+    assert g.prix == {"semaine": Decimal("0.31108"), "week_end": Decimal("0.22878")}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_WEEK_END_ES.items()))
+def test_es_verte_regionale_fixe_1an_option_week_end_supplement_vert(offres, puissance, mensuel):
+    """Option Week-end #333 : la régionale ajoute exactement 2,27 €/mois à chaque puissance."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_regionale_fixe_1an:week_end"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (
+        datetime(2026, 10, 1).date(),
+        (Decimal(str(mensuel)) + Decimal("2.27")) * 12,
+    )
+    assert g.prix == {"semaine": Decimal("0.31108"), "week_end": Decimal("0.22878")}
+
+
+def test_es_verte_fixe_1an_option_week_end_un_kwh_samedi(offres):
+    """1 kWh un samedi (24/10/2026) : 22,878 c€ + abonnement 6 kVA au prorata."""
+    grilles = grilles_offres(offres)
+    cout = cout_option(
+        "es_verte_fixe_1an:week_end",
+        grilles["es_verte_fixe_1an:week_end"],
+        6,
+        [(datetime(2026, 10, 24, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.total == (Decimal("190.32") / Decimal("365") + Decimal("0.22878")).quantize(Decimal("0.01"))
+
+
+# Grille « Week-end et heures creuses » de l'offre verte (#331), du 01/10/2026
+# (à partir de 6 kVA) : abonnements € TTC/mois.
+GRILLE_WEEK_END_HPHC_ES = {
+    6: 16.05,
+    9: 20.16,
+    12: 24.13,
+    15: 27.86,
+    18: 31.70,
+    24: 39.88,
+    30: 47.40,
+    36: 54.99,
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_WEEK_END_HPHC_ES.items()))
+def test_es_verte_fixe_1an_option_week_end_hphc(offres, puissance, mensuel):
+    """Option Week-end et heures creuses (#331), grille du 01/10/2026 : les 4 postes croisés."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_fixe_1an:week_end_hphc"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal(str(mensuel)) * 12)
+    assert g.prix == {
+        "semaine_hp": Decimal("0.32357"),
+        "semaine_hc": Decimal("0.23752"),
+        "week_end_hp": Decimal("0.23752"),
+        "week_end_hc": Decimal("0.23752"),
+    }
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_WEEK_END_HPHC_ES.items()))
+def test_es_verte_regionale_fixe_1an_option_week_end_hphc_supplement_vert(offres, puissance, mensuel):
+    """Option Week-end et heures creuses #334 : la régionale ajoute 2,27 €/mois à chaque puissance."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["es_verte_regionale_fixe_1an:week_end_hphc"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (
+        datetime(2026, 10, 1).date(),
+        (Decimal(str(mensuel)) + Decimal("2.27")) * 12,
+    )
+    assert g.prix == {
+        "semaine_hp": Decimal("0.32357"),
+        "semaine_hc": Decimal("0.23752"),
+        "week_end_hp": Decimal("0.23752"),
+        "week_end_hc": Decimal("0.23752"),
+    }
+
+
 def test_lot_2_offres_fixes(offres):
     """Lot 2 (issues #38, #43, #56, #57, #61, #62, #65, #68) : valeurs citées des grilles."""
     grilles = grilles_offres(offres)
@@ -1347,8 +1609,11 @@ def test_cout_option_prudence_sur_un_kwh(offres):
 def test_comparaison_trv_contre_offres(offres):
     """Le classement mélange TRV et offres.
 
-    Avec 10 kWh dans la journée : Primeo Fixe Confort Base (16,74 c€, 241,92 €/an)
-    bat le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais grille du 05/10).
+    Avec 10 kWh un lundi (19/10/2026) : EDF Zen Week-End Plus jour choisi lundi
+    (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO -15 % Base (17,04 c€,
+    196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
+    241,92 €/an : 2,34 €), le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais
+    grille du 05/10).
     """
     from custom_components.tarifenergie.const import OPTIONS
     from custom_components.tarifenergie.modele import Grilles as GrillesTRV
@@ -1356,7 +1621,8 @@ def test_comparaison_trv_contre_offres(offres):
     grilles = {option: GrillesTRV.charger(option) for option in OPTIONS}
     grilles.update(grilles_offres(offres))
     comp = comparer(grilles, 6, DIX_KWH, PLAGES, "base")
-    assert comp.moins_chere.option == "primeo_fixe_confort:base"
+    assert comp.moins_chere.option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]
     assert comp.economie == (trv.total - moins_chere.total).quantize(Decimal("0.01"))
@@ -1382,6 +1648,76 @@ def test_comparaison_trv_contre_offres(offres):
                 "options": {"base": {"abonnement_mensuel_ttc": {42: 11.0}, "kwh_ttc": {"base": 0.2}}},
             },
             "abonnement_mensuel_ttc",
+        ),
+        (
+            {
+                "id": "x",
+                "type_prix": "fixe",
+                "grille_du": "2026-10-01",
+                "duree_fixite_mois": 12,
+                "source": "https://exemple.fr",
+                "fournisseur": "F",
+                "offre": "O",
+                "options": {
+                    "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+                    "week_end_hphc": {
+                        "abonnement_mensuel_ttc": {6: 15.0},
+                        "kwh_ttc": {"semaine_hp": 0.3, "semaine_hc": 0.2},
+                    },
+                },
+            },
+            "offre.options.week_end_hphc",
+        ),
+        (
+            {
+                "id": "x",
+                "type_prix": "fixe",
+                "grille_du": "2026-10-01",
+                "duree_fixite_mois": 12,
+                "source": "https://exemple.fr",
+                "fournisseur": "F",
+                "offre": "O",
+                "options": {
+                    "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+                    "week_end": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"semaine": 0.3}},
+                },
+            },
+            "offre.options.week_end",
+        ),
+        (
+            {
+                "id": "x",
+                "type_prix": "fixe",
+                "grille_du": "2026-10-01",
+                "duree_fixite_mois": 12,
+                "source": "https://exemple.fr",
+                "fournisseur": "F",
+                "offre": "O",
+                "options": {
+                    "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+                    "week_end": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.3}},
+                },
+            },
+            "offre.options.week_end",
+        ),
+        (
+            {
+                "id": "x",
+                "type_prix": "fixe",
+                "grille_du": "2026-10-01",
+                "duree_fixite_mois": 12,
+                "source": "https://exemple.fr",
+                "fournisseur": "F",
+                "offre": "O",
+                "options": {
+                    "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+                    "week_end": {
+                        "abonnement_mensuel_ttc": {6: 15.0},
+                        "kwh_ttc": {"hp": 0.3, "hc": 0.2},
+                    },
+                },
+            },
+            "offre.options.week_end",
         ),
         (
             {
@@ -1441,3 +1777,483 @@ def test_charger_offre_contenu_invalide(tmp_path):
     chemin.write_text("id: x\n", encoding="utf-8")
     with pytest.raises(OffreInvalide, match=r"^incomplete\.yaml : "):
         charger_offre(chemin)
+
+
+# Grille EDF Zen Week-End Plus (#10 Base, #116 HC), du 15/09/2026 : abonnements
+# € TTC/mois (pas de 3 kVA), identiques pour toutes les options de l'offre.
+GRILLE_ZEN_WEEK_END_PLUS = {
+    6: 15.86,
+    9: 19.88,
+    12: 23.76,
+    15: 27.40,
+    18: 31.14,
+    24: 39.14,
+    30: 46.47,
+    36: 53.88,
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_ZEN_WEEK_END_PLUS.items()))
+def test_zen_week_end_plus_grilles_et_jour_choisi(offres, puissance, mensuel):
+    """EDF Zen Week-End Plus (#10, #116), grille du 15/09/2026 : huit abonnements, le
+    jour choisi (lundi/mercredi/vendredi) porté par chaque variante, sans 3 kVA."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    for option, numero in (("lundi", 0), ("mercredi", 2), ("vendredi", 4)):
+        g = grilles[f"edf_zen_week_end_plus:week_end_jour_{option}"].en_vigueur(puissance, jour)
+        assert (g.debut, g.abonnement_an, g.jour_choisi) == (
+            datetime(2026, 9, 15).date(),
+            Decimal(str(mensuel)) * 12,
+            numero,
+        )
+        assert g.prix == {
+            "semaine": Decimal("0.2259"),
+            "week_end": Decimal("0.1691"),
+            "jour_choisi": Decimal("0.1691"),
+        }
+        g = grilles[f"edf_zen_week_end_plus:week_end_hphc_jour_{option}"].en_vigueur(puissance, jour)
+        assert (g.abonnement_an, g.jour_choisi) == (Decimal(str(mensuel)) * 12, numero)
+        assert g.prix == {
+            "semaine_hp": Decimal("0.2314"),
+            "semaine_hc": Decimal("0.1731"),
+            "week_end_hp": Decimal("0.1731"),
+            "week_end_hc": Decimal("0.1731"),
+            "jour_choisi_hp": Decimal("0.1731"),
+            "jour_choisi_hc": Decimal("0.1731"),
+        }
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas de 3 kVA
+        grilles["edf_zen_week_end_plus:week_end_jour_lundi"].en_vigueur(3, jour)
+
+
+def test_zen_week_end_plus_un_kwh_selon_le_jour(offres):
+    """1 kWh selon le jour : semaine 22,59 c€, samedi et jour choisi 16,91 c€ (#10)."""
+    grilles = grilles_offres(offres)
+    # Lundi 19/10 avec jour choisi lundi : poste jour_choisi.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_jour_lundi",
+        grilles["edf_zen_week_end_plus:week_end_jour_lundi"],
+        6,
+        [(datetime(2026, 10, 19, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"jour_choisi": Decimal("1.0")}
+    # Mercredi 21/10 avec jour choisi lundi : poste semaine.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_jour_lundi",
+        grilles["edf_zen_week_end_plus:week_end_jour_lundi"],
+        6,
+        [(datetime(2026, 10, 21, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"semaine": Decimal("1.0")}
+    # Samedi 24/10 : poste week_end.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_jour_lundi",
+        grilles["edf_zen_week_end_plus:week_end_jour_lundi"],
+        6,
+        [(datetime(2026, 10, 24, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"week_end": Decimal("1.0")}
+
+
+def test_zen_week_end_plus_jour_choisi_hphc_repartition(offres):
+    """Option HC (#116) : samedi tout en week_end_hc, vendredi choisi coupé HP/HC."""
+    grilles = grilles_offres(offres)
+    # Samedi 24/10, 2 kWh de 0 h à 1 h (heures creuses) : week_end_hc.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_hphc_jour_lundi",
+        grilles["edf_zen_week_end_plus:week_end_hphc_jour_lundi"],
+        6,
+        [(datetime(2026, 10, 24, 0), 2.0), (datetime(2026, 10, 24, 14), 2.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"week_end_hc": Decimal("2.0"), "week_end_hp": Decimal("2.0")}
+    # Vendredi 23/10 avec jour choisi vendredi : jour_choisi_hp/hc.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
+        grilles["edf_zen_week_end_plus:week_end_hphc_jour_vendredi"],
+        6,
+        [(datetime(2026, 10, 23, 0), 2.0), (datetime(2026, 10, 23, 14), 2.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"jour_choisi_hc": Decimal("2.0"), "jour_choisi_hp": Decimal("2.0")}
+    # Mardi 20/10 avec jour choisi vendredi : semaine_hp/hc.
+    cout = cout_option(
+        "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
+        grilles["edf_zen_week_end_plus:week_end_hphc_jour_vendredi"],
+        6,
+        [(datetime(2026, 10, 20, 0), 2.0), (datetime(2026, 10, 20, 14), 2.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"semaine_hc": Decimal("2.0"), "semaine_hp": Decimal("2.0")}
+
+
+def test_offre_a_jour_choisi_schema_invalide():
+    """Une option à jour choisi exige ses postes exacts ; une offre sans option
+    sans heures creuses (Base, week_end ou jour choisi) est refusée."""
+    from datetime import date
+
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Jour choisi",
+        "type_prix": "fixe",
+        "duree_fixite_mois": 6,
+        "grille_du": date(2026, 9, 15),
+        "source": "https://exemple.fr/grille.pdf",
+        "options": {
+            "week_end_jour_lundi": {
+                "abonnement_mensuel_ttc": {6: 15.86},
+                "kwh_ttc": {"semaine": 0.2259, "week_end": 0.1691},  # jour_choisi manquant
+            }
+        },
+    }
+    with pytest.raises(OffreInvalide, match="attendus"):
+        offre_depuis_dict(donnees, "x")
+    # Seule une option à heures creuses : pas d'option Base pour comparer.
+    donnees["options"] = {
+        "week_end_hphc_jour_lundi": {
+            "abonnement_mensuel_ttc": {6: 15.86},
+            "kwh_ttc": {
+                "semaine_hp": 0.2314,
+                "semaine_hc": 0.1731,
+                "week_end_hp": 0.1731,
+                "week_end_hc": 0.1731,
+                "jour_choisi_hp": 0.1731,
+                "jour_choisi_hc": 0.1731,
+            },
+        }
+    }
+    with pytest.raises(OffreInvalide, match="option Base attendue"):
+        offre_depuis_dict(donnees, "x")
+
+
+# Grille EDF Zen Week-End (#12 Base, #117 HC), du 15/09/2026 : abonnements
+# € TTC/mois, identiques aux deux options (la Base existe dès 3 kVA).
+GRILLE_ZEN_WEEK_END = {
+    3: 12.13,
+    6: 15.86,
+    9: 19.88,
+    12: 23.76,
+    15: 27.40,
+    18: 31.14,
+    24: 39.14,
+    30: 46.47,
+    36: 53.88,
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuel"), sorted(GRILLE_ZEN_WEEK_END.items()))
+def test_zen_week_end_grilles(offres, puissance, mensuel):
+    """EDF Zen Week-End (#12, #117), grille du 15/09/2026 : neuf abonnements en Base
+    (week_end), huit en heures creuses (week_end_hphc, pas de 3 kVA)."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["edf_zen_week_end:week_end"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an, g.jour_choisi) == (
+        datetime(2026, 9, 15).date(),
+        Decimal(str(mensuel)) * 12,
+        None,
+    )
+    assert g.prix == {"semaine": Decimal("0.2285"), "week_end": Decimal("0.1710")}
+    if puissance == 3:
+        with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+            grilles["edf_zen_week_end:week_end_hphc"].en_vigueur(3, jour)
+    else:
+        g = grilles["edf_zen_week_end:week_end_hphc"].en_vigueur(puissance, jour)
+        assert (g.abonnement_an, g.jour_choisi) == (Decimal(str(mensuel)) * 12, None)
+        assert g.prix == {
+            "semaine_hp": Decimal("0.2359"),
+            "semaine_hc": Decimal("0.1762"),
+            "week_end_hp": Decimal("0.1762"),
+            "week_end_hc": Decimal("0.1762"),
+        }
+
+
+def test_zen_week_end_un_kwh_samedi(offres):
+    """1 kWh un samedi (24/10/2026) : 17,10 c€ + abonnement 6 kVA au prorata (#12)."""
+    grilles = grilles_offres(offres)
+    cout = cout_option(
+        "edf_zen_week_end:week_end",
+        grilles["edf_zen_week_end:week_end"],
+        6,
+        [(datetime(2026, 10, 24, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"week_end": Decimal("1.0")}
+    assert cout.total == (Decimal("190.32") / Decimal("365") + Decimal("0.1710")).quantize(Decimal("0.01"))
+
+
+# Grille EDF Vert Électrique Week-End (#19 Base, #120 HC), du 15/09/2026 : abonnements
+# € TTC/mois (pas de 3 kVA) ; l'option HC publie 39,88 et 47,40 € en 24 et 30 kVA.
+GRILLE_VERT_WEEK_END = {
+    6: (15.86, 15.86),
+    9: (19.88, 19.88),
+    12: (23.76, 23.76),
+    15: (27.40, 27.40),
+    18: (31.14, 31.14),
+    24: (39.14, 39.88),
+    30: (46.47, 47.40),
+    36: (53.88, 53.88),
+}
+
+
+@pytest.mark.parametrize(("puissance", "mensuels"), sorted(GRILLE_VERT_WEEK_END.items()))
+def test_vert_electrique_week_end_grilles(offres, puissance, mensuels):
+    """EDF Vert Électrique Week-End (#19, #120), grille du 15/09/2026 : huit abonnements
+    par option, ceux de 24 et 30 kVA propres à l'option HC, sans 3 kVA."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    base, hc = mensuels
+    g = grilles["edf_vert_electrique_week_end:week_end"].en_vigueur(puissance, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 9, 15).date(), Decimal(str(base)) * 12)
+    assert g.prix == {"semaine": Decimal("0.2171"), "week_end": Decimal("0.1630")}
+    g = grilles["edf_vert_electrique_week_end:week_end_hphc"].en_vigueur(puissance, jour)
+    assert g.abonnement_an == Decimal(str(hc)) * 12
+    assert g.prix == {
+        "semaine_hp": Decimal("0.2259"),
+        "semaine_hc": Decimal("0.1691"),
+        "week_end_hp": Decimal("0.1691"),
+        "week_end_hc": Decimal("0.1691"),
+    }
+
+
+def test_vert_electrique_week_end_sans_3_kva(offres):
+    """Ni l'option Week-End ni l'option HC ne sont proposées en 3 kVA (#19, #120)."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    for option in ("week_end", "week_end_hphc"):
+        with pytest.raises(TarifIntrouvable, match="3 kVA"):
+            grilles[f"edf_vert_electrique_week_end:{option}"].en_vigueur(3, jour)
+
+
+def test_vert_electrique_week_end_jour_ferie(offres):
+    """1 kWh le mercredi 11/11/2026 (férié national) : tarif week-end 16,30 c€ (#19)."""
+    grilles = grilles_offres(offres)
+    cout = cout_option(
+        "edf_vert_electrique_week_end:week_end",
+        grilles["edf_vert_electrique_week_end:week_end"],
+        6,
+        [(datetime(2026, 11, 11, 14), 1.0)],
+        PLAGES,
+    )
+    assert cout.kwh == {"week_end": Decimal("1.0")}
+    assert cout.energie == Decimal("0.1630")
+
+
+def test_zen_estival_grille_et_saisons(offres):
+    """Zen Estival HP/HC (#20) : grille du 15/09/2026, postes saisonniers été/hiver."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    g = grilles["edf_zen_estival:hphc_saisonnieres"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.option) == (
+        datetime(2026, 9, 15).date(),
+        Decimal("151.20"),  # 12,60 x 12
+        "edf_zen_estival:hphc_saisonnieres",
+    )
+    assert g.prix == {
+        "ete_hsc": Decimal("0.1252"),
+        "ete_hc": Decimal("0.1607"),
+        "ete_hp": Decimal("0.2707"),
+        "hiver_hc": Decimal("0.1738"),
+        "hiver_hp": Decimal("0.2802"),
+    }
+    assert [(s.nom, s.debut, s.fin) for s in g.saisons] == [
+        ("ete", (4, 15), (9, 30)),
+        ("hiver", (10, 1), (4, 14)),
+    ]
+    assert [s.hsc for s in g.saisons] == [((120, 360), (1320, 1440)), ()]
+    assert [s.hc for s in g.saisons] == [((360, 450), (780, 960)), ((1350, 390), (750, 870))]
+
+
+def test_zen_estival_cout_saisonnier(offres):
+    """Été : HSC 02-06/22-24, HC 06-07:30/13-16 ; hiver : HC 22:30-06:30/12:30-14:30."""
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["edf_zen_estival:hphc_saisonnieres"]
+    # Été (20/09/2026) : 3 h en HSC, 6 h en HC (06:00-07:30), 8 h et 20 h en HP.
+    conso_ete = [(datetime(2026, 9, 20, h, 0), 1.0) for h in (3, 6, 8, 20)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso_ete)
+    assert cout.kwh == {"ete_hsc": Decimal(1), "ete_hc": Decimal(1), "ete_hp": Decimal(2)}
+    assert cout.energie == Decimal("0.1252") + Decimal("0.1607") + 2 * Decimal("0.2707")
+    # Hiver (19/10/2026) : 3 h en HC (22:30-06:30), 13 h en HC (12:30-14:30), 20 h en HP.
+    conso_hiver = [(datetime(2026, 10, 19, h, 0), 1.0) for h in (3, 13, 20)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso_hiver)
+    assert cout.kwh == {"hiver_hc": Decimal(2), "hiver_hp": Decimal(1)}
+    assert cout.energie == 2 * Decimal("0.1738") + Decimal("0.2802")
+    # Charnières : le 14/04 est hiver, le 15/04 été (plages d'été dès le 15/04).
+    conso_charniere = [(datetime(2027, 4, 14, 3, 0), 1.0), (datetime(2027, 4, 15, 3, 0), 1.0)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso_charniere)
+    assert cout.kwh == {
+        "hiver_hc": Decimal(1),
+        "hiver_hp": Decimal(0),
+        "ete_hsc": Decimal(1),
+        "ete_hc": Decimal(0),
+        "ete_hp": Decimal(0),
+    }
+
+
+def test_zen_estival_comparable_sans_heures_creuses(offres):
+    """Les plages sont portées par l'offre : aucun client n'est exclu (issue #20)."""
+    grilles = grilles_offres(offres)
+    conso = [(datetime(2026, 9, 20, 20, 0), 2.0)]  # 20 h : heures pleines d'été
+    comparaison = comparer(
+        {k: v for k, v in grilles.items() if k.startswith("edf_zen_estival")},
+        6,
+        conso,
+        PlagesHC.lire("23:30-06:30"),  # plages du compteur : sans effet ici
+        "base",
+    )
+    assert "edf_zen_estival:hphc_saisonnieres" in comparaison.couts
+    assert comparaison.couts["edf_zen_estival:hphc_saisonnieres"].kwh == {
+        "ete_hsc": Decimal(0),
+        "ete_hc": Decimal(0),
+        "ete_hp": Decimal(2),
+    }
+
+
+def _zen_estival_dict(**remplacements):
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Saisonnière",
+        "type_prix": "fixe",
+        "grille_du": datetime(2026, 9, 15).date(),
+        "duree_fixite_mois": 12,
+        "source": "https://exemple.fr/grille.pdf",
+        "options": {
+            "hphc_saisonnieres": {
+                "abonnement_mensuel_ttc": {6: 12.6},
+                "saisons": {
+                    "ete": {
+                        "du": "04-15",
+                        "au": "09-30",
+                        "plages": {"hsc": "02:00-06:00", "hc": "13:00-16:00"},
+                        "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607, "hp": 0.2707},
+                    },
+                    "hiver": {
+                        "du": "10-01",
+                        "au": "04-14",
+                        "plages": {"hc": "22:30-06:30"},
+                        "kwh_ttc": {"hc": 0.1738, "hp": 0.2802},
+                    },
+                },
+            }
+        },
+    }
+    for cle, valeur in remplacements.items():
+        if valeur is None:
+            donnees["options"]["hphc_saisonnieres"]["saisons"].pop(cle)
+        else:
+            donnees["options"]["hphc_saisonnieres"]["saisons"][cle] = valeur
+    return donnees
+
+
+@pytest.mark.parametrize(
+    ("remplacement", "message"),
+    [
+        # L'été ne commence que le 01/05 : l'année n'est plus partitionnée.
+        (
+            {
+                "ete": {
+                    "du": "05-01",
+                    "au": "09-30",
+                    "plages": {"hsc": "02:00-06:00", "hc": "13:00-16:00"},
+                    "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607, "hp": 0.2707},
+                }
+            },
+            "partitionner",
+        ),
+        # HSC à l'intérieur des HC : chevauchement interdit.
+        (
+            {
+                "ete": {
+                    "du": "04-15",
+                    "au": "09-30",
+                    "plages": {"hsc": "13:30-14:00", "hc": "13:00-16:00"},
+                    "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607, "hp": 0.2707},
+                }
+            },
+            "chevaucher",
+        ),
+        # Postes incomplets pour l'été (HP manquant).
+        (
+            {
+                "ete": {
+                    "du": "04-15",
+                    "au": "09-30",
+                    "plages": {"hsc": "02:00-06:00", "hc": "13:00-16:00"},
+                    "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607},
+                }
+            },
+            "postes attendus : hc et hp",
+        ),
+        # Borne illisible.
+        (
+            {
+                "ete": {
+                    "du": "15/04",
+                    "au": "09-30",
+                    "plages": {"hsc": "02:00-06:00", "hc": "13:00-16:00"},
+                    "kwh_ttc": {"hsc": 0.1252, "hc": 0.1607, "hp": 0.2707},
+                }
+            },
+            "MM-JJ",
+        ),
+        # Hiver sans ses plages HC.
+        (
+            {"hiver": {"du": "10-01", "au": "04-14", "kwh_ttc": {"hc": 0.1738, "hp": 0.2802}}},
+            "plages hc attendues",
+        ),
+    ],
+)
+def test_zen_estival_saisons_invalides(remplacement, message):
+    with pytest.raises(OffreInvalide, match=message):
+        offre_depuis_dict(_zen_estival_dict(**remplacement), "x")
+
+
+def test_zen_estival_hiver_seul_refuse():
+    """Une offre saisonnière sans l'été : postes et partitionnement impossibles."""
+    donnees = _zen_estival_dict(ete=None)
+    with pytest.raises(OffreInvalide, match="ete\\+hiver attendues, ou annee seule"):
+        offre_depuis_dict(donnees, "x")
+
+
+def test_charge_heures_grille_et_plages(offres):
+    """Charge'Heures (#24) : grille du 01/10/2026, saison unique aux plages constantes."""
+    grilles = grilles_offres(offres)
+    g = grilles["totalenergies_charge_heures:hphc_saisonnieres"].en_vigueur(6, datetime(2026, 10, 19).date())
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 1).date(), Decimal("188.28"))  # 15,69 x 12
+    assert g.prix == {
+        "annee_hsc": Decimal("0.1335"),
+        "annee_hc": Decimal("0.1576"),
+        "annee_hp": Decimal("0.2302"),
+    }
+    assert [(s.nom, s.debut, s.fin, s.hsc, s.hc) for s in g.saisons] == [
+        ("annee", (1, 1), (12, 31), ((120, 360),), ((1380, 120), (360, 420)))
+    ]
+
+
+def test_charge_heures_cout(offres):
+    """HSC 02-06, HC 23-02 et 06-07, HP le reste — plages constantes toute l'année."""
+    grilles = grilles_offres(offres)
+    conso = [(datetime(2026, 10, 19, h, 0), 1.0) for h in (0, 3, 6, 12)]
+    grilles_option = grilles["totalenergies_charge_heures:hphc_saisonnieres"]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso)
+    assert cout.kwh == {"annee_hc": Decimal(2), "annee_hsc": Decimal(1), "annee_hp": Decimal(1)}
+    assert cout.energie == 2 * Decimal("0.1576") + Decimal("0.1335") + Decimal("0.2302")
+
+
+def test_saison_annee_incomplete_refusee():
+    """Une saison unique « annee » doit couvrir toute l'année."""
+    donnees = _zen_estival_dict()
+    del donnees["options"]["hphc_saisonnieres"]["saisons"]["ete"]
+    del donnees["options"]["hphc_saisonnieres"]["saisons"]["hiver"]
+    donnees["options"]["hphc_saisonnieres"]["saisons"]["annee"] = {
+        "du": "02-01",  # le 1er janvier n'est dans aucune saison
+        "au": "12-31",
+        "plages": {"hsc": "02:00-06:00", "hc": "23:00-02:00, 06:00-07:00"},
+        "kwh_ttc": {"hsc": 0.1335, "hc": 0.1576, "hp": 0.2302},
+    }
+    with pytest.raises(OffreInvalide, match="partitionner"):
+        offre_depuis_dict(donnees, "x")

@@ -54,7 +54,8 @@ async def test_capteurs(hass: HomeAssistant):
     assert base.attributes["jours_couverts"] == 3
     assert base.attributes["grilles"] == ["2026-08-01"]
     # Offres de marché (issues #40, #44, #63, #64 et lot 2) : à cette consommation
-    # nocturne, Primeo Fixe Confort HC (13,44 c€) est la moins chère ; les grilles
+    # nocturne, Charge'Heures (#24) est la moins chère (24 kWh en HSC à 13,35 c€,
+    # 12 kWh en HC à 15,76 c€) ; les grilles
     # postérieures au 3 octobre (GEG 05/10, Mint 08/10, Ohm 14/10 et 16/10, GEDIA 19/10)
     # sont indisponibles.
     # postérieures au 3 octobre (GEG 05/10, Ohm 14/10 et 16/10, Octopus Eco Fixe Plus 12/10,
@@ -63,18 +64,30 @@ async def test_capteurs(hass: HomeAssistant):
     assert prudence is not None
     assert prudence.state == "7.15"
     assert prudence.attributes["kwh"] == {"hp": 0.0, "hc": 36.0}
-    assert hass.states.get("sensor.maison_cheapest_option").state == "primeo_fixe_confort:hphc"
+    moins_chere = hass.states.get("sensor.maison_cheapest_option").state
+    assert moins_chere == "totalenergies_charge_heures:hphc_saisonnieres"
     economie = hass.states.get("sensor.maison_possible_12_month_saving")
-    assert economie.state == "1.94"
+    assert economie.state == "2.13"
     assert [e["option"] for e in economie.attributes["classement"]] == [
+        # Charge'Heures (#24) : 24 x 0,1335 + 12 x 0,1576 + 3/365 x 188,28 = 6,64 €.
+        "totalenergies_charge_heures:hphc_saisonnieres",
         "primeo_fixe_confort:hphc",
         # Gaz de Bordeaux NovaFixe HC (#372, #371) : 36 x 0,14669 + 3/365 x 190,44 = 6,85 €
         # (remise de 100 € du Bonus non modélisée : même total).
         "gaz_de_bordeaux_novafixe:hphc",
         "gaz_de_bordeaux_novafixe_bonus:hphc",
+        # Duo (#336) : partie électricité identique à NovaFixe Bonus Élec
+        # (même grille) ; la remise de 100 € du Bonus n'est pas modélisée.
+        "gaz_de_bordeaux_novafixe_bonus_duo:hphc",
         # TotalEnergies Access HC (#125, indexée TRV, kWh HT -10 %) : 36 x 0,1467
         # + 3/365 x 190,32 = 6,85 €.
         "totalenergies_access:hphc",
+        # Gaz de Bordeaux NovaFlex HC (#373, indexée TRV, kWh HT -5 %) : 36 x 0,1528
+        # + 3/365 x 190,44 = 7,07 €.
+        "gaz_de_bordeaux_novaflex:hphc",
+        # Primeo Essentielle Verte HC (#162, indexée TRV, kWh HT -5 %) : 36 x 0,1528
+        # + 3/365 x 190,32 = 7,07 €, ex æquo au centime départagé par la clé.
+        "primeo_essentielle_verte:hphc",
         # EDF Zen Online HC (#122, indexée TRV) : 36 x 0,1531 + 3/365 x 190,32 = 7,076 €,
         # devant Plenitude HC (7,082 €) bien qu'à égalité au centime.
         "edf_zen_online:hphc",
@@ -103,6 +116,10 @@ async def test_capteurs(hass: HomeAssistant):
         # TotalEnergies Heures Eco HC (#132) : mêmes prix HT que le TRV ; les prix TTC
         # arrondis du PDF la placent un centime sous le TRV national (7,28 € contre 7,29 €).
         "totalenergies_heures_eco:hphc",
+        # TotalEnergies Spéciale partie élec, HC (#134) : même grille qu'Heures Eco
+        # (décision du 28/10/2026 : un fichier par offre), donc 7,28 € aussi ;
+        # départage par le nom de l'option.
+        "totalenergies_speciale:hphc",
         # TRV local GEG HC (#196) : 36 x 0,1589 + 3/365 x 190,80 = 7,29 €, à égalité au
         # centime avec le TRV national HC ; départage par le nom de l'option.
         "geg_trv_local:hphc",
@@ -158,9 +175,26 @@ async def test_capteurs(hass: HomeAssistant):
         "octopus_eco_fixe_oct2026:hphc",
         "alterna_du_coin_1an:hphc",
         "la_bellenergie_constance:hphc",
+        # EDF Zen Estival hiver (#20) : 36 x 0,1738 + 3/365 x 151,20 = 7,50 €.
+        "edf_zen_estival:hphc_saisonnieres",
         # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
         "edf_zen_fixe_2ans:hphc",
         "la_bellenergie_garance:hphc",
+        # EDF Vert Électrique Week-End HC (#120) : tout à 16,91 c€ (nuit HC + samedi
+        # 03/10) + 3/365 x 190,32 = 7,65 €.
+        "edf_vert_electrique_week_end:week_end_hphc",
+        # Primeo Fixe ECO -15 % Base (#185) : 36 x 0,1704 + 3/365 x 196,32 = 7,75 €,
+        # juste devant Primeo Fixe Confort Base.
+        "primeo_fixe_eco_15:base",
+        # EDF Zen Week-End Plus HC (#116) : tout à 17,31 c€ (nuit HC + samedi 03/10,
+        # vendredi choisi ou non) + 3/365 x 190,32 = 7,80 €, les trois variantes
+        # ex æquo départagées par la clé.
+        "edf_zen_week_end_plus:week_end_hphc_jour_lundi",
+        "edf_zen_week_end_plus:week_end_hphc_jour_mercredi",
+        "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
+        # EDF Zen Week-End HC (#117) : tout à 17,62 c€ (nuit HC + samedi 03/10)
+        # + 3/365 x 190,32 = 7,91 €.
+        "edf_zen_week_end:week_end_hphc",
         "primeo_fixe_confort:base",
         # TotalEnergies Fixe 2 ans HC (#126) : 36 x 0,1791 + 3/365 x 192,60 = 8,03 €.
         "totalenergies_fixe_2ans:hphc",
@@ -169,12 +203,21 @@ async def test_capteurs(hass: HomeAssistant):
         # Gaz de Bordeaux NovaFixe Base (#111, #99) : 36 x 0,18373 + 3/365 x 190,44 = 8,18 €.
         "gaz_de_bordeaux_novafixe:base",
         "gaz_de_bordeaux_novafixe_bonus:base",
+        # Duo (#181) : Base de la même grille que NovaFixe Bonus Élec.
+        "gaz_de_bordeaux_novafixe_bonus_duo:base",
         # TotalEnergies Access Base (#23) : 36 x 0,1837 + 3/365 x 190,32 = 8,18 €.
         "totalenergies_access:base",
+        # EDF Zen Week-End Plus Base, jour choisi vendredi (#10) : 24 x 0,2259
+        # + 12 x 0,1691 (vendredi choisi) + 3/365 x 190,32 = 8,33 €.
+        "edf_zen_week_end_plus:week_end_jour_vendredi",
         "plenitude_pleniweb_1an:base",
         # Hunélec HC (#326) : 36 x 0,19129 + 3/365 x 191,52 = 8,46 € ;
         # 100 % vert (#328) : + 2,27 €/mois = 8,68 € ; TRV Base : 8,77 €.
         "hunelec_prix_fixe_1an:hphc",
+        # Gaz de Bordeaux NovaFlex Base (#100) : 36 x 0,1919 + 3/365 x 190,44 = 8,47 €.
+        "gaz_de_bordeaux_novaflex:base",
+        # Primeo Essentielle Verte Base (#60) : 36 x 0,1919 + 3/365 x 190,32 = 8,47 €.
+        "primeo_essentielle_verte:base",
         # EDF Zen Online Base (#21) : 36 x 0,1925 + 3/365 x 190,32 = 8,49 €.
         "edf_zen_online:base",
         # TRV local Energis Base (#200) : 36 x 0,19522 + 3/365 x 190,32 = 8,59 €.
@@ -184,6 +227,9 @@ async def test_capteurs(hass: HomeAssistant):
         # Alterna indexée Base (#45) : 36 x 0,1919 + 3/365 x 211,92 = 8,65 €.
         "alterna_indexee:base",
         "hunelec_prix_fixe_1an_vert:hphc",
+        # EDF Vert Électrique Week-End Base (#19) : 24 x 0,2171 + 12 x 0,163 (samedi
+        # 03/10) + 3/365 x 190,32 = 8,73 €.
+        "edf_vert_electrique_week_end:week_end",
         # Alpiq Sérénité Base (#42) : 36 x 0,199247 + 3/365 x 190,32 = 8,74 €.
         "alpiq_serenite:base",
         # TotalEnergies Verte Fixe HC (#133) : 36 x 0,1992 + 3/365 x 192,60 = 8,75 €.
@@ -245,6 +291,10 @@ async def test_capteurs(hass: HomeAssistant):
         # TotalEnergies Heures Eco Base (#94) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €,
         # à égalité au centime avec le TRV national.
         "totalenergies_heures_eco:base",
+        # TotalEnergies Spéciale Électricité et Gaz, partie élec, Base (#96) :
+        # même grille qu'Heures Eco (décision du 28/10/2026 : un fichier par
+        # offre), donc 8,77 € aussi ; départage par le nom de l'option.
+        "totalenergies_speciale:base",
         # TRV local Enes Creutzwald Base (#275) : 8,78 €, à égalité au centime avec
         # es_trv_local:base ; départage par le nom de l'option.
         "enes_creutzwald_trv_local:base",
@@ -264,9 +314,17 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_constance:base",
         # Octopus Eco Fixe Base (#30) : 36 x 0,2033 + 3/365 x 190,32 = 8,88 €.
         "octopus_eco_fixe_oct2026:base",
+        # EDF Zen Week-End Plus Base, jour choisi lundi ou mercredi (#10) : 24 x 0,2259
+        # + 12 x 0,1691 (samedi) + 3/365 x 190,32 = 9,02 € (le vendredi choisi
+        # donnerait 8,33 €, consommation du test sans vendredi).
+        "edf_zen_week_end_plus:week_end_jour_lundi",
+        "edf_zen_week_end_plus:week_end_jour_mercredi",
         # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
         "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
+        # EDF Zen Week-End Base (#12) : 24 x 0,2285 + 12 x 0,171 (samedi 03/10)
+        # + 3/365 x 190,32 = 9,10 €.
+        "edf_zen_week_end:week_end",
         # Engie Elec Référence 3 ans HC (#127) : 36 x 0,20683 + 3/365 x 215,79 = 9,22 €.
         "engie_elec_reference_3ans:hphc",
         "selia_elec_vert_fixe:hphc",
@@ -279,12 +337,22 @@ async def test_capteurs(hass: HomeAssistant):
         "ilek_enrfixe_plus:hphc",
         # Hunélec Base (#325, #327) : 36 x 0,23506 + 3/365 x 188,88 = 10,01 € (vert : 10,24 €).
         "hunelec_prix_fixe_1an:base",
+        # ÉS Week-end et heures creuses (#331) : tout à 23,752 c€ (nuit HC + samedi
+        # 03/10) + 3/365 x 192,60 = 10,13 €.
+        "es_verte_fixe_1an:week_end_hphc",
         # ÉS HC (#329) : 36 x 0,24 + 3/365 x 194,16 = 10,2358 €, juste devant
         # Hunélec vert Base (10,2385 €) ; ÉS 100 % régionale HC (#332) : 10,46 €.
         "es_verte_fixe_1an:hphc",
         "hunelec_prix_fixe_1an_vert:base",
+        # Engie Duo Référence 3 ans, partie élec, Base (#98) : même grille qu'Elec
+        # Référence 3 ans (décision du 28/10/2026 : un fichier par offre), donc
+        # 10,32 € aussi ; départage par le nom de l'option.
+        "engie_duo_reference_3ans:base",
         # Engie Elec Référence 3 ans Base (#28) : 36 x 0,24205 + 3/365 x 195,18 = 10,32 €.
         "engie_elec_reference_3ans:base",
+        # ÉS 100 % régionale Week-end et heures creuses (#334) : 10,13 € + 2,27 x 12 x
+        # 3/365 = 10,36 € (même kWh que #331, supplément vert sur l'abonnement).
+        "es_verte_regionale_fixe_1an:week_end_hphc",
         "es_verte_regionale_fixe_1an:hphc",
         # TotalEnergies Verte Fixe Base (#95) : 36 x 0,2540 + 3/365 x 145,56 = 10,71 €.
         "totalenergies_verte_fixe:base",
@@ -292,6 +360,12 @@ async def test_capteurs(hass: HomeAssistant):
         "happe_elec_1an:base",
         "ilek_enrfixe_plus:base",
         "selia_elec_vert_fixe:base",
+        # ÉS Week-end Base (#330) : 24 x 0,31108 + 12 x 0,22878 (samedi 03/10)
+        # + 3/365 x 190,32 = 11,78 €.
+        "es_verte_fixe_1an:week_end",
+        # ÉS 100 % régionale Week-end Base (#333) : 11,78 € + 2,27 x 12 x 3/365
+        # = 12,00 € (même kWh, supplément vert sur l'abonnement).
+        "es_verte_regionale_fixe_1an:week_end",
         # ÉS Base (#73) : 36 x 0,30216 + 3/365 x 191,40 = 12,45 € ; régionale (#74) : 12,67 €.
         "es_verte_fixe_1an:base",
         # papernest HC (#169) : 36 x 0,24528 + 3/365 x 464,40 = 12,65 €, juste devant
@@ -321,11 +395,13 @@ async def test_option_indisponible_au_dela_de_15_kva(hass: HomeAssistant):
     base = hass.states.get("sensor.maison_12_month_cost_base_option")
     assert base.state == "unknown"
     assert "36 kVA" in base.attributes["indisponible"]
-    # À 36 kVA, Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, juste
+    # À 36 kVA, Charge'Heures (#24, 632,64 €/an, HSC 13,35 c€) : 10,29 €, devant
+    # Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, juste
     # devant TotalEnergies Access HC (même abonnement, 14,67 c€), EDF Zen Online HC (15,31 c€ :
     # 10,83 €), Plenitude HC (681,72 €/an, 14,67 c€ : 10,88 €), Prudence HC et le TRV HC.
-    assert hass.states.get("sensor.maison_cheapest_option").state == "gaz_de_bordeaux_novafixe:hphc"
-    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.47"
+    moins_chere = hass.states.get("sensor.maison_cheapest_option").state
+    assert moins_chere == "totalenergies_charge_heures:hphc_saisonnieres"
+    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.78"
 
 
 async def test_sans_donnees(hass: HomeAssistant):

@@ -17,6 +17,19 @@ Particularités constatées dans les fichiers CRE :
 
 Le jeu de données data.gouv.fr indique une licence « non spécifiée » ; la CRE le publie comme données ouvertes sur son site. À confirmer avant toute redistribution hors de ce dépôt.
 
+## Documentées hors moteur
+
+Les parties **gaz** des offres mixtes ne sont pas comparées par l'intégration (moteur
+électricité uniquement, #4) ; leurs grilles relevées restent documentées dans les issues :
+
+| Offre | Partie gaz | Issues | Relevé |
+|---|---|---|---|
+| TotalEnergies Spéciale Électricité et Gaz | indexée sur le prix repère de vente de gaz (PRVG) de la CRE, 6 zones tarifaires ; option T1 < 4 MWh/an, option T2 | #112 (T1), #387 (T2) | 19/10/2026, grille « Offre - Spéciale - 1 oct. 2026 » |
+| Engie Duo Référence 3 ans | prix fixe de la fourniture 3 ans, acheminement révisé 1 fois/an ; 5 % biométhane | #113 | 19/10/2026, fiche « Grille tarifaire - octobre 2026 » |
+
+La partie électricité de ces offres mixtes est modélisée dans les issues correspondantes
+(TotalEnergies Spéciale : #96/#134 ; Engie Duo : #98/#135).
+
 ## Prévues
 
 | Donnée | Source | Issue |

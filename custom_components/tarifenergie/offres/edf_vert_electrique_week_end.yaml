@@ -1,0 +1,24 @@
+# EDF Vert Électrique Week-End (issues #19 Base, #120 HC ; inventaire #6).
+# Électricité verte (garanties d'origine). « Autre offre » selon la CRE : prix HT
+# révisables au maximum deux fois par an — modélisée en prix fixes, la durée de
+# fixité retenue (6 mois) étant l'intervalle minimal entre deux révisions (même
+# arbitrage que Zen Week-End, #487). Grille TTC applicable au 15 septembre 2026
+# (grille-prix-vert-electrique-weekend.pdf, vérifiée le 28/10/2026) : kWh HT 30 %
+# moins cher les week-ends et jours fériés nationaux, compteur Linky requis.
+# Pas de 3 kVA. Les abonnements 24 et 30 kVA de l'option HC (39,88 et 47,40 €/mois)
+# diffèrent de l'option Week-End (39,14 et 46,47) : valeurs publiées telles
+# quelles par EDF. Majorations (injection, sans index) non modélisées.
+id: edf_vert_electrique_week_end
+fournisseur: EDF
+offre: Vert Électrique Week-End
+type_prix: fixe
+duree_fixite_mois: 6
+grille_du: 2026-09-15
+source: https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/grille-prix-vert-electrique-weekend.pdf
+options:
+  week_end:  # option Week-End (Base) : 6 à 36 kVA
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {semaine: 0.2171, week_end: 0.1630}
+  week_end_hphc:  # option Heures creuses + Week-End : 6 à 36 kVA
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.88, 30: 47.40, 36: 53.88}
+    kwh_ttc: {semaine_hp: 0.2259, semaine_hc: 0.1691, week_end_hp: 0.1691, week_end_hc: 0.1691}

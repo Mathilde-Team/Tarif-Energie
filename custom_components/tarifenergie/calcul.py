@@ -2,7 +2,8 @@
 
 Principe (issue #2) :
     - chaque heure consommée est valorisée au prix TTC **en vigueur ce jour-là**
-      (date locale), selon son poste (base, ou heures pleines / creuses) ;
+      (date locale), selon son poste (base, heures pleines / creuses, semaine /
+      week-end, ou les quatre postes croisés semaine x week-end) ;
     - l'abonnement annuel TTC est compté au jour : 1/365 (ou 1/366) par jour
       couvert, avec la grille du jour ;
     - une heure à cheval sur une limite d'heures creuses (ex. 23:30) est
@@ -22,7 +23,8 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
-from .modele import Grilles, TarifIntrouvable
+from .jours import est_week_end
+from .modele import Grilles, Saison, TarifIntrouvable
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -139,6 +141,17 @@ def _jours_annee(jour: date) -> int:
     return 366 if calendar.isleap(jour.year) else 365
 
 
+def _saison_du(jour: date, saisons: tuple[Saison, ...]) -> Saison:
+    """Saison couvrant ce jour (une seule : validé à la lecture de l'offre)."""
+    _LOGGER.debug("_saison_du: entrée")
+    for saison in saisons:
+        if saison.couvre(jour):
+            _LOGGER.debug("_saison_du: %s", saison.nom)
+            return saison
+    _LOGGER.debug("_saison_du: lève une exception")
+    raise ValueError(f"aucune saison ne couvre le {jour.isoformat()}")
+
+
 def cout_option(
     option: str,
     grilles: Grilles,
@@ -167,10 +180,67 @@ def cout_option(
         grille = grilles.en_vigueur(puissance, jour)
         cout.grilles.add(grille.debut)
         quantite = Decimal(str(kwh))
-        # Base ou Heures creuses : selon les postes de la grille (TRV « base »/«hphc »
-        # ou offre de marché « <id>:<option> »), pas selon la clé exacte.
+        # Base, Heures creuses ou Week-end : selon les postes de la grille (TRV
+        # « base »/« hphc » ou offre de marché « <id>:<option> »), pas selon la clé exacte.
         if set(grille.prix) == {"base"}:
             repartition = {"base": quantite}
+        elif set(grille.prix) == {"semaine", "week_end"}:
+            # Offre à option Week-end : tarif week-end les samedis, dimanches et
+            # jours fériés nationaux (ex. ÉS Énergies, issue #330).
+            poste = "week_end" if est_week_end(jour) else "semaine"
+            repartition = {poste: quantite}
+        elif set(grille.prix) == {"semaine", "week_end", "jour_choisi"}:
+            # Zen Week-End Plus, option Base (#10) : le jour choisi par le client
+            # (lundi, mercredi ou vendredi, porté par la grille) a son propre poste.
+            if est_week_end(jour):
+                poste = "week_end"
+            elif grille.jour_choisi is not None and jour.weekday() == grille.jour_choisi:
+                poste = "jour_choisi"
+            else:
+                poste = "semaine"
+            repartition = {poste: quantite}
+        elif set(grille.prix) == {"semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc"}:
+            # Week-end ET heures creuses (#331) : les quatre postes croisés ; les
+            # heures creuses du point de livraison s'appliquent aussi le week-end.
+            if plages is None:
+                _LOGGER.debug("cout_option: lève une exception")
+                raise ValueError("l'option heures creuses demande des plages")
+            prefixe = "week_end_" if est_week_end(jour) else "semaine_"
+            hc = quantite * plages.fraction_hc(debut.hour)
+            repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
+        elif set(grille.prix) == {
+            "semaine_hp",
+            "semaine_hc",
+            "week_end_hp",
+            "week_end_hc",
+            "jour_choisi_hp",
+            "jour_choisi_hc",
+        }:
+            # Zen Week-End Plus, option heures creuses (#116) : les six postes
+            # croisés, le jour choisi (lundi, mercredi ou vendredi) s'ajoutant
+            # au week-end ; les heures creuses du point de livraison s'y appliquent.
+            if plages is None:
+                _LOGGER.debug("cout_option: lève une exception")
+                raise ValueError("l'option heures creuses demande des plages")
+            if est_week_end(jour):
+                prefixe = "week_end_"
+            elif grille.jour_choisi is not None and jour.weekday() == grille.jour_choisi:
+                prefixe = "jour_choisi_"
+            else:
+                prefixe = "semaine_"
+            hc = quantite * plages.fraction_hc(debut.hour)
+            repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
+        elif grille.saisons is not None:
+            # Offre à postes saisonniers (Zen Estival, #20) : l'été compte
+            # HSC/HC/HP et l'hiver HC/HP, chacun dans sa saison ; les plages
+            # sont portées par la grille (fixées par l'offre), pas par le
+            # compteur du client.
+            saison = _saison_du(jour, grille.saisons)
+            hsc = quantite * PlagesHC(plages=saison.hsc).fraction_hc(debut.hour) if saison.hsc else Decimal(0)
+            hc = quantite * PlagesHC(plages=saison.hc).fraction_hc(debut.hour)
+            repartition = {f"{saison.nom}_hc": hc, f"{saison.nom}_hp": quantite - hsc - hc}
+            if saison.hsc:
+                repartition[f"{saison.nom}_hsc"] = hsc
         else:
             if plages is None:
                 _LOGGER.debug("cout_option: lève une exception")

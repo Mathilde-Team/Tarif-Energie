@@ -33,18 +33,27 @@ Avec moins de 12 mois d'historique, les coûts portent sur la période disponibl
 ## Offres de marché (v0.2)
 
 Les grilles des fournisseurs sont livrées dans `custom_components/tarifenergie/offres/*.yaml`
-(inventaire [#6](https://github.com/Mathide-Team/tarifenergie/issues/6), moteur [#5](https://github.com/Mathide-Team/tarifenergie/issues/5)) :
+(inventaire [#6](https://github.com/Mathilde-Team/Tarif-Energie/issues/6), moteur [#5](https://github.com/Mathilde-Team/Tarif-Energie/issues/5)) :
 une issue par offre documente la grille, sa date d'effet et ses sources. La v0.2 couvre
-les offres **à prix fixe** avec options Base et Heures creuses — 30 offres :
+les offres **à prix fixe** avec options Base et Heures creuses — 36 offres :
 
 - la bellenergie Prudence 1 an, Constance 2 ans et Garance 3 ans,
 - Octopus Energy Eco Fixe Octobre 2026 et Eco Fixe Plus Octobre 2026 (territoire Enedis),
 - Ohm Énergie Sérénité Fixe 1 an et Fixe 2 ans,
 - Alterna Mon électricité française fixe 1 an et Mon électricité du coin 1 an,
 - Engie Elec Référence 3 ans (prix fixe de la part fourniture ; acheminement CU en Base, MUDT en Heures creuses),
+- Engie Duo Référence 3 ans, partie électricité (mixte ; Base, même grille qu'Elec Référence 3 ans — option HP/HC en #135, partie gaz documentée hors moteur),
+- EDF Zen Estival (prix fixe 12 mois, heures super creuses et heures creuses
+  d'été, heures creuses d'hiver — postes et plages saisonniers portés par l'offre),
+- TotalEnergies Charge'Heures (heures super creuses 2-6 h et heures creuses
+  23-2 h / 6-7 h toute l'année — plages portées par l'offre, sans option Base),
 - EDF Zen Fixe 2 ans (kWh HT fixe 2 ans et 1 mois),
+- EDF Vert Électrique Week-End (électricité verte, remise week-end et jours fériés, prix révisables 2 fois par an),
+- EDF Zen Week-End (remise week-end et jours fériés ; sans jour choisi, contrairement à la Plus) et EDF Zen Week-End Plus (remise week-end, jours fériés et jour choisi — lundi, mercredi ou vendredi ; trois variantes simulées) ; prix révisables 2 fois par an,
 - ÉS Énergies Électricité verte à prix fixe 1 an et sa variante 100 % régionale (Strasbourg Électricité Réseaux),
 - Gaz de Bordeaux NovaFixe Élec et NovaFixe Bonus Élec (fiche de Bordeaux),
+- Gaz de Bordeaux NovaFixe Bonus Duo, partie électricité (mixte électricité + gaz ;
+  grille électricité identique à NovaFixe Bonus Élec, fiche de Bordeaux),
 - GEDIA All Inclusive GES Électricité (réseau GEDIA, Dreux ; abonnement publié en €/an),
 - GEG Mon Offre Elec Verte fixe 3 ans (kWh HC/HP selon la puissance),
 - Happ-e by ENGIE Électricité 1 an (prix fixe de la part fourniture ; acheminement CU en Base, MUDT en Heures creuses),
@@ -53,11 +62,12 @@ les offres **à prix fixe** avec options Base et Heures creuses — 30 offres :
 - ilek ÉnRFixe+ Élec,
 - Mint Énergie Classic & Green et Smart & Green,
 - Primeo Energie Offre Fixe Confort,
+- Primeo Energie Offre Fixe ECO -15 % (Base seule, grille du 01/02/2026, prix HT bloqués jusqu'au 31/07/2027),
 - Eni Plenitude Pleniweb 1 an,
 - papernest énergie Électricité verte 1 an,
-- SÉLIA Mon Contrat élec vert Fixe.
 - SÉLIA Mon Contrat élec vert Fixe,
-- TotalEnergies Fixe 2 ans.
+- TotalEnergies Fixe 2 ans,
+- elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients).
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr
@@ -75,9 +85,11 @@ Les offres **indexées sur le TRV** (`type_prix: indexe_trv`) n'ont pas de duré
 pas de réseau `eld:`. Leur grille TTC datée est à mettre à jour à chaque mouvement du TRV :
 EDF Zen Online (Base de 3 à 15 kVA, HC de 6 à 36 kVA), TotalEnergies Access Électricité
 (kWh HT remisé de 10 % pendant 3 ans), TotalEnergies Heures Eco Électricité (prix du TRV),
-elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients),
+TotalEnergies Spéciale Électricité et Gaz (duale : partie électricité au prix du TRV,
+Base et HP/HC ; remise annoncée de 10 % non modélisée, partie gaz documentée hors moteur),
+Gaz de Bordeaux NovaFlex Élec (kWh HT -5 %, fiche de Bordeaux ; Base de 3 à 15 kVA),
 Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée et
-Alpiq Électricité Sérénité (kWh HT -0,5 %).
+Alpiq Électricité Sérénité (kWh HT -0,5 %) et Primeo Offre Essentielle Verte (kWh HT -5 %).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
@@ -87,7 +99,7 @@ YAML sur le modèle des existants, une issue d'inventaire la documentant.
 
 ## Installation
 
-1. HACS → Dépôts personnalisés → `https://github.com/Mathide-Team/tarifenergie`, catégorie « Intégration ».
+1. HACS → Dépôts personnalisés → `https://github.com/Mathilde-Team/Tarif-Energie`, catégorie « Intégration ».
 2. Installer tarifenergie, redémarrer Home Assistant.
 3. Paramètres → Appareils et services → Ajouter une intégration → tarifenergie.
 
@@ -96,8 +108,18 @@ YAML sur le modèle des existants, une issue d'inventaire la documentant.
 - La CRE ne publie l'option Base que jusqu'à 15 kVA : au-delà, elle est signalée indisponible.
 - Statistiques horaires : une heure à cheval sur une limite d'heures creuses (ex. 23:30) est répartie au prorata des minutes.
 - Pas encore de Tempo (#3), de gaz (#4) ni d'offres de marché des fournisseurs (#5).
+- Parties gaz des offres mixtes (TotalEnergies Spéciale #112, Engie Duo Référence #113) : hors comparateur, grilles documentées dans [docs/sources.md](docs/sources.md).
 
 Sources et particularités des données : [docs/sources.md](docs/sources.md).
+
+## Données et licences
+
+Le code de l'intégration est sous licence [MIT](LICENSE) (exception Home Assistant du socle de l'équipe). Les données livrées avec l'intégration ne sont pas couvertes par cette licence :
+
+- **Tarifs réglementés (TRV)** — `custom_components/tarifenergie/tarifs/*.csv` : fichiers open data de la [Commission de régulation de l'énergie (CRE)](https://www.cre.fr/documents/open-data.html) (`Option_Base.csv`, `Option_HPHC.csv`, `Option_Tempo.csv`), copiés **sans modification** par `scripts/maj_tarifs_cre.py`. La CRE les présente comme « réutilisables librement » ; ses [mentions légales](https://www.cre.fr/mentions-legales-et-politique-de-confidentialite.html) demandent de respecter l'intégrité des documents, de citer la source et la date du document (à défaut sa date de mise à jour) et de donner un lien vers la page d'origine. Le jeu de données [data.gouv.fr](https://www.data.gouv.fr/datasets/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels) n'indique pas de licence (« License Not Specified »).
+  Attribution : « Source : Commission de régulation de l'énergie (CRE), open data Marchés de détail, https://www.cre.fr/documents/open-data.html », avec la date de mise à jour des fichiers.
+- **Offres de marché** — `custom_components/tarifenergie/offres/*.yaml` : prix relevés à la main dans les grilles tarifaires publiques des fournisseurs. Chaque fichier cite sa grille dans le champ `source:` et la date d'effet ; l'issue de l'offre documente le relevé. Seuls les prix (des faits) sont repris, pas les documents : ces grilles restent la propriété de leurs fournisseurs et font foi en cas d'écart.
+- **Consommation** : lue dans le recorder de votre Home Assistant, elle ne quitte pas votre installation.
 
 ## Développement
 

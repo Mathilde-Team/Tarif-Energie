@@ -34,6 +34,34 @@ class TarifIntrouvable(LookupError):
 
 
 @dataclass(frozen=True, slots=True)
+class Saison:
+    """Saison d'une offre à postes saisonniers (été / hiver, issue #20).
+
+    Bornes en (mois, jour) : la saison couvre du ``debut`` au ``fin`` inclus,
+    chaque année (l'hiver peut passer l'année : 10-01 → 04-14). Les plages
+    (heures super creuses, heures creuses) sont en minutes depuis minuit,
+    fin exclue, passage de minuit permis — comme ``PlagesHC``.
+    """
+
+    nom: str
+    debut: tuple[int, int]
+    fin: tuple[int, int]
+    hsc: tuple[tuple[int, int], ...] = ()
+    hc: tuple[tuple[int, int], ...] = ()
+
+    def couvre(self, jour: date) -> bool:
+        """Le jour (mois, jour) tombe-t-il dans cette saison ?"""
+        _LOGGER.debug("Saison.couvre: entrée")
+        md = (jour.month, jour.day)
+        if self.debut <= self.fin:
+            dedans = self.debut <= md <= self.fin
+        else:  # saison à cheval sur l'année (ex. hiver 10-01 → 04-14)
+            dedans = md >= self.debut or md <= self.fin
+        _LOGGER.debug("Saison.couvre: %s", dedans)
+        return dedans
+
+
+@dataclass(frozen=True, slots=True)
 class Grille:
     """Une ligne de la CRE : prix TTC valables du ``debut`` au ``fin`` inclus (``None`` : en vigueur)."""
 
@@ -43,6 +71,12 @@ class Grille:
     fin: date | None
     abonnement_an: Decimal
     prix: dict[str, Decimal]
+    # Jour de semaine du « jour choisi » (0 = lundi… 6 = dimanche), option des
+    # offres Zen Week-End Plus (#10, #116) : ``None`` pour les autres grilles.
+    jour_choisi: int | None = None
+    # Saisons été/hiver des offres à postes saisonniers (#20) : ``None`` sinon.
+    # Les postes de ``prix`` sont alors préfixés par la saison (``ete_hp``…).
+    saisons: tuple[Saison, ...] | None = None
 
     def couvre(self, jour: date) -> bool:
         _LOGGER.debug("Grille.couvre: entrée")

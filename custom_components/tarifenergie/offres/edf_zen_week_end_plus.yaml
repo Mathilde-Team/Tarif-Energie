@@ -1,0 +1,37 @@
+# EDF Zen Week-End Plus (issues #10 Base, #116 HC ; inventaire #6).
+# « Autre offre » selon la CRE : prix fixés librement, révisables au maximum
+# deux fois par an — modélisée en prix fixes, la durée de fixité retenue (6 mois)
+# étant l'intervalle minimal entre deux révisions. Abonnement HT, kWh HT ;
+# grille TTC applicable au 15 septembre 2026 (grille-prix-zen-week-end-plus.pdf),
+# sans 3 kVA. Gestion 100 % en ligne ; l'option V2G n'est pas reprise et les
+# majorations EJP (0,02 €) et Tempo (0,03 €) ne sont pas modélisées (issues EDF#8).
+# Option « Week-End + jour choisi » : le client choisit lundi, mercredi ou vendredi,
+# les trois variantes sont simulées (une clé de comparaison par jour choisi) ; en
+# heures creuses, la remise s'applique aux HP ET HC des week-ends, jours fériés
+# nationaux et jours choisis. Vérifié sur la page EDF au 28/10/2026.
+id: edf_zen_week_end_plus
+fournisseur: EDF
+offre: Zen Week-End Plus
+type_prix: fixe
+duree_fixite_mois: 6
+grille_du: 2026-09-15
+source: https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/grille-prix-zen-week-end-plus.pdf
+options:
+  week_end_jour_lundi:  # jour choisi : lundi
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {semaine: 0.2259, week_end: 0.1691, jour_choisi: 0.1691}
+  week_end_jour_mercredi:  # jour choisi : mercredi
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {semaine: 0.2259, week_end: 0.1691, jour_choisi: 0.1691}
+  week_end_jour_vendredi:  # jour choisi : vendredi
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {semaine: 0.2259, week_end: 0.1691, jour_choisi: 0.1691}
+  week_end_hphc_jour_lundi:  # heures creuses + week-end + jour choisi : lundi
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {semaine_hp: 0.2314, semaine_hc: 0.1731, week_end_hp: 0.1731, week_end_hc: 0.1731, jour_choisi_hp: 0.1731, jour_choisi_hc: 0.1731}
+  week_end_hphc_jour_mercredi:  # heures creuses + week-end + jour choisi : mercredi
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {semaine_hp: 0.2314, semaine_hc: 0.1731, week_end_hp: 0.1731, week_end_hc: 0.1731, jour_choisi_hp: 0.1731, jour_choisi_hc: 0.1731}
+  week_end_hphc_jour_vendredi:  # heures creuses + week-end + jour choisi : vendredi
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {semaine_hp: 0.2314, semaine_hc: 0.1731, week_end_hp: 0.1731, week_end_hc: 0.1731, jour_choisi_hp: 0.1731, jour_choisi_hc: 0.1731}
