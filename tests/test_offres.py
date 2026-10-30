@@ -42,6 +42,7 @@ def test_quatre_offres_livrees(offres):
         "energis_trv_local",
         "enes_creutzwald_trv_local",
         "enes_hombourg_haut_trv_local",
+        "enes_schoeneck_trv_local",
         "engie_duo_reference_3ans",
         "engie_elec_reference_3ans",
         "es_trv_local",
@@ -822,6 +823,31 @@ def test_enes_hombourg_haut_trv_local_grille_du_1er_aout_2026(offres):
     g = grilles["enes_hombourg_haut_trv_local:base"].en_vigueur(36, jour)
     assert (g.abonnement_an, g.prix) == (Decimal("652.92"), {"base": Decimal("0.19850")})
     g = grilles["enes_hombourg_haut_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("669.06")
+    assert g.prix == {"hp": Decimal("0.21422"), "hc": Decimal("0.15890")}
+
+
+def test_enes_schoeneck_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local Enes Schoeneck (#279, #280) : grille unique Enes, images du dossier
+    « creutzwald » (décision du propriétaire du 28/10/2026)."""
+    offre = offres["enes_schoeneck_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == (
+        "reglemente",
+        "enes_schoeneck",
+        None,
+    )
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["enes_schoeneck_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("191.42"),
+        {"base": Decimal("0.20006")},
+    )
+    # Base 9-36 kVA en extinction, publiée pour les contrats en cours
+    g = grilles["enes_schoeneck_trv_local:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("652.92"), {"base": Decimal("0.19850")})
+    g = grilles["enes_schoeneck_trv_local:hphc"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("669.06")
     assert g.prix == {"hp": Decimal("0.21422"), "hc": Decimal("0.15890")}
 
