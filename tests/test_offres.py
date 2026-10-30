@@ -106,6 +106,7 @@ def test_quatre_offres_livrees(offres):
         "uem_trv_local",
         "ume_trv_local",
         "vialis_trv_local",
+        "wekiwi_duo_aurore",
     ]
     # Chaque offre propose au moins une option sans heures creuses (sa « Base ») :
     # base, week_end, une variante à jour choisi (#10) ou des postes saisonniers
@@ -2339,3 +2340,28 @@ def test_saison_annee_incomplete_refusee():
     }
     with pytest.raises(OffreInvalide, match="partitionner"):
         offre_depuis_dict(donnees, "x")
+
+
+def test_wekiwi_duo_aurore_grille_du_19_octobre_2026(offres):
+    """Offre Duo Wekiwi, électricité Aurore Base et HP/HC (#183, #337) : partie
+    électricité seule, abonnement TRV par décision du propriétaire du 28/10/2026
+    (non publié par Wekiwi)."""
+    offre = offres["wekiwi_duo_aurore"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 12)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    # Base : kWh 0,2182 € (3-6 kVA) / 0,2270 € (9-36 kVA), 18-36 kVA en extinction
+    g = grilles["wekiwi_duo_aurore:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.81"))
+    assert g.prix == {"base": Decimal("0.2182")}
+    g = grilles["wekiwi_duo_aurore:base"].en_vigueur(15, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("330.57"), {"base": Decimal("0.2270")})
+    # HP/HC : kWh Aurore standard toutes puissances, remise d'entrée non modélisée
+    g = grilles["wekiwi_duo_aurore:hphc"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.8131821"))
+    assert g.prix == {"hp": Decimal("0.2325"), "hc": Decimal("0.1901")}
+    g = grilles["wekiwi_duo_aurore:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("650.6862576")
+    assert g.prix == {"hp": Decimal("0.2325"), "hc": Decimal("0.1901")}
+    # HC dès 3 kVA (abonnement TRV HPHC 3 kVA)
+    assert grilles["wekiwi_duo_aurore:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
