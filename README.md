@@ -35,7 +35,7 @@ Avec moins de 12 mois d'historique, les coûts portent sur la période disponibl
 Les grilles des fournisseurs sont livrées dans `custom_components/tarifenergie/offres/*.yaml`
 (inventaire [#6](https://github.com/Mathilde-Team/Tarif-Energie/issues/6), moteur [#5](https://github.com/Mathilde-Team/Tarif-Energie/issues/5)) :
 une issue par offre documente la grille, sa date d'effet et ses sources. La v0.2 couvre
-les offres **à prix fixe** avec options Base et Heures creuses — 36 offres :
+les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
 
 - la bellenergie Prudence 1 an, Constance 2 ans et Garance 3 ans,
 - Octopus Energy Eco Fixe Octobre 2026 et Eco Fixe Plus Octobre 2026 (territoire Enedis),
@@ -76,7 +76,8 @@ Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, 
 de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amnéville), SÉOLIS (réseau
 Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartrain), UEM (réseau réséda,
 Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie de Marange-Silvange
-(Marange-Silvange), RMMS La Réole (La Réole), Enes Creutzwald (Creutzwald), UME (Usine Municipale
+(Marange-Silvange), RMMS La Réole (La Réole), Enes Creutzwald (Creutzwald), Enes Hombourg-Haut
+(Hombourg-Haut), UME (Usine Municipale
 d'Erstein), Soréa (Maurienne), SICAE-Précy (Aube), SICAE de la Somme, du Cambraisis, SICAE de la
 Vallée du Sausseron, SICAP Pithiviers, SIEL Labergement-Sainte-Marie et Énergies Services Lavaur
 (Lavaur, Saint-Paul-Cap-de-Joux).
