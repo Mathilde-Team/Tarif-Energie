@@ -90,8 +90,9 @@ EDF Zen Online (Base de 3 à 15 kVA, HC de 6 à 36 kVA), TotalEnergies Access É
 TotalEnergies Spéciale Électricité et Gaz (duale : partie électricité au prix du TRV,
 Base et HP/HC ; remise annoncée de 10 % non modélisée, partie gaz documentée hors moteur),
 Gaz de Bordeaux NovaFlex Élec (kWh HT -5 %, fiche de Bordeaux ; Base de 3 à 15 kVA),
-Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée et
-Alpiq Électricité Sérénité (kWh HT -0,5 %) et Primeo Offre Essentielle Verte (kWh HT -5 %).
+Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée,
+Alpiq Électricité Sérénité (kWh HT -0,5 %), Primeo Offre Essentielle Verte (kWh HT -5 %)
+et Jeety Energy Elec-Dom (ex-« élecocité », grille de février 2026, dernière publiée ; HC à partir de 6 kVA).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,

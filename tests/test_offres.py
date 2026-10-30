@@ -63,6 +63,7 @@ def test_quatre_offres_livrees(offres):
         "hunelec_prix_fixe_1an",
         "hunelec_prix_fixe_1an_vert",
         "ilek_enrfixe_plus",
+        "jeety_elec_dom",
         "la_bellenergie_constance",
         "la_bellenergie_garance",
         "la_bellenergie_prudence",
@@ -253,6 +254,35 @@ def test_alpiq_serenite_trv_moins_un_demi_pourcent(offres):
     assert g.prix == {"hp": Decimal("0.213337"), "hc": Decimal("0.158293")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
         grilles["alpiq_serenite:hphc"].en_vigueur(3, jour)
+
+
+def test_jeety_elec_dom_grille_du_1er_fevrier_2026(offres):
+    """Jeety Energy Elec-Dom (#59 Base, #161 HC) : indexée TRV, grille de février 2026
+    jamais revue au mouvement du TRV du 01/08/2026 (dernière publiée, page tarifs)."""
+    offre = offres["jeety_elec_dom"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 28).date()
+    # Base : 0,1940 € jusqu'à 6 kVA, 0,1927 € au-delà.
+    g = grilles["jeety_elec_dom:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 2, 1).date(),
+        Decimal("188.40"),  # 15,70 x 12
+        {"base": Decimal("0.1940")},
+    )
+    assert grilles["jeety_elec_dom:base"].en_vigueur(3, jour).abonnement_an == Decimal("144.36")  # 12,03 x 12
+    g = grilles["jeety_elec_dom:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("630.48"), {"base": Decimal("0.1927")})  # 52,54 x 12
+    # HP/HC : publiée dès 6 kVA seulement (3 kVA « non indiqué » sur la page).
+    g = grilles["jeety_elec_dom:hphc"].en_vigueur(6, jour)
+    assert (g.abonnement_an, g.prix) == (
+        Decimal("195.12"),  # 16,26 x 12
+        {"hp": Decimal("0.2065"), "hc": Decimal("0.1579")},
+    )
+    # 55,15 x 12
+    assert grilles["jeety_elec_dom:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("661.80")
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["jeety_elec_dom:hphc"].en_vigueur(3, jour)
 
 
 def test_primeo_essentielle_verte_trv_moins_cinq_pourcent(offres):
