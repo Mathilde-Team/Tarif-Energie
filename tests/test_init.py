@@ -92,6 +92,9 @@ async def test_capteurs(hass: HomeAssistant):
         # devant Plenitude HC (7,082 €) bien qu'à égalité au centime.
         "edf_zen_online:hphc",
         "plenitude_pleniweb_1an:hphc",
+        # TRV local Bitche HC (#284) : 36 x 0,1589 + 3/365 x 171,94 = 7,13 €,
+        # le TRV local le moins cher en HC (abonnement ELD sous le TRV national).
+        "bitche_trv_local:hphc",
         "la_bellenergie_prudence:hphc",
         "alterna_fixe_1an:hphc",
         # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
@@ -237,6 +240,8 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Energis Base (#200) : 36 x 0,19522 + 3/365 x 190,32 = 8,59 €.
         "energis_trv_local:base",
         "la_bellenergie_prudence:base",
+        # TRV local Bitche Base (#283) : 36 x 0,2001 + 3/365 x 171,94 = 8,62 €.
+        "bitche_trv_local:base",
         "alterna_fixe_1an:base",
         # Alterna indexée Base (#45) : 36 x 0,1919 + 3/365 x 211,92 = 8,65 €.
         "alterna_indexee:base",

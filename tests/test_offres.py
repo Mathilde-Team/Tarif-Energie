@@ -33,6 +33,7 @@ def test_quatre_offres_livrees(offres):
         "amneville_trv_local",
         "barr_trv_local",
         "bazas_trv_local",
+        "bitche_trv_local",
         "edf_vert_electrique_week_end",
         "edf_zen_estival",
         "edf_zen_fixe_2ans",
@@ -882,6 +883,31 @@ def test_enes_schoeneck_trv_local_grille_du_1er_aout_2026(offres):
     g = grilles["enes_schoeneck_trv_local:hphc"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("669.06")
     assert g.prix == {"hp": Decimal("0.21422"), "hc": Decimal("0.15890")}
+
+
+def test_bitche_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local Régie de Bitche (#283, #284) : abonnements annuels identiques
+    Base et HC, Base 9-36 kVA en extinction."""
+    offre = offres["bitche_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", "bitche", None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["bitche_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("171.94"),
+        {"base": Decimal("0.2001")},
+    )
+    # Base 9-36 kVA en extinction, publiée pour les contrats en cours
+    g = grilles["bitche_trv_local:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("571.82"), {"base": Decimal("0.1985")})
+    # HC dès 3 kVA, mêmes abonnements qu'en Base
+    g = grilles["bitche_trv_local:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("132.77")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    g = grilles["bitche_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("571.82")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
 
 
 def test_la_reole_trv_local_grille_du_1er_aout_2026(offres):
