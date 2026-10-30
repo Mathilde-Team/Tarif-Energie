@@ -67,7 +67,8 @@ les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
 - papernest énergie Électricité verte 1 an,
 - SÉLIA Mon Contrat élec vert Fixe,
 - TotalEnergies Fixe 2 ans,
-- elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients).
+- elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients),
+- Wekiwi Offre Duo, électricité Aurore Base et HP/HC (partie électricité seule ; abonnement TRV par défaut, non publié par Wekiwi).
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr

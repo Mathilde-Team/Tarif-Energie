@@ -401,6 +401,9 @@ async def test_capteurs(hass: HomeAssistant):
     assert "2026-10-01" in economie.attributes["indisponibles"]["mint_smart_green:hphc"]
     # Octopus Eco Fixe Plus (#29, #138) : grille du 12/10/2026, postérieure à la période.
     assert "2026-10-01" in economie.attributes["indisponibles"]["octopus_eco_fixe_plus_oct2026:base"]
+    # Wekiwi Offre Duo Aurore (#183, #337) : prix relevés le 19/10/2026, postérieurs à la période.
+    assert "2026-10-01" in economie.attributes["indisponibles"]["wekiwi_duo_aurore:base"]
+    assert "2026-10-01" in economie.attributes["indisponibles"]["wekiwi_duo_aurore:hphc"]
     assert hass.states.get("sensor.maison_12_month_consumption").state == "36.0"
     assert hass.states.get("sensor.maison_off_peak_share").state == "100.0"
     assert await hass.config_entries.async_unload(entree.entry_id)
