@@ -1,0 +1,29 @@
+# TotalEnergies Charge'Heures (issue #24 ; inventaire #6).
+# Anciennement Heures Super Creuses. « Autre offre » selon la CRE : abonnement
+# et kWh HT révisables au maximum deux fois par année civile — modélisée en prix
+# fixes, la durée de fixité retenue (6 mois) étant l'intervalle minimal entre
+# deux révisions (même arbitrage que Vert Électrique Week-End, #19). Grille TTC
+# « Offre Charge'Heures - 1 oct. 2026 » (PDF officiel), HSC 02:00-06:00 et
+# HC 23:00-02:00 + 06:00-07:00 toute l'année : une seule « saison » annuelle aux
+# plages constantes. Pas d'option Base ni de 3 kVA ; compteur Linky requis.
+id: totalenergies_charge_heures
+fournisseur: TotalEnergies
+offre: Charge'Heures
+type_prix: fixe
+duree_fixite_mois: 6
+grille_du: 2026-10-01
+source: https://www.totalenergies.fr/fileadmin/Digital/Groupe/PDF/Documents_contractuels/Particuliers/Tarifs_TotalEnergies/fr/grille-tarifaire-charge-heures-particuliers.pdf
+options:
+  hphc_saisonnieres:
+    abonnement_mensuel_ttc: {6: 15.69, 9: 19.90, 12: 24.01, 15: 27.71, 18: 31.15, 24: 39.11, 30: 46.45, 36: 52.72}
+    saisons:
+      annee:  # plages constantes toute l'année : pas de saisonnalité
+        du: 01-01
+        au: 12-31
+        plages:
+          hsc: 02:00-06:00
+          hc: 23:00-02:00, 06:00-07:00
+        kwh_ttc:
+          hsc: 0.1335
+          hc: 0.1576
+          hp: 0.2302
