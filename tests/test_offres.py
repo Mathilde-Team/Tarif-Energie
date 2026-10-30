@@ -39,6 +39,7 @@ def test_quatre_offres_livrees(offres):
         "edf_zen_online",
         "edf_zen_week_end",
         "edf_zen_week_end_plus",
+        "elmy_prix_fixe_2ans",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
         "enes_hombourg_haut_trv_local",
@@ -1406,6 +1407,29 @@ def test_edf_zen_fixe_grille_du_1er_octobre_2026(offres):
     with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
         grilles["edf_zen_fixe_2ans:hphc"].en_vigueur(3, jour)
     assert offres["edf_zen_fixe_2ans"].duree_fixite_mois == 25  # 2 ans et 1 mois
+
+
+def test_elmy_prix_fixe_2ans_grille_du_1er_aout_2026(offres):
+    """Grille elmy Particuliers prix fixe 2 ans du 01/08/2026, PDF elmy (#104 Base, #176 HC)."""
+    offre = offres["elmy_prix_fixe_2ans"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("fixe", None, 24)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 25).date()
+    g = grilles["elmy_prix_fixe_2ans:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.2323")},
+    )
+    # kWh Base : 0,2323 € en 3 et 6 kVA, 0,2307 € de 9 à 36 kVA.
+    assert grilles["elmy_prix_fixe_2ans:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.2307")}
+    # 36 kVA : 54,90 x 12.
+    assert grilles["elmy_prix_fixe_2ans:base"].en_vigueur(36, jour).abonnement_an == Decimal("658.80")
+    g = grilles["elmy_prix_fixe_2ans:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("569.88")  # 47,49 x 12
+    assert g.prix == {"hp": Decimal("0.2489"), "hc": Decimal("0.1848")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles["elmy_prix_fixe_2ans:hphc"].en_vigueur(3, jour)
 
 
 def test_prudence_grille_du_1er_aout_2026(offres):

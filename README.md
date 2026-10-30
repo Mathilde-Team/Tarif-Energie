@@ -35,7 +35,7 @@ Avec moins de 12 mois d'historique, les coûts portent sur la période disponibl
 Les grilles des fournisseurs sont livrées dans `custom_components/tarifenergie/offres/*.yaml`
 (inventaire [#6](https://github.com/Mathilde-Team/Tarif-Energie/issues/6), moteur [#5](https://github.com/Mathilde-Team/Tarif-Energie/issues/5)) :
 une issue par offre documente la grille, sa date d'effet et ses sources. La v0.2 couvre
-les offres **à prix fixe** avec options Base et Heures creuses — 36 offres :
+les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
 
 - la bellenergie Prudence 1 an, Constance 2 ans et Garance 3 ans,
 - Octopus Energy Eco Fixe Octobre 2026 et Eco Fixe Plus Octobre 2026 (territoire Enedis),
@@ -65,9 +65,9 @@ les offres **à prix fixe** avec options Base et Heures creuses — 36 offres :
 - Primeo Energie Offre Fixe ECO -15 % (Base seule, grille du 01/02/2026, prix HT bloqués jusqu'au 31/07/2027),
 - Eni Plenitude Pleniweb 1 an,
 - papernest énergie Électricité verte 1 an,
-- SÉLIA Mon Contrat élec vert Fixe.
 - SÉLIA Mon Contrat élec vert Fixe,
-- TotalEnergies Fixe 2 ans.
+- TotalEnergies Fixe 2 ans,
+- elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients).
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr
