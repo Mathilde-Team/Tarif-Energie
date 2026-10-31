@@ -484,6 +484,8 @@ def test_primeo_fixe_eco_15_base_jusqu_a_juillet_2027(offres):
     )
     g = grilles["primeo_fixe_eco_15:base"].en_vigueur(36, jour)
     assert (g.abonnement_an, g.prix) == (Decimal("658.32"), {"base": Decimal("0.1693")})
+
+
 def test_ilek_voiture_electrique_base_indexee_trv(offres):
     """ilek Offre Voiture électrique (#58) : kWh HT du TRV, abonnement ilek, Base seule."""
     offre = offres["ilek_voiture_electrique"]
