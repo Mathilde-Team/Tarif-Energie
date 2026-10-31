@@ -138,6 +138,8 @@ async def test_capteurs(hass: HomeAssistant):
         "barr_trv_local:hphc",
         # TRV local Bazas HC (#219) : 7,30 €.
         "bazas_trv_local:hphc",
+        # TRV local Enes Hagondange HC (#204) : grille OMEGA, 7,30 €.
+        "enes_hagondange_trv_local:hphc",
         # TRV local Gascogne HC (#206) : abonnement annuel 192,59 €, total 7,30 €.
         "gascogne_trv_local:hphc",
         # TRV local La Réole HC (#273) : 7,30 €.
@@ -146,6 +148,11 @@ async def test_capteurs(hass: HomeAssistant):
         "lannemezan_trv_local:hphc",
         # TRV local Marange-Silvange HC (#266) : 7,30 €.
         "marange_silvange_trv_local:hphc",
+        # TRV locaux OMEGA HC (#225 Montois, #228 Pierrevillers, #231 Rombas) : grille commune
+        # d'Amnéville, 36 x 0,1589 + 3/365 x 192,59 = 7,30 €.
+        "montois_trv_local:hphc",
+        "pierrevillers_trv_local:hphc",
+        "rombas_trv_local:hphc",
         # TRV local SÉOLIS HC (#234) : 7,30 €.
         "seolis_trv_local:hphc",
         # TRV local SICAE Oise (#298, #299) HC : 36 x 0,1589 + 3/365 x 192,59 €.
@@ -255,8 +262,15 @@ async def test_capteurs(hass: HomeAssistant):
         "totalenergies_verte_fixe:hphc",
         # TRV local Amnéville Base (#221) : 8,76 €.
         "amneville_trv_local:base",
+        # TRV local Enes Hagondange Base (#203) : 8,76 €.
+        "enes_hagondange_trv_local:base",
         # TRV local Marange-Silvange Base (#265) : 8,76 €.
         "marange_silvange_trv_local:base",
+        # TRV locaux OMEGA Base (#224 Montois, #227 Pierrevillers, #230 Rombas) : 8,76 €,
+        # comme Amnéville (grille commune).
+        "montois_trv_local:base",
+        "pierrevillers_trv_local:base",
+        "rombas_trv_local:base",
         # TRV local UEM Base (#242) : 8,76 €.
         "uem_trv_local:base",
         # TRV local Barr Base (#197) : 36 x 0,2001 + 3/365 x 190,32 = 8,77 €, à égalité au

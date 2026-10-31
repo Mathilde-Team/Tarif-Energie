@@ -43,6 +43,7 @@ def test_quatre_offres_livrees(offres):
         "elmy_prix_fixe_2ans",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
+        "enes_hagondange_trv_local",
         "enes_hombourg_haut_trv_local",
         "enes_schoeneck_trv_local",
         "engie_duo_reference_3ans",
@@ -75,6 +76,7 @@ def test_quatre_offres_livrees(offres):
         "mint_classic_green",
         "mint_online_green",
         "mint_smart_green",
+        "montois_trv_local",
         "octopus_eco_fixe_oct2026",
         "octopus_eco_fixe_plus_oct2026",
         "ohm_fixe_2ans",
@@ -82,10 +84,12 @@ def test_quatre_offres_livrees(offres):
         "ohm_serente_fixe_1an",
         "oya_trv_local",
         "papernest_verte_1an",
+        "pierrevillers_trv_local",
         "plenitude_pleniweb_1an",
         "primeo_essentielle_verte",
         "primeo_fixe_confort",
         "primeo_fixe_eco_15",
+        "rombas_trv_local",
         "sarre_union_trv_local",
         "selia_elec_vert_fixe",
         "seolis_trv_local",
@@ -1095,6 +1099,68 @@ def test_amneville_trv_local_grille_du_1er_aout_2026(offres):
     g = grilles["amneville_trv_local:hphc"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("659.92")
     assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+
+
+def test_enes_hagondange_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local d'Enes Hagondange (#203 Base, #204 HC) : grille HTML du 01/08/2026."""
+    offre = offres["enes_hagondange_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", "enes_hagondange", None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 31).date()
+    g = grilles["enes_hagondange_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.36"),
+        {"base": Decimal("0.2000")},
+    )
+    # Base 9-36 kVA en extinction, publiée pour les contrats en cours
+    g = grilles["enes_hagondange_trv_local:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("646.51"), {"base": Decimal("0.1985")})
+    # HC publiée dès 3 kVA (146,68 €/an)
+    g = grilles["enes_hagondange_trv_local:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("146.68")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    g = grilles["enes_hagondange_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("659.92")
+
+
+@pytest.mark.parametrize(
+    ("cle", "eld"),
+    [
+        ("montois_trv_local", "regie_montois_la_montagne"),
+        ("pierrevillers_trv_local", "regie_pierrevillers"),
+        ("rombas_trv_local", "seml_omega_rombas"),
+    ],
+)
+def test_omega_trv_local_grille_commune_du_1er_aout_2026(offres, cle, eld):
+    """TRV locaux OMEGA : Montois (#224, #225), Pierrevillers (#227, #228), Rombas (#230, #231).
+
+    Grille commune OMEGA du 01/08/2026, un fichier par régie (décision du 28/10/2026, #224) :
+    mêmes prix qu'Amnéville, réseau propre dans ``eld``.
+    """
+    offre = offres[cle]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", eld, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 31).date()
+    g = grilles[f"{cle}:base"].en_vigueur(3, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("145.56"),
+        {"base": Decimal("0.2000")},
+    )
+    # Base 9-36 kVA en extinction, publiée pour les contrats en cours
+    g = grilles[f"{cle}:base"].en_vigueur(9, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("238.61"), {"base": Decimal("0.1985")})
+    g = grilles[f"{cle}:hphc"].en_vigueur(6, jour)
+    assert g.abonnement_an == Decimal("192.59")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):  # pas d'option HC en 3 kVA
+        grilles[f"{cle}:hphc"].en_vigueur(3, jour)
+    # Mêmes grilles qu'Amnéville, au centime près
+    for option, puissance in (("base", 36), ("hphc", 36)):
+        ref = grilles[f"amneville_trv_local:{option}"].en_vigueur(puissance, jour)
+        g = grilles[f"{cle}:{option}"].en_vigueur(puissance, jour)
+        assert (g.abonnement_an, g.prix) == (ref.abonnement_an, ref.prix)
 
 
 def test_bazas_trv_local_grille_du_1er_aout_2026(offres):
