@@ -1,0 +1,32 @@
+# EDF Vert Électrique Régional (issues #18 Base, #119 HC ; inventaire #6).
+# « Autre offre » selon la CRE : prix HT révisables 2 fois par an par EDF, sans suivre
+# le TRV ; évolutions de taxes répercutées immédiatement. Électricité verte d'origine
+# éolienne régionale (garanties d'origine, label VertVolt « engagée »), sans
+# engagement. Le client choisit une région de parcs éoliens : la page de l'offre
+# publie une grille unique, sans écart de prix par région.
+# Grille TTC « applicables à compter du 15 septembre 2026 pour toute nouvelle
+# souscription » (page de l'offre). Pas d'option en 3 kVA. Particularité : le kWh
+# Base à 6 kVA (20,37 c€) est moins cher qu'à partir de 9 kVA (20,65 c€).
+# Majorations non modélisées (auto-producteur avec injection, absence de Linky ou
+# d'index).
+id: edf_vert_electrique_regional
+fournisseur: EDF
+offre: Vert Électrique Régional
+type_prix: revisable
+grille_du: 2026-09-15
+source: https://particulier.edf.fr/fr/accueil/electricite-gaz/vert-electrique-regional.html
+options:
+  base:  # pas d'option en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc_par_puissance:
+      6: {base: 0.2037}
+      9: {base: 0.2065}
+      12: {base: 0.2065}
+      15: {base: 0.2065}
+      18: {base: 0.2065}
+      24: {base: 0.2065}
+      30: {base: 0.2065}
+      36: {base: 0.2065}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {hp: 0.2237, hc: 0.1560}
