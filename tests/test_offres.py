@@ -69,6 +69,7 @@ def test_quatre_offres_livrees(offres):
         "hunelec_prix_fixe_1an",
         "hunelec_prix_fixe_1an_vert",
         "ilek_enrfixe_plus",
+        "ilek_voiture_electrique",
         "jeety_elec_dom",
         "la_bellenergie_constance",
         "la_bellenergie_garance",
@@ -522,6 +523,23 @@ def test_primeo_fixe_eco_15_base_jusqu_a_juillet_2027(offres):
     )
     g = grilles["primeo_fixe_eco_15:base"].en_vigueur(36, jour)
     assert (g.abonnement_an, g.prix) == (Decimal("658.32"), {"base": Decimal("0.1693")})
+
+
+def test_ilek_voiture_electrique_base_indexee_trv(offres):
+    """ilek Offre Voiture électrique (#58) : kWh HT du TRV, abonnement ilek, Base seule."""
+    offre = offres["ilek_voiture_electrique"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    assert "ilek_voiture_electrique:hphc" not in grilles  # plages propres à ilek (#159, #160)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["ilek_voiture_electrique:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("301.20"),  # 25,10 x 12, bien au-dessus du TRV
+        {"base": Decimal("0.2001")},  # kWh TTC du TRV
+    )
+    g = grilles["ilek_voiture_electrique:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("1064.88"), {"base": Decimal("0.1985")})
 
 
 def test_papernest_grille_du_22_septembre_2026(offres):

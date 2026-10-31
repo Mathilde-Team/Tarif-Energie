@@ -386,6 +386,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Engie Elec Référence 3 ans HC (#127) : 36 x 0,20683 + 3/365 x 215,79 = 9,22 €.
         "engie_elec_reference_3ans:hphc",
         "selia_elec_vert_fixe:hphc",
+        # ilek Voiture électrique Base (#58) : 36 x 0,2001 + 3/365 x 301,20 = 9,68 €.
+        "ilek_voiture_electrique:base",
         # TotalEnergies Fixe 2 ans Base (#25) : 36 x 0,2270 + 3/365 x 190,32 = 9,74 €.
         "totalenergies_fixe_2ans:base",
         # Happ-e Électricité 1 an HC (#128) : 36 x 0,22398 + 3/365 x 214,35 = 9,83 €.
