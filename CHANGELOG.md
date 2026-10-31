@@ -12,6 +12,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 - **Données et licences** (#474) : section du README sur la source et les conditions de réutilisation des TRV (open data CRE, attribution) et des grilles des fournisseurs.
 
 ### Ajouté
+- **TRV local de CESML** (#248 Base, #249 HP/HC) : grille résidentielle officielle du 01/08/2026, abonnement mensuel identique en Base et en HC, HC dès 3 kVA. Base 9-36 kVA en extinction mais publiée. Tempo et EJP ne sont pas repris.
 - **TRV local de Gazélec Péronne** (#208 Base, #209 HP/HC) : annexe tarifaire résidentielle du 01/08/2026 (PDF officiel), même abonnement en Base et en HC, HC dès 3 kVA. Base 9-36 kVA en extinction mais publiée. Tempo n'est pas repris.
 - **TRV local d'Enes Hagondange** (#203 Base, #204 HP/HC) : grille « Tarif BLEU au 01/08/2026 » publiée en HTML sur la page Électricité de l'ELD (mêmes montants que la grille OMEGA). Base 9-36 kVA en extinction mais publiée ; HC dès 3 kVA (146,68 €/an). Tempo n'est pas repris.
 - **TRV locaux du groupe OMEGA** (#224/#225 Montois-la-Montagne, #227/#228 Pierrevillers, #230/#231 Rombas) : un fichier par régie, chacun avec son `eld:` (décision du 28/10/2026 dans #224), sur la grille commune OMEGA du 01/08/2026 déjà utilisée pour Amnéville. Base 9-36 kVA en extinction mais publiée ; HC de 6 à 36 kVA. Tempo (#226, #229, #232) n'est pas repris.
