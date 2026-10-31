@@ -104,7 +104,8 @@ Basic Watt et Flexi Watt heures creuses (prix révisés par Enercoop ; Base et H
 EDF Vert Électrique Régional (révision 2 fois par an ; Base et HC de 6 à 36 kVA), EDF Vert Électrique
 (révision 2 fois par an ; Base de 3 à 36 kVA, pas de grille HC publiée), Dyneff Contrat+
 Électricité et Contrat+ Électricité Verte (prix « molécule » révisable avec un mois de préavis ;
-Base de 3 à 36 kVA, HC à partir de 6 kVA, réseau Enedis) et Ohm Énergie Extra
+Base de 3 à 36 kVA, HC à partir de 6 kVA, réseau Enedis), Urban Solar Energy Essentielle SMB
+(révision 2 fois par an ; Base de 3 à 36 kVA, HC à partir de 6 kVA) et Ohm Énergie Extra
 Éco (révision 2 fois par an au plus ; Base de 3 à 36 kVA, HC de 6 à 36 kVA, grille du 01/09/2026).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :

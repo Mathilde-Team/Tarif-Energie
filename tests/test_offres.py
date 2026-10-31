@@ -119,6 +119,7 @@ def test_quatre_offres_livrees(offres):
         "totalenergies_verte_fixe",
         "uem_trv_local",
         "ume_trv_local",
+        "urban_solar_smb",
         "vialis_trv_local",
         "wekiwi_duo_aurore",
     ]
@@ -2634,3 +2635,22 @@ def test_enercoop_basic_flexi_watt(offres):
     assert g.abonnement_an == Decimal("132.72")  # 11,06 x 12
     assert g.prix == {"hp": Decimal("0.27764"), "hc": Decimal("0.18983")}
     assert grilles["enercoop:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("921.24")  # 76,77 x 12
+
+
+def test_urban_solar_smb_revisable(offres):
+    """Urban Solar Essentielle SMB (#69 Base, #171 HC) : révisable 2 fois par an, grille du 01/08/2026."""
+    offre = offres["urban_solar_smb"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("revisable", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["urban_solar_smb:base"].en_vigueur(3, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("146.04"),  # 12,17 x 12
+        {"base": Decimal("0.2180")},
+    )
+    g = grilles["urban_solar_smb:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("759.84")  # 63,32 x 12
+    assert g.prix == {"hp": Decimal("0.2377"), "hc": Decimal("0.1750")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["urban_solar_smb:hphc"].en_vigueur(3, jour)
