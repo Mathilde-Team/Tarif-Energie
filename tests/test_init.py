@@ -365,6 +365,8 @@ async def test_capteurs(hass: HomeAssistant):
         # es_trv_local:base ; départage par le nom de l'option.
         "vialis_trv_local:base",
         "alterna_du_coin_1an:base",
+        # EDF Vert Électrique Base (#9, révisable) : 36 x 0,2022 + 3/365 x 190,32 = 8,84 €.
+        "edf_vert_electrique:base",
         "la_bellenergie_constance:base",
         # Octopus Eco Fixe Base (#30) : 36 x 0,2033 + 3/365 x 190,32 = 8,88 €.
         "octopus_eco_fixe_oct2026:base",
