@@ -43,6 +43,7 @@ def test_quatre_offres_livrees(offres):
         "elmy_prix_fixe_2ans",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
+        "enes_hagondange_trv_local",
         "enes_hombourg_haut_trv_local",
         "enes_schoeneck_trv_local",
         "engie_duo_reference_3ans",
@@ -1098,6 +1099,29 @@ def test_amneville_trv_local_grille_du_1er_aout_2026(offres):
     g = grilles["amneville_trv_local:hphc"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("659.92")
     assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+
+
+def test_enes_hagondange_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local d'Enes Hagondange (#203 Base, #204 HC) : grille HTML du 01/08/2026."""
+    offre = offres["enes_hagondange_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", "enes_hagondange", None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 31).date()
+    g = grilles["enes_hagondange_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.36"),
+        {"base": Decimal("0.2000")},
+    )
+    # Base 9-36 kVA en extinction, publiée pour les contrats en cours
+    g = grilles["enes_hagondange_trv_local:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("646.51"), {"base": Decimal("0.1985")})
+    # HC publiée dès 3 kVA (146,68 €/an)
+    g = grilles["enes_hagondange_trv_local:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("146.68")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+    g = grilles["enes_hagondange_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("659.92")
 
 
 @pytest.mark.parametrize(
