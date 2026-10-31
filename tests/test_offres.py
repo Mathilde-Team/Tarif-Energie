@@ -34,6 +34,7 @@ def test_quatre_offres_livrees(offres):
         "barr_trv_local",
         "bazas_trv_local",
         "bitche_trv_local",
+        "cesml_trv_local",
         "edf_vert_electrique_week_end",
         "edf_zen_estival",
         "edf_zen_fixe_2ans",
@@ -1040,6 +1041,27 @@ def test_synelva_trv_local_grille_du_1er_aout_2026(offres):
     g = grilles["synelva_trv_local:hphc"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("646.51")
     assert g.prix == {"hp": Decimal("0.2145"), "hc": Decimal("0.1592")}
+
+
+def test_cesml_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local de CESML (#248 Base, #249 HC) : grille résidentielle du 01/08/2026."""
+    offre = offres["cesml_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", "cesml", None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 11, 1).date()
+    g = grilles["cesml_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.32"),
+        {"base": Decimal("0.2001")},
+    )
+    # Base 9-36 kVA en extinction, publiée pour les contrats en cours
+    g = grilles["cesml_trv_local:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("646.56"), {"base": Decimal("0.1985")})
+    # HC dès 3 kVA, même abonnement mensuel que la Base (12,13 €/mois)
+    g = grilles["cesml_trv_local:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("145.56")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
 
 
 def test_soregies_trv_local_grille_du_1er_aout_2026(offres):
