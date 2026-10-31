@@ -343,13 +343,13 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_constance:base",
         # Octopus Eco Fixe Base (#30) : 36 x 0,2033 + 3/365 x 190,32 = 8,88 €.
         "octopus_eco_fixe_oct2026:base",
+        # EDF Vert Électrique Régional Base (#18) : 36 x 0,2037 + 3/365 x 190,32 = 8,90 €.
+        "edf_vert_electrique_regional:base",
         # EDF Zen Week-End Plus Base, jour choisi lundi ou mercredi (#10) : 24 x 0,2259
         # + 12 x 0,1691 (samedi) + 3/365 x 190,32 = 9,02 € (le vendredi choisi
         # donnerait 8,33 €, consommation du test sans vendredi).
         "edf_zen_week_end_plus:week_end_jour_lundi",
         "edf_zen_week_end_plus:week_end_jour_mercredi",
-        # EDF Vert Électrique Régional Base (#18) : 36 x 0,2037 + 3/365 x 190,32 = 8,90 €.
-        "edf_vert_electrique_regional:base",
         # EDF Zen Fixe Base (#8) : 36 x 0,2082 + 3/365 x 190,32 = 9,06 €.
         "edf_zen_fixe_2ans:base",
         "la_bellenergie_garance:base",
