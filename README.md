@@ -74,7 +74,7 @@ S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_p
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr
 Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, Energis
 (Saint-Avold), Gascogne Énergies Services (Aire-sur-l'Adour), Énergies Services Lannemezan (plateau
-de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amnéville), Enes Hagondange (Hagondange), Régie de Montois-la-Montagne
+de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amnéville), Enes Hagondange (Hagondange), Gazélec Péronne (Péronne), Régie de Montois-la-Montagne
 (Montois-la-Montagne), Régie de Pierrevillers (Pierrevillers), SEML Omega Rombas (Rombas), Régie de Bitche (Bitche), SÉOLIS (réseau
 Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartrain), UEM (réseau réséda,
 Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie de Marange-Silvange
