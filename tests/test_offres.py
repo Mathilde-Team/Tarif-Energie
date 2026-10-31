@@ -35,6 +35,8 @@ def test_quatre_offres_livrees(offres):
         "bazas_trv_local",
         "bitche_trv_local",
         "cesml_trv_local",
+        "dyneff_contrat_plus",
+        "dyneff_contrat_plus_verte",
         "edf_vert_electrique",
         "edf_vert_electrique_regional",
         "edf_vert_electrique_week_end",
@@ -2585,3 +2587,30 @@ def test_wekiwi_duo_aurore_grille_du_19_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.2325"), "hc": Decimal("0.1901")}
     # HC dès 3 kVA (abonnement TRV HPHC 3 kVA)
     assert grilles["wekiwi_duo_aurore:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
+
+
+@pytest.mark.parametrize(
+    ("ident", "base", "hp", "hc"),
+    [
+        ("dyneff_contrat_plus", "0.19069", "0.19649", "0.16034"),  # #47, #155
+        ("dyneff_contrat_plus_verte", "0.19369", "0.19949", "0.16334"),  # #46, #154
+    ],
+)
+def test_dyneff_contrat_plus_revisable(offres, ident, base, hp, hc):
+    """Dyneff Contrat+ (#46, #47, #154, #155) : révisable, grilles du 01/08/2026, abonnement par tranche."""
+    offre = offres[ident]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("revisable", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles[f"{ident}:base"].en_vigueur(3, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("144.36"),  # 12,03 x 12
+        {"base": Decimal(base)},
+    )
+    assert grilles[f"{ident}:base"].en_vigueur(36, jour).prix == {"base": Decimal(base)}  # prix unique
+    g = grilles[f"{ident}:hphc"].en_vigueur(6, jour)
+    assert g.abonnement_an == Decimal("187.80")  # 15,65 x 12, comme en Base
+    assert g.prix == {"hp": Decimal(hp), "hc": Decimal(hc)}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles[f"{ident}:hphc"].en_vigueur(3, jour)

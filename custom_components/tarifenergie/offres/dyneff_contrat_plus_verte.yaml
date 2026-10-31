@@ -1,0 +1,27 @@
+# Dyneff — Contrat+ Électricité Verte (issues #46 Base, #154 HC ; inventaire #6).
+# Prix de marché variable : le prix « molécule » hors acheminement peut évoluer à la
+# hausse ou à la baisse, avec information au moins 1 mois avant ; contrat à durée
+# illimitée, résiliable sans frais ; type_prix revisable (décision du 28/10/2026 sur
+# #9).
+# Électricité verte (garanties d'origine, 100 % renouvelable) : kWh 0,3 c€ TTC
+# au-dessus du Contrat+ Électricité, abonnement identique.
+# Grilles TTC « Date émission de l'offre : 01/08/2026 » (PDF officiels Base et HP/HC),
+# relevées le 01/11/2026 avec pdftotext -layout. Abonnement par tranche de puissance
+# (0-5, 6-8, 9-11… kVA ; puissances usuelles reprises), identique en Base et en HC ;
+# un seul prix du kWh pour toutes les puissances. HC à partir de 6 kVA. Prix
+# applicables uniquement sur le réseau Enedis : pas de filtre de zone dans le moteur
+# (comme ÉS #72).
+# Grille HP/HC : https://www.dyneff-elec-gaz.fr/wp-content/uploads/2026/02/ContratElecVerte_HPHC_260801.pdf
+id: dyneff_contrat_plus_verte
+fournisseur: Dyneff
+offre: Contrat+ Électricité Verte
+type_prix: revisable
+grille_du: 2026-08-01
+source: https://www.dyneff-elec-gaz.fr/wp-content/uploads/2026/02/ContratElecVerte_BASE_260801.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.03, 6: 15.65, 9: 19.56, 12: 23.32, 15: 26.84, 18: 30.49, 24: 38.24, 30: 45.37, 36: 52.54}
+    kwh_ttc: {base: 0.19369}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.65, 9: 19.56, 12: 23.32, 15: 26.84, 18: 30.49, 24: 38.24, 30: 45.37, 36: 52.54}
+    kwh_ttc: {hp: 0.19949, hc: 0.16334}
