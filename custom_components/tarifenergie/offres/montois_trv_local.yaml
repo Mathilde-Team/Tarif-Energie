@@ -1,0 +1,35 @@
+# Régie de Montois-la-Montagne (RME Montois-la-Montagne, groupe OMEGA Énergies & Services) — TRV local, Tarif Bleu
+# résidentiel (issues #224 Base, #225 HC ; phase 2 des ELD, #189). Seul fournisseur du TRV sur
+# son réseau (Montois-la-Montagne, Moselle, ≤ 36 kVA) ; pas de filtre de zone dans le moteur
+# (comme ÉS #72).
+# Grille commune OMEGA « Offre Tarif Bleu Particuliers » au 01/08/2026 (la même
+# qu'Amnéville, #221/#222), relevée le 31/10/2026 avec pdftotext -layout. Un fichier
+# par régie, chacun avec son `eld:` (réponse de Mathilde du 28/10/2026 dans #224).
+# Primes fixes publiées en € TTC/an, reprises telles quelles. kWh Base : 0,2000 €
+# pour 3 et 6 kVA, 0,1985 € de 9 à 36 kVA — ces puissances Base sont EN EXTINCTION
+# (« plus disponible aux nouvelles souscriptions ») : publiées pour les contrats en
+# cours. HC de 6 à 36 kVA (pas de HC en 3 kVA). Tempo (#226) non repris : le moteur
+# ne connaît que Base et HC.
+id: montois_trv_local
+fournisseur: Régie de Montois-la-Montagne
+offre: TRV local (Tarif Bleu)
+type_prix: reglemente
+eld: regie_montois_la_montagne
+grille_du: 2026-08-01
+source: https://www.es-omega.net/wp-content/uploads/2026/08/OMEGA-Offre-Tarif-Bleu-Particuliers-01-08-2026.pdf
+options:
+  base:
+    abonnement_annuel_ttc: {3: 145.56, 6: 190.36, 9: 238.61, 12: 285.12, 15: 328.76, 18: 373.70, 24: 469.63, 30: 557.64, 36: 646.51}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2000}
+      6: {base: 0.2000}
+      9: {base: 0.1985}
+      12: {base: 0.1985}
+      15: {base: 0.1985}
+      18: {base: 0.1985}
+      24: {base: 0.1985}
+      30: {base: 0.1985}
+      36: {base: 0.1985}
+  hphc:
+    abonnement_annuel_ttc: {6: 192.59, 9: 241.96, 12: 289.60, 15: 334.36, 18: 380.41, 24: 478.57, 30: 568.81, 36: 659.92}
+    kwh_ttc: {hp: 0.2142, hc: 0.1589}
