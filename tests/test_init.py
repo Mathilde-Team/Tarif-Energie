@@ -96,6 +96,8 @@ async def test_capteurs(hass: HomeAssistant):
         # le TRV local le moins cher en HC (abonnement ELD sous le TRV national).
         "bitche_trv_local:hphc",
         "la_bellenergie_prudence:hphc",
+        # Ohm Extra Éco HC (#145, révisable) : 36 x 0,1579 + 3/365 x 180,72 = 7,17 €.
+        "ohm_extra_eco:hphc",
         # EDF Vert Électrique Régional HC (#119, révisable) : 36 x 0,1560 + 3/365 x 190,32 = 7,18 €.
         "edf_vert_electrique_regional:hphc",
         "alterna_fixe_1an:hphc",
