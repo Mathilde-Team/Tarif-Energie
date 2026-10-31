@@ -84,6 +84,7 @@ def test_quatre_offres_livrees(offres):
         "montois_trv_local",
         "octopus_eco_fixe_oct2026",
         "octopus_eco_fixe_plus_oct2026",
+        "ohm_extra_eco",
         "ohm_fixe_2ans",
         "ohm_premiohm",
         "ohm_serente_fixe_1an",
@@ -462,6 +463,24 @@ def test_edf_vert_electrique_revisable(offres):
     g = grilles["edf_vert_electrique:base"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
     assert g.prix == {"base": Decimal("0.2007")}
+
+
+def test_ohm_extra_eco_revisable(offres):
+    """Ohm Énergie Extra Éco Base (#37) : révisable 2 fois par an, grille du 01/09/2026."""
+    offre = offres["ohm_extra_eco"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("revisable", None, None)
+    grilles = grilles_offres(offres)
+    assert "ohm_extra_eco:hphc" not in grilles  # #145 non reprise ici
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["ohm_extra_eco:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 9, 1).date(),
+        Decimal("183.36"),  # 15,28 x 12
+        {"base": Decimal("0.1940")},
+    )
+    assert grilles["ohm_extra_eco:base"].en_vigueur(36, jour).abonnement_an == Decimal("622.92")  # 51,91 x 12
+    with pytest.raises(TarifIntrouvable):  # avant la grille du 01/09/2026
+        grilles["ohm_extra_eco:base"].en_vigueur(6, datetime(2026, 8, 31).date())
 
 
 @pytest.mark.parametrize("type_prix", ["indexe_trv", "revisable"])

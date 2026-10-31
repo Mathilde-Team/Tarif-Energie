@@ -1,0 +1,20 @@
+# Ohm Énergie Extra Éco, option Base (issue #37 ; inventaire #6).
+# Offre à prix variables : prix HT fixés librement par Ohm Énergie, révisables au plus
+# 2 fois par an (préavis d'un mois), sans engagement ; type_prix revisable (décision
+# du 28/10/2026 sur #9). Plafond la première année : prix HT ≤ TRV (non modélisé).
+# Grille TTC « applicables au 1er septembre 2026 » (PDF officiel, publié sous
+# /2026/07/), relevée le 01/11/2026 avec pdftotext -layout ; elle remplace la grille
+# du 18/05/2026 citée dans l'issue (kWh Base 16,40 → 19,40 c€ TTC). Seules les
+# puissances usuelles sont reprises (intermédiaires réservées aux compteurs Linky).
+# Option HC (#145) et option verte (+2,27 € TTC/mois) non reprises ici. Offre réservée
+# aux nouveaux clients d'Ohm Énergie pour le compteur.
+id: ohm_extra_eco
+fournisseur: Ohm Énergie
+offre: Extra Éco
+type_prix: revisable
+grille_du: 2026-09-01
+source: https://ohm-energie.com/grilles/elec/2026/07/ELEC-EXTRA_ECO.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 11.79, 6: 15.28, 9: 19.31, 12: 23.02, 15: 26.51, 18: 30.11, 24: 37.77, 30: 44.82, 36: 51.91}
+    kwh_ttc: {base: 0.1940}

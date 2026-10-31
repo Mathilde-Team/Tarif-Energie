@@ -248,6 +248,9 @@ async def test_capteurs(hass: HomeAssistant):
         "primeo_essentielle_verte:base",
         # EDF Zen Online Base (#21) : 36 x 0,1925 + 3/365 x 190,32 = 8,49 €.
         "edf_zen_online:base",
+        # Ohm Extra Éco Base (#37, révisable) : 36 x 0,1940 + 3/365 x 183,36 = 8,49 €, à égalité
+        # avec EDF Zen Online Base, départagée par le nom.
+        "ohm_extra_eco:base",
         # Jeety Elec-Dom Base (#59, indexée TRV) : 36 x 0,1940 + 3/365 x 188,40 = 8,53 €.
         "jeety_elec_dom:base",
         # TRV local Energis Base (#200) : 36 x 0,19522 + 3/365 x 190,32 = 8,59 €.
