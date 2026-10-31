@@ -34,6 +34,8 @@ def test_quatre_offres_livrees(offres):
         "barr_trv_local",
         "bazas_trv_local",
         "bitche_trv_local",
+        "cesml_trv_local",
+        "edf_vert_electrique",
         "edf_vert_electrique_regional",
         "edf_vert_electrique_week_end",
         "edf_zen_estival",
@@ -442,6 +444,24 @@ def test_edf_vert_electrique_regional_revisable(offres):
     for option in ("base", "hphc"):  # pas d'option en 3 kVA
         with pytest.raises(TarifIntrouvable, match="3 kVA"):
             grilles[f"edf_vert_electrique_regional:{option}"].en_vigueur(3, jour)
+
+
+def test_edf_vert_electrique_revisable(offres):
+    """EDF Vert Électrique Base (#9) : « Autre offre » CRE révisable, grille du 15/09/2026."""
+    offre = offres["edf_vert_electrique"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("revisable", None, None)
+    grilles = grilles_offres(offres)
+    assert "edf_vert_electrique:hphc" not in grilles  # #115 : pas de grille HC publiée
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["edf_vert_electrique:base"].en_vigueur(3, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 9, 15).date(),
+        Decimal("145.56"),  # 12,13 x 12
+        {"base": Decimal("0.2022")},
+    )
+    g = grilles["edf_vert_electrique:base"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"base": Decimal("0.2007")}
 
 
 @pytest.mark.parametrize("type_prix", ["indexe_trv", "revisable"])
@@ -1082,6 +1102,27 @@ def test_synelva_trv_local_grille_du_1er_aout_2026(offres):
     g = grilles["synelva_trv_local:hphc"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("646.51")
     assert g.prix == {"hp": Decimal("0.2145"), "hc": Decimal("0.1592")}
+
+
+def test_cesml_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local de CESML (#248 Base, #249 HC) : grille résidentielle du 01/08/2026."""
+    offre = offres["cesml_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", "cesml", None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 11, 1).date()
+    g = grilles["cesml_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.32"),
+        {"base": Decimal("0.2001")},
+    )
+    # Base 9-36 kVA en extinction, publiée pour les contrats en cours
+    g = grilles["cesml_trv_local:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("646.56"), {"base": Decimal("0.1985")})
+    # HC dès 3 kVA, même abonnement mensuel que la Base (12,13 €/mois)
+    g = grilles["cesml_trv_local:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("145.56")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
 
 
 def test_soregies_trv_local_grille_du_1er_aout_2026(offres):

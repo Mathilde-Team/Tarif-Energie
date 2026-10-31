@@ -1,0 +1,34 @@
+# CESML (Coopérative d'électricité de Saint-Martin-de-Londres) — TRV local, Tarif
+# Bleu résidentiel (issues #248 Base, #249 HC ; phase 2 des ELD, #189). Seul
+# fournisseur du TRV sur son réseau (Hérault, ≤ 36 kVA) ; pas de filtre de zone
+# dans le moteur (comme ÉS #72).
+# Grille « Tarifs réglementés de l'électricité clients résidentiels — tarifs
+# applicables au 01/08/2026 » (PDF officiel, HT et TTC ; seul le TTC est repris),
+# relevée le 01/11/2026 avec pdftotext -layout. Abonnement publié en € TTC/mois,
+# identique en Base et en HC. kWh Base : 0,2001 € pour 3 et 6 kVA, 0,1985 € de 9 à
+# 36 kVA — ces puissances Base sont EN EXTINCTION (« n'est plus proposé ») :
+# publiées pour les contrats en cours. HC dès 3 kVA. Tempo
+# et EJP non repris : le moteur ne connaît que Base et HC.
+id: cesml_trv_local
+fournisseur: CESML
+offre: TRV local (Tarif Bleu)
+type_prix: reglemente
+eld: cesml
+grille_du: 2026-08-01
+source: https://cesml.com/content/uploads/2025/08/01-08-2026-TARIF-BLEU-CLIENTS-RESIDENTIELS.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.13, 6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2001}
+      6: {base: 0.2001}
+      9: {base: 0.1985}
+      12: {base: 0.1985}
+      15: {base: 0.1985}
+      18: {base: 0.1985}
+      24: {base: 0.1985}
+      30: {base: 0.1985}
+      36: {base: 0.1985}
+  hphc:
+    abonnement_mensuel_ttc: {3: 12.13, 6: 15.86, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.14, 30: 46.47, 36: 53.88}
+    kwh_ttc: {hp: 0.2142, hc: 0.1589}

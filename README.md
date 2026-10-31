@@ -74,7 +74,7 @@ S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_p
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr
 Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, Energis
 (Saint-Avold), Gascogne Énergies Services (Aire-sur-l'Adour), Énergies Services Lannemezan (plateau
-de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amnéville), Enes Hagondange (Hagondange), Gazélec Péronne (Péronne), Régie de Montois-la-Montagne
+de Lannemezan), Oya énergies, Bazas Energies (Bazas), CESML (Saint-Martin-de-Londres), Régie d'Amnéville (Amnéville), Enes Hagondange (Hagondange), Gazélec Péronne (Péronne), Régie de Montois-la-Montagne
 (Montois-la-Montagne), Régie de Pierrevillers (Pierrevillers), SEML Omega Rombas (Rombas), Régie de Bitche (Bitche), SÉOLIS (réseau
 Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartrain), UEM (réseau réséda,
 Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie de Marange-Silvange
@@ -92,16 +92,16 @@ TotalEnergies Spéciale Électricité et Gaz (duale : partie électricité au pr
 Base et HP/HC ; remise annoncée de 10 % non modélisée, partie gaz documentée hors moteur),
 Gaz de Bordeaux NovaFlex Élec (kWh HT -5 %, fiche de Bordeaux ; Base de 3 à 15 kVA),
 Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée,
-Alpiq Électricité Sérénité (kWh HT -0,5 %), Primeo Offre Essentielle Verte (kWh HT -5 %)
-et Jeety Energy Elec-Dom (ex-« élecocité », grille de février 2026, dernière publiée ; HC à partir de 6 kVA).
+Alpiq Électricité Sérénité (kWh HT -0,5 %), Primeo Offre Essentielle Verte (kWh HT -5 %),
+Jeety Energy Elec-Dom (ex-« élecocité », grille de février 2026, dernière publiée ; HC à partir de 6 kVA)
+et ilek Offre Voiture électrique (kWh du TRV, abonnement ilek, Base seule, réservée aux
+possesseurs d'une voiture électrique).
 
 Les offres **révisables** (`type_prix: revisable`, « Autre offre » de la typologie CRE) ont des
 prix de marché que le fournisseur révise à date fixe, sans suivre le TRV : pas de durée de fixité
 ni de réseau `eld:`, et une grille TTC datée à mettre à jour à chaque révision. EDF Vert
-Électrique Régional (révision 2 fois par an ; Base et HC de 6 à 36 kVA).
-Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée et
-Alpiq Électricité Sérénité (kWh HT -0,5 %) et ilek Offre Voiture électrique (kWh du TRV,
-abonnement ilek, Base seule, réservée aux possesseurs d'une voiture électrique).
+Électrique Régional (révision 2 fois par an ; Base et HC de 6 à 36 kVA) et EDF Vert Électrique
+(révision 2 fois par an ; Base de 3 à 36 kVA, pas de grille HC publiée).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,

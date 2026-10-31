@@ -104,6 +104,8 @@ async def test_capteurs(hass: HomeAssistant):
         "alterna_indexee:hphc",
         # Alpiq Sérénité HC (#150) : kWh HT du TRV -0,5 %, abonnement du TRV = 7,26 €.
         "alpiq_serenite:hphc",
+        # TRV local CESML HC (#249) : 36 x 0,1589 + 3/365 x 190,32 = 7,28 €.
+        "cesml_trv_local:hphc",
         # TRV local Energis HC (#201) : 7,28 €, juste devant le TRV national HC
         # (abonnement 6 kVA un peu moins cher).
         "energis_trv_local:hphc",
@@ -284,6 +286,8 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV local Bazas Base (#218) : 8,77 €, à égalité au centime avec
         # TRV national Base ; départage par le nom de l'option.
         "bazas_trv_local:base",
+        # TRV local CESML Base (#248) : 8,77 €.
+        "cesml_trv_local:base",
         # TRV local Gascogne Base (#205) : 36 x 0,2001 + 3/365 x 190,35 = 8,77 €, à égalité
         # au centime avec le TRV national Base ; départage par le nom de l'option.
         "gascogne_trv_local:base",
@@ -358,6 +362,8 @@ async def test_capteurs(hass: HomeAssistant):
         # es_trv_local:base ; départage par le nom de l'option.
         "vialis_trv_local:base",
         "alterna_du_coin_1an:base",
+        # EDF Vert Électrique Base (#9, révisable) : 36 x 0,2022 + 3/365 x 190,32 = 8,84 €.
+        "edf_vert_electrique:base",
         "la_bellenergie_constance:base",
         # Octopus Eco Fixe Base (#30) : 36 x 0,2033 + 3/365 x 190,32 = 8,88 €.
         "octopus_eco_fixe_oct2026:base",
