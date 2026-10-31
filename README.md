@@ -94,6 +94,14 @@ Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité français
 Alpiq Électricité Sérénité (kWh HT -0,5 %), Primeo Offre Essentielle Verte (kWh HT -5 %)
 et Jeety Energy Elec-Dom (ex-« élecocité », grille de février 2026, dernière publiée ; HC à partir de 6 kVA).
 
+Les offres **révisables** (`type_prix: revisable`, « Autre offre » de la typologie CRE) ont des
+prix de marché que le fournisseur révise à date fixe, sans suivre le TRV : pas de durée de fixité
+ni de réseau `eld:`, et une grille TTC datée à mettre à jour à chaque révision. EDF Vert
+Électrique Régional (révision 2 fois par an ; Base et HC de 6 à 36 kVA).
+Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée et
+Alpiq Électricité Sérénité (kWh HT -0,5 %) et ilek Offre Voiture électrique (kWh du TRV,
+abonnement ilek, Base seule, réservée aux possesseurs d'une voiture électrique).
+
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
 grilles datées appliquées au jour le jour. Les offres dynamiques ou à coloration de

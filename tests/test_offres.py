@@ -34,6 +34,7 @@ def test_quatre_offres_livrees(offres):
         "barr_trv_local",
         "bazas_trv_local",
         "bitche_trv_local",
+        "edf_vert_electrique_regional",
         "edf_vert_electrique_week_end",
         "edf_zen_estival",
         "edf_zen_fixe_2ans",
@@ -64,6 +65,7 @@ def test_quatre_offres_livrees(offres):
         "hunelec_prix_fixe_1an",
         "hunelec_prix_fixe_1an_vert",
         "ilek_enrfixe_plus",
+        "ilek_voiture_electrique",
         "jeety_elec_dom",
         "la_bellenergie_constance",
         "la_bellenergie_garance",
@@ -415,21 +417,44 @@ def test_mint_online_green_grille_du_8_octobre_2026(offres):
         grilles["mint_online_green:hphc"].en_vigueur(3, jour)
 
 
+def test_edf_vert_electrique_regional_revisable(offres):
+    """EDF Vert Électrique Régional (#18, #119) : « Autre offre » CRE révisable, grille du 15/09/2026."""
+    offre = offres["edf_vert_electrique_regional"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("revisable", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["edf_vert_electrique_regional:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 9, 15).date(),
+        Decimal("190.32"),  # 15,86 x 12
+        {"base": Decimal("0.2037")},  # moins cher qu'à 9 kVA, à l'inverse des autres offres EDF
+    )
+    g = grilles["edf_vert_electrique_regional:base"].en_vigueur(9, jour)
+    assert g.prix == {"base": Decimal("0.2065")}
+    g = grilles["edf_vert_electrique_regional:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("646.56")  # 53,88 x 12
+    assert g.prix == {"hp": Decimal("0.2237"), "hc": Decimal("0.1560")}
+    for option in ("base", "hphc"):  # pas d'option en 3 kVA
+        with pytest.raises(TarifIntrouvable, match="3 kVA"):
+            grilles[f"edf_vert_electrique_regional:{option}"].en_vigueur(3, jour)
+
+
+@pytest.mark.parametrize("type_prix", ["indexe_trv", "revisable"])
 @pytest.mark.parametrize(
     ("extra", "chemin_fautif"),
     [
-        ({"duree_fixite_mois": 12}, "offre.duree_fixite_mois"),  # le prix suit le TRV
+        ({"duree_fixite_mois": 12}, "offre.duree_fixite_mois"),  # prix sans durée de fixité
         ({"eld": "x"}, "offre.eld"),  # réservé aux TRV locaux
     ],
 )
-def test_indexee_trv_invalide(extra, chemin_fautif):
+def test_indexee_trv_invalide(extra, chemin_fautif, type_prix):
     from datetime import date
 
     donnees = {
         "id": "x",
         "fournisseur": "F",
         "offre": "Indexée",
-        "type_prix": "indexe_trv",
+        "type_prix": type_prix,
         "grille_du": date(2026, 8, 1),
         "source": "https://exemple.fr/grille.pdf",
         "options": {"base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}}},
@@ -454,6 +479,21 @@ def test_primeo_fixe_eco_15_base_jusqu_a_juillet_2027(offres):
     )
     g = grilles["primeo_fixe_eco_15:base"].en_vigueur(36, jour)
     assert (g.abonnement_an, g.prix) == (Decimal("658.32"), {"base": Decimal("0.1693")})
+def test_ilek_voiture_electrique_base_indexee_trv(offres):
+    """ilek Offre Voiture électrique (#58) : kWh HT du TRV, abonnement ilek, Base seule."""
+    offre = offres["ilek_voiture_electrique"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    grilles = grilles_offres(offres)
+    assert "ilek_voiture_electrique:hphc" not in grilles  # plages propres à ilek (#159, #160)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["ilek_voiture_electrique:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("301.20"),  # 25,10 x 12, bien au-dessus du TRV
+        {"base": Decimal("0.2001")},  # kWh TTC du TRV
+    )
+    g = grilles["ilek_voiture_electrique:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("1064.88"), {"base": Decimal("0.1985")})
 
 
 def test_papernest_grille_du_22_septembre_2026(offres):

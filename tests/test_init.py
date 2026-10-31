@@ -96,6 +96,8 @@ async def test_capteurs(hass: HomeAssistant):
         # le TRV local le moins cher en HC (abonnement ELD sous le TRV national).
         "bitche_trv_local:hphc",
         "la_bellenergie_prudence:hphc",
+        # EDF Vert Électrique Régional HC (#119, révisable) : 36 x 0,1560 + 3/365 x 190,32 = 7,18 €.
+        "edf_vert_electrique_regional:hphc",
         "alterna_fixe_1an:hphc",
         # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
         # derrière Alterna fixe HC, à égalité au centime.
@@ -341,6 +343,8 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_constance:base",
         # Octopus Eco Fixe Base (#30) : 36 x 0,2033 + 3/365 x 190,32 = 8,88 €.
         "octopus_eco_fixe_oct2026:base",
+        # EDF Vert Électrique Régional Base (#18) : 36 x 0,2037 + 3/365 x 190,32 = 8,90 €.
+        "edf_vert_electrique_regional:base",
         # EDF Zen Week-End Plus Base, jour choisi lundi ou mercredi (#10) : 24 x 0,2259
         # + 12 x 0,1691 (samedi) + 3/365 x 190,32 = 9,02 € (le vendredi choisi
         # donnerait 8,33 €, consommation du test sans vendredi).
@@ -355,6 +359,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Engie Elec Référence 3 ans HC (#127) : 36 x 0,20683 + 3/365 x 215,79 = 9,22 €.
         "engie_elec_reference_3ans:hphc",
         "selia_elec_vert_fixe:hphc",
+        # ilek Voiture électrique Base (#58) : 36 x 0,2001 + 3/365 x 301,20 = 9,68 €.
+        "ilek_voiture_electrique:base",
         # TotalEnergies Fixe 2 ans Base (#25) : 36 x 0,2270 + 3/365 x 190,32 = 9,74 €.
         "totalenergies_fixe_2ans:base",
         # Happ-e Électricité 1 an HC (#128) : 36 x 0,22398 + 3/365 x 214,35 = 9,83 €.

@@ -1,0 +1,28 @@
+# ilek Offre Voiture électrique (issue #58 Base ; inventaire #6).
+# Indexée sur la part variable du TRVE : kWh HT = TRV HT (13,61 c€ jusqu'à 6 kVA,
+# 13,48 c€ au-delà) ; abonnement propre à ilek, très au-dessus du TRV. Réservée aux
+# possesseurs (ou acquéreurs) d'une voiture électrique, sur attestation, avec un
+# Linky communicant : condition non vérifiée par le moteur.
+# Grille ID275 « Grille tarifaire au 1er août 2026 », relevée le 26/10/2026 avec
+# pdftotext -layout. Option Base seule : les options Heures creuses (#159) et Super
+# Heures Creuses (#160) suivent des plages horaires propres à ilek (1h01-3h00 et
+# 13h01-15h00 ; 3h01-7h00), que le moteur ne modélise pas encore.
+id: ilek_voiture_electrique
+fournisseur: ilek
+offre: Offre Voiture électrique
+type_prix: indexe_trv
+grille_du: 2026-08-01
+source: https://ilek.s3.amazonaws.com/uploads/producer/price_list_file/275/grille_offre_ve.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 18.24, 6: 25.10, 9: 34.11, 12: 43.35, 15: 49.75, 18: 54.61, 24: 65.52, 30: 78.91, 36: 88.74}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2001}
+      6: {base: 0.2001}
+      9: {base: 0.1985}
+      12: {base: 0.1985}
+      15: {base: 0.1985}
+      18: {base: 0.1985}
+      24: {base: 0.1985}
+      30: {base: 0.1985}
+      36: {base: 0.1985}

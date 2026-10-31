@@ -15,6 +15,8 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
     offre: Prudence
     type_prix: fixe                      # ou reglemente (TRV local d'une ELD : eld:, sans durée de fixité)
                                          # ou indexe_trv (suit le TRV : sans durée de fixité ni eld:)
+                                         # ou revisable (« Autre offre » CRE : prix révisés par le
+                                         # fournisseur, sans durée de fixité ni eld:)
     grille_du: 2026-08-01                 # date d'effet de la grille tarifaire
     duree_fixite_mois: 12
     source: https://…/grille.pdf         # fiche de référence (registre #27)
@@ -63,8 +65,12 @@ DOSSIER_OFFRES = Path(__file__).parent / "offres"
 # alignés sur le TRV ou à remise constante ; comme un TRV local, pas de durée de
 # fixité et une grille TTC datée à mettre à jour à chaque mouvement du TRV, mais
 # sans réseau ``eld``.
-TYPE_PRIX: tuple[str, ...] = ("fixe", "reglemente", "indexe_trv")
-SANS_FIXITE: tuple[str, ...] = ("reglemente", "indexe_trv")
+# « revisable » : « Autre offre » de la typologie CRE (#18) — prix de marché que le
+# fournisseur révise à date fixe (EDF Vert Électrique Régional : 2 fois par an) sans
+# suivre le TRV ; pas de durée de fixité ni de réseau ``eld``, grille TTC datée à
+# mettre à jour à chaque révision.
+TYPE_PRIX: tuple[str, ...] = ("fixe", "reglemente", "indexe_trv", "revisable")
+SANS_FIXITE: tuple[str, ...] = ("reglemente", "indexe_trv", "revisable")
 POSTES = (
     "base",
     "hp",
@@ -414,7 +420,11 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     duree = donnees.get("duree_fixite_mois")
     eld = None
     if type_prix in SANS_FIXITE:
-        _exiger(duree is None, "offre.duree_fixite_mois", "sans objet quand le prix suit le TRV")
+        _exiger(
+            duree is None,
+            "offre.duree_fixite_mois",
+            "sans objet quand le prix suit le TRV ou est révisable",
+        )
         if type_prix == "reglemente":
             eld = _texte(donnees, "eld", "offre")
         else:
