@@ -1,0 +1,22 @@
+# Urban Solar Energy — Essentielle SMB, options Base (issue #69) et HC (issue #171) ;
+# inventaire #6.
+# Présentée comme « offre à prix fixe », mais révisable deux fois par an par le
+# fournisseur, avec information 30 jours avant ; durée indéterminée : type_prix
+# revisable (décision du 28/10/2026 sur #9).
+# Grille « Tarifs particuliers au 01/08/2026 » (PDF officiel, lié depuis la page des
+# tarifs), relevée le 01/11/2026 avec pdftotext -layout. Un seul prix du kWh pour
+# toutes les puissances ; HC à partir de 6 kVA (pas de 3 kVA), heures creuses Enedis
+# du point de livraison.
+id: urban_solar_smb
+fournisseur: Urban Solar Energy
+offre: Essentielle SMB
+type_prix: revisable
+grille_du: 2026-08-01
+source: https://www.urbansolarenergy.fr/wp-content/uploads/2026/08/TARIFS-SMB-PARTICULIERS-AOUT-2026.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.17, 6: 15.95, 9: 20.02, 12: 23.94, 15: 27.62, 18: 31.41, 24: 39.49, 30: 46.92, 36: 54.41}
+    kwh_ttc: {base: 0.2180}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 16.18, 9: 20.35, 12: 24.96, 15: 29.75, 18: 34.55, 24: 44.14, 30: 53.73, 36: 63.32}
+    kwh_ttc: {hp: 0.2377, hc: 0.1750}

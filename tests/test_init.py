@@ -227,6 +227,8 @@ async def test_capteurs(hass: HomeAssistant):
         "edf_zen_week_end_plus:week_end_hphc_jour_lundi",
         "edf_zen_week_end_plus:week_end_hphc_jour_mercredi",
         "edf_zen_week_end_plus:week_end_hphc_jour_vendredi",
+        # Urban Solar Essentielle SMB HC (#171, révisable) : 36 x 0,1750 + 3/365 x 194,16 = 7,90 €.
+        "urban_solar_smb:hphc",
         # EDF Zen Week-End HC (#117) : tout à 17,62 c€ (nuit HC + samedi 03/10)
         # + 3/365 x 190,32 = 7,91 €.
         "edf_zen_week_end:week_end_hphc",
@@ -398,6 +400,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Engie Elec Référence 3 ans HC (#127) : 36 x 0,20683 + 3/365 x 215,79 = 9,22 €.
         "engie_elec_reference_3ans:hphc",
         "selia_elec_vert_fixe:hphc",
+        # Urban Solar Essentielle SMB Base (#69, révisable) : 36 x 0,2180 + 3/365 x 191,40 = 9,42 €.
+        "urban_solar_smb:base",
         # ilek Voiture électrique Base (#58) : 36 x 0,2001 + 3/365 x 301,20 = 9,68 €.
         "ilek_voiture_electrique:base",
         # TotalEnergies Fixe 2 ans Base (#25) : 36 x 0,2270 + 3/365 x 190,32 = 9,74 €.
