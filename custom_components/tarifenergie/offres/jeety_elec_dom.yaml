@@ -1,0 +1,33 @@
+# Jeety Energy Elec-Dom (issues #59 Base, #161 HC ; inventaire #6). Ex-« élecocité »
+# (jusqu'au 31/12/2025, ancien fournisseur ZE, société VA Contract SA) : particules
+# alimentées 100 % renouvelables. Offre indexée sur le TRV, révisable à tout moment
+# (CGV : « le fournisseur a le droit de réviser le prix du kWh... un mois de préavis »,
+# réévaluation automatique à la hausse comme à la baisse), tout changement publié sur
+# la page tarifs. Grille TTC « valable à partir du 1er février 2026 » : dernière grille
+# publiée, non revue au mouvement du TRV du 01/08/2026 (les prix TTC du kWh restent
+# ceux du TRV de février 2026, ex. Base 6 kVA 0,1940 € contre 0,1970 €) — à mettre à jour
+# au prochain mouvement. Sans engagement, résiliation gratuite ; facturation au réel ou
+# mensualisée (3, 6, 9 ou 12 mois) ; HC = celles du point de livraison (Enedis). HP/HC
+# publiée dès 6 kVA seulement (3 kVA : « non indiqué »).
+id: jeety_elec_dom
+fournisseur: Jeety Energy
+offre: Elec-Dom
+type_prix: indexe_trv
+grille_du: 2026-02-01
+source: https://www.jeety.energy/particuliers/tarifs
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.03, 6: 15.70, 9: 19.73, 12: 23.61, 15: 27.45, 18: 31.44, 24: 39.09, 30: 45.91, 36: 52.54}
+    kwh_ttc_par_puissance:
+      3: {base: 0.1940}
+      6: {base: 0.1940}
+      9: {base: 0.1927}
+      12: {base: 0.1927}
+      15: {base: 0.1927}
+      18: {base: 0.1927}
+      24: {base: 0.1927}
+      30: {base: 0.1927}
+      36: {base: 0.1927}
+  hphc:  # publiée dès 6 kVA seulement
+    abonnement_mensuel_ttc: {6: 16.26, 9: 20.63, 12: 24.81, 15: 28.82, 18: 32.99, 24: 41.02, 30: 48.18, 36: 55.15}
+    kwh_ttc: {hp: 0.2065, hc: 0.1579}

@@ -1,0 +1,35 @@
+id: edf_zen_estival
+fournisseur: EDF
+offre: Zen Estival
+type_prix: fixe
+grille_du: 2026-09-15
+duree_fixite_mois: 12
+source: https://particulier.edf.fr/content/dam/2-Sources/PDF/edf-zen-estival-fiche-contrat-grille-prix.pdf
+# Grille TTC du 15/09/2026 relevée dans l'issue #20 (fiche EDF et grille
+# tarifaire « v2 – 24/07/2025 », date d'effet 15/09/2026) : abonnement €/mois,
+# kWh en c€ convertis en €. Prix à 15 jours, prolongeables ; heures super
+# creuses fixes (non modifiables), hors contrat Zen Estival : non applicable.
+# Été : HSC 02:00-06:00 + 22:00-24:00, HC 06:00-07:30 + 13:00-16:00,
+# du 15/04 au 30/09 ; hiver : HC 22:30-06:30 + 12:30-14:30, du 01/10 au 14/04.
+options:
+  hphc_saisonnieres:
+    abonnement_mensuel_ttc: {3: 9.60, 6: 12.60, 9: 15.60, 12: 19.20, 15: 22.80, 18: 26.40, 24: 33.60, 30: 42.00, 36: 50.40}
+    saisons:
+      ete:
+        du: 04-15
+        au: 09-30
+        plages:
+          hsc: 02:00-06:00, 22:00-24:00
+          hc: 06:00-07:30, 13:00-16:00
+        kwh_ttc:
+          hsc: 0.1252
+          hc: 0.1607
+          hp: 0.2707
+      hiver:
+        du: 10-01
+        au: 04-14
+        plages:
+          hc: 22:30-06:30, 12:30-14:30
+        kwh_ttc:
+          hc: 0.1738
+          hp: 0.2802

@@ -35,16 +35,25 @@ Avec moins de 12 mois d'historique, les coûts portent sur la période disponibl
 Les grilles des fournisseurs sont livrées dans `custom_components/tarifenergie/offres/*.yaml`
 (inventaire [#6](https://github.com/Mathilde-Team/Tarif-Energie/issues/6), moteur [#5](https://github.com/Mathilde-Team/Tarif-Energie/issues/5)) :
 une issue par offre documente la grille, sa date d'effet et ses sources. La v0.2 couvre
-les offres **à prix fixe** avec options Base et Heures creuses — 30 offres :
+les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
 
 - la bellenergie Prudence 1 an, Constance 2 ans et Garance 3 ans,
 - Octopus Energy Eco Fixe Octobre 2026 et Eco Fixe Plus Octobre 2026 (territoire Enedis),
 - Ohm Énergie Sérénité Fixe 1 an et Fixe 2 ans,
 - Alterna Mon électricité française fixe 1 an et Mon électricité du coin 1 an,
 - Engie Elec Référence 3 ans (prix fixe de la part fourniture ; acheminement CU en Base, MUDT en Heures creuses),
+- Engie Duo Référence 3 ans, partie électricité (mixte ; Base, même grille qu'Elec Référence 3 ans — option HP/HC en #135, partie gaz documentée hors moteur),
+- EDF Zen Estival (prix fixe 12 mois, heures super creuses et heures creuses
+  d'été, heures creuses d'hiver — postes et plages saisonniers portés par l'offre),
+- TotalEnergies Charge'Heures (heures super creuses 2-6 h et heures creuses
+  23-2 h / 6-7 h toute l'année — plages portées par l'offre, sans option Base),
 - EDF Zen Fixe 2 ans (kWh HT fixe 2 ans et 1 mois),
+- EDF Vert Électrique Week-End (électricité verte, remise week-end et jours fériés, prix révisables 2 fois par an),
+- EDF Zen Week-End (remise week-end et jours fériés ; sans jour choisi, contrairement à la Plus) et EDF Zen Week-End Plus (remise week-end, jours fériés et jour choisi — lundi, mercredi ou vendredi ; trois variantes simulées) ; prix révisables 2 fois par an,
 - ÉS Énergies Électricité verte à prix fixe 1 an et sa variante 100 % régionale (Strasbourg Électricité Réseaux),
 - Gaz de Bordeaux NovaFixe Élec et NovaFixe Bonus Élec (fiche de Bordeaux),
+- Gaz de Bordeaux NovaFixe Bonus Duo, partie électricité (mixte électricité + gaz ;
+  grille électricité identique à NovaFixe Bonus Élec, fiche de Bordeaux),
 - GEDIA All Inclusive GES Électricité (réseau GEDIA, Dreux ; abonnement publié en €/an),
 - GEG Mon Offre Elec Verte fixe 3 ans (kWh HC/HP selon la puissance),
 - Happ-e by ENGIE Électricité 1 an (prix fixe de la part fourniture ; acheminement CU en Base, MUDT en Heures creuses),
@@ -56,18 +65,20 @@ les offres **à prix fixe** avec options Base et Heures creuses — 30 offres :
 - Primeo Energie Offre Fixe ECO -15 % (Base seule, grille du 01/02/2026, prix HT bloqués jusqu'au 31/07/2027),
 - Eni Plenitude Pleniweb 1 an,
 - papernest énergie Électricité verte 1 an,
-- SÉLIA Mon Contrat élec vert Fixe.
 - SÉLIA Mon Contrat élec vert Fixe,
-- TotalEnergies Fixe 2 ans.
+- TotalEnergies Fixe 2 ans,
+- elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients),
+- Wekiwi Offre Duo, électricité Aurore Base et HP/HC (partie électricité seule ; abonnement TRV par défaut, non publié par Wekiwi).
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr
 Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, Energis
 (Saint-Avold), Gascogne Énergies Services (Aire-sur-l'Adour), Énergies Services Lannemezan (plateau
-de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amnéville), SÉOLIS (réseau
+de Lannemezan), Oya énergies, Bazas Energies (Bazas), Régie d'Amnéville (Amnéville), Régie de Bitche (Bitche), SÉOLIS (réseau
 Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartrain), UEM (réseau réséda,
 Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie de Marange-Silvange
-(Marange-Silvange), RMMS La Réole (La Réole), Enes Creutzwald (Creutzwald), UME (Usine Municipale
+(Marange-Silvange), RMMS La Réole (La Réole), Enes Creutzwald (Creutzwald), Enes Hombourg-Haut
+(Hombourg-Haut), Enes Schoeneck (Schoeneck), UME (Usine Municipale
 d'Erstein), Soréa (Maurienne), SICAE-Précy (Aube), SICAE de la Somme, du Cambraisis, SICAE de la
 Vallée du Sausseron, SICAP Pithiviers, SIEL Labergement-Sainte-Marie et Énergies Services Lavaur
 (Lavaur, Saint-Paul-Cap-de-Joux).
@@ -76,9 +87,12 @@ Les offres **indexées sur le TRV** (`type_prix: indexe_trv`) n'ont pas de duré
 pas de réseau `eld:`. Leur grille TTC datée est à mettre à jour à chaque mouvement du TRV :
 EDF Zen Online (Base de 3 à 15 kVA, HC de 6 à 36 kVA), TotalEnergies Access Électricité
 (kWh HT remisé de 10 % pendant 3 ans), TotalEnergies Heures Eco Électricité (prix du TRV),
+TotalEnergies Spéciale Électricité et Gaz (duale : partie électricité au prix du TRV,
+Base et HP/HC ; remise annoncée de 10 % non modélisée, partie gaz documentée hors moteur),
 Gaz de Bordeaux NovaFlex Élec (kWh HT -5 %, fiche de Bordeaux ; Base de 3 à 15 kVA),
-Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée et
-Alpiq Électricité Sérénité (kWh HT -0,5 %).
+Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée,
+Alpiq Électricité Sérénité (kWh HT -0,5 %), Primeo Offre Essentielle Verte (kWh HT -5 %)
+et Jeety Energy Elec-Dom (ex-« élecocité », grille de février 2026, dernière publiée ; HC à partir de 6 kVA).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
@@ -97,6 +111,7 @@ YAML sur le modèle des existants, une issue d'inventaire la documentant.
 - La CRE ne publie l'option Base que jusqu'à 15 kVA : au-delà, elle est signalée indisponible.
 - Statistiques horaires : une heure à cheval sur une limite d'heures creuses (ex. 23:30) est répartie au prorata des minutes.
 - Pas encore de Tempo (#3), de gaz (#4) ni d'offres de marché des fournisseurs (#5).
+- Parties gaz des offres mixtes (TotalEnergies Spéciale #112, Engie Duo Référence #113) : hors comparateur, grilles documentées dans [docs/sources.md](docs/sources.md).
 
 Sources et particularités des données : [docs/sources.md](docs/sources.md).
 
