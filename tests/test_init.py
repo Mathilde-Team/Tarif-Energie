@@ -270,6 +270,8 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_prudence:base",
         # TRV local Bitche Base (#283) : 36 x 0,2001 + 3/365 x 171,94 = 8,62 €.
         "bitche_trv_local:base",
+        # Enercoop Flexi Watt HC (#49, révisable) : 36 x 0,18983 + 3/365 x 217,32 = 8,62 €.
+        "enercoop:hphc",
         "alterna_fixe_1an:base",
         # Alterna indexée Base (#45) : 36 x 0,1919 + 3/365 x 211,92 = 8,65 €.
         "alterna_indexee:base",
@@ -426,6 +428,8 @@ async def test_capteurs(hass: HomeAssistant):
         # 3/365 = 10,36 € (même kWh que #331, supplément vert sur l'abonnement).
         "es_verte_regionale_fixe_1an:week_end_hphc",
         "es_verte_regionale_fixe_1an:hphc",
+        # Enercoop Basic Watt Base (#48, révisable) : 36 x 0,25406 + 3/365 x 181,92 = 10,64 €.
+        "enercoop:base",
         # TotalEnergies Verte Fixe Base (#95) : 36 x 0,2540 + 3/365 x 145,56 = 10,71 €.
         "totalenergies_verte_fixe:base",
         # Happ-e Électricité 1 an Base (#71) : 36 x 0,26309 + 3/365 x 193,74 = 11,06 €.

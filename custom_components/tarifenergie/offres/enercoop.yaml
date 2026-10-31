@@ -1,0 +1,36 @@
+# Enercoop (SCIC) — Basic Watt (Base, issue #48) et Flexi Watt heures creuses (HC,
+# issue #49) ; inventaire #6. D'après l'annexe tarifaire, ces deux offres sont les
+# anciennes options base et HP/HC de l'offre Enercoop : un seul fichier, une option
+# Base exigée par le moteur.
+# Électricité 100 % renouvelable, en direct de producteurs. Prix fixés par Enercoop et
+# révisés à son initiative, avec information préalable, sans suivre le TRV :
+# type_prix revisable (décision du 28/10/2026 sur #9).
+# « Annexes tarifaires clients particuliers », tarifs « applicables à partir du
+# 1er août 2026 » (PDF officiel du 28/07/2026), relevés le 01/11/2026 avec
+# pdftotext -layout. Base : kWh 0,25406 € de 1 à 6 kVA, 0,25714 € de 7 à 36 kVA. HC :
+# prix unique pour toutes les puissances, heures creuses Enedis du point de livraison.
+# Seules les puissances usuelles sont reprises (intermédiaires possibles avec Linky).
+# Offres Nuit & Week-end (#50, plages propres 23 h-6 h) et 2 saisons (#51) non
+# reprises ici.
+id: enercoop
+fournisseur: Enercoop
+offre: Basic Watt / Flexi Watt heures creuses
+type_prix: revisable
+grille_du: 2026-08-01
+source: https://www.faq.enercoop.fr/hc/article_attachments/37607556170770
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 9.77, 6: 15.16, 9: 20.63, 12: 25.99, 15: 31.21, 18: 36.53, 24: 47.23, 30: 57.89, 36: 68.56}
+    kwh_ttc_par_puissance:
+      3: {base: 0.25406}
+      6: {base: 0.25406}
+      9: {base: 0.25714}
+      12: {base: 0.25714}
+      15: {base: 0.25714}
+      18: {base: 0.25714}
+      24: {base: 0.25714}
+      30: {base: 0.25714}
+      36: {base: 0.25714}
+  hphc:
+    abonnement_mensuel_ttc: {3: 11.06, 6: 18.11, 9: 24.33, 12: 30.92, 15: 35.36, 18: 41.52, 24: 52.70, 30: 64.73, 36: 76.77}
+    kwh_ttc: {hp: 0.27764, hc: 0.18983}
