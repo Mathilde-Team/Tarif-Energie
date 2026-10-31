@@ -44,6 +44,7 @@ def test_quatre_offres_livrees(offres):
         "edf_zen_week_end",
         "edf_zen_week_end_plus",
         "elmy_prix_fixe_2ans",
+        "enercoop",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
         "enes_hagondange_trv_local",
@@ -2585,3 +2586,22 @@ def test_wekiwi_duo_aurore_grille_du_19_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.2325"), "hc": Decimal("0.1901")}
     # HC dès 3 kVA (abonnement TRV HPHC 3 kVA)
     assert grilles["wekiwi_duo_aurore:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
+
+
+def test_enercoop_basic_flexi_watt(offres):
+    """Enercoop Basic Watt (#48) et Flexi Watt HC (#49) : révisable, grille du 01/08/2026."""
+    offre = offres["enercoop"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("revisable", None, None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["enercoop:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("181.92"),  # 15,16 x 12
+        {"base": Decimal("0.25406")},
+    )
+    assert grilles["enercoop:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.25714")}
+    g = grilles["enercoop:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("132.72")  # 11,06 x 12
+    assert g.prix == {"hp": Decimal("0.27764"), "hc": Decimal("0.18983")}
+    assert grilles["enercoop:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("921.24")  # 76,77 x 12
