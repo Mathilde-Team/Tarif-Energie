@@ -92,8 +92,10 @@ TotalEnergies Spéciale Électricité et Gaz (duale : partie électricité au pr
 Base et HP/HC ; remise annoncée de 10 % non modélisée, partie gaz documentée hors moteur),
 Gaz de Bordeaux NovaFlex Élec (kWh HT -5 %, fiche de Bordeaux ; Base de 3 à 15 kVA),
 Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée,
-Alpiq Électricité Sérénité (kWh HT -0,5 %), Primeo Offre Essentielle Verte (kWh HT -5 %)
-et Jeety Energy Elec-Dom (ex-« élecocité », grille de février 2026, dernière publiée ; HC à partir de 6 kVA).
+Alpiq Électricité Sérénité (kWh HT -0,5 %), Primeo Offre Essentielle Verte (kWh HT -5 %),
+Jeety Energy Elec-Dom (ex-« élecocité », grille de février 2026, dernière publiée ; HC à partir de 6 kVA)
+et ilek Offre Voiture électrique (kWh du TRV, abonnement ilek, Base seule, réservée aux
+possesseurs d'une voiture électrique).
 
 Les offres **révisables** (`type_prix: revisable`, « Autre offre » de la typologie CRE) ont des
 prix de marché que le fournisseur révise à date fixe, sans suivre le TRV : pas de durée de fixité
