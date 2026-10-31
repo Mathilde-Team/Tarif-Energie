@@ -56,6 +56,7 @@ def test_quatre_offres_livrees(offres):
         "gaz_de_bordeaux_novafixe_bonus",
         "gaz_de_bordeaux_novafixe_bonus_duo",
         "gaz_de_bordeaux_novaflex",
+        "gazelec_peronne_trv_local",
         "gedia_all_inclusive",
         "gedia_trv_local",
         "geg_direct_producteur_3ans",
@@ -1098,6 +1099,27 @@ def test_amneville_trv_local_grille_du_1er_aout_2026(offres):
     assert (g.abonnement_an, g.prix) == (Decimal("646.51"), {"base": Decimal("0.1985")})
     g = grilles["amneville_trv_local:hphc"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("659.92")
+    assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+
+
+def test_gazelec_peronne_trv_local_grille_du_1er_aout_2026(offres):
+    """TRV local de Gazélec Péronne (#208 Base, #209 HC) : annexe tarifaire du 01/08/2026."""
+    offre = offres["gazelec_peronne_trv_local"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("reglemente", "gazelec_peronne", None)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 31).date()
+    g = grilles["gazelec_peronne_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("190.35"),
+        {"base": Decimal("0.2001")},
+    )
+    # Base 9-36 kVA en extinction, publiée pour les contrats en cours
+    g = grilles["gazelec_peronne_trv_local:base"].en_vigueur(12, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("285.13"), {"base": Decimal("0.1985")})
+    # HC publiée dès 3 kVA, au même abonnement que la Base
+    g = grilles["gazelec_peronne_trv_local:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("145.56")
     assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
 
 
