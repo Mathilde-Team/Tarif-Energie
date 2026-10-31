@@ -256,6 +256,9 @@ async def test_capteurs(hass: HomeAssistant):
         "primeo_essentielle_verte:base",
         # EDF Zen Online Base (#21) : 36 x 0,1925 + 3/365 x 190,32 = 8,49 €.
         "edf_zen_online:base",
+        # Ohm Extra Éco Base (#37, révisable) : 36 x 0,1940 + 3/365 x 183,36 = 8,49 €, à égalité
+        # avec EDF Zen Online Base, départagée par le nom.
+        "ohm_extra_eco:base",
         # Dyneff Contrat+ Verte Base (#46, révisable) : 36 x 0,19369 + 3/365 x 187,80 = 8,52 €.
         "dyneff_contrat_plus_verte:base",
         # Jeety Elec-Dom Base (#59, indexée TRV) : 36 x 0,1940 + 3/365 x 188,40 = 8,53 €.
@@ -393,6 +396,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Engie Elec Référence 3 ans HC (#127) : 36 x 0,20683 + 3/365 x 215,79 = 9,22 €.
         "engie_elec_reference_3ans:hphc",
         "selia_elec_vert_fixe:hphc",
+        # ilek Voiture électrique Base (#58) : 36 x 0,2001 + 3/365 x 301,20 = 9,68 €.
+        "ilek_voiture_electrique:base",
         # TotalEnergies Fixe 2 ans Base (#25) : 36 x 0,2270 + 3/365 x 190,32 = 9,74 €.
         "totalenergies_fixe_2ans:base",
         # Happ-e Électricité 1 an HC (#128) : 36 x 0,22398 + 3/365 x 214,35 = 9,83 €.
