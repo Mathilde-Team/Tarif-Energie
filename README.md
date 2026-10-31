@@ -104,7 +104,7 @@ ni de réseau `eld:`, et une grille TTC datée à mettre à jour à chaque révi
 (révision 2 fois par an ; Base de 3 à 36 kVA, pas de grille HC publiée), Dyneff Contrat+
 Électricité et Contrat+ Électricité Verte (prix « molécule » révisable avec un mois de préavis ;
 Base de 3 à 36 kVA, HC à partir de 6 kVA, réseau Enedis) et Ohm Énergie Extra
-Éco (révision 2 fois par an au plus ; Base de 3 à 36 kVA, grille du 01/09/2026).
+Éco (révision 2 fois par an au plus ; Base de 3 à 36 kVA, HC de 6 à 36 kVA, grille du 01/09/2026).
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
