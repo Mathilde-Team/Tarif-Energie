@@ -179,6 +179,9 @@ async def test_capteurs(hass: HomeAssistant):
         "synelva_trv_local:hphc",
         # TRV local UEM HC (#243) : 7,30 €.
         "uem_trv_local:hphc",
+        # Dyneff Contrat+ HC (#155, révisable) : 36 x 0,16034 + 3/365 x 187,80 = 7,32 €, à égalité
+        # avec les TRV locaux Enes et ÉS ; départage par le nom.
+        "dyneff_contrat_plus:hphc",
         # TRV local Enes Creutzwald HC (#276) : 7,32 €, à égalité au centime avec
         # es_trv_local:hphc ; départage par le nom de l'option.
         "enes_creutzwald_trv_local:hphc",
@@ -205,6 +208,8 @@ async def test_capteurs(hass: HomeAssistant):
         "octopus_eco_fixe_oct2026:hphc",
         "alterna_du_coin_1an:hphc",
         "la_bellenergie_constance:hphc",
+        # Dyneff Contrat+ Verte HC (#154, révisable) : 36 x 0,16334 + 3/365 x 187,80 = 7,42 €.
+        "dyneff_contrat_plus_verte:hphc",
         # EDF Zen Estival hiver (#20) : 36 x 0,1738 + 3/365 x 151,20 = 7,50 €.
         "edf_zen_estival:hphc_saisonnieres",
         # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
@@ -240,6 +245,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Zen Week-End Plus Base, jour choisi vendredi (#10) : 24 x 0,2259
         # + 12 x 0,1691 (vendredi choisi) + 3/365 x 190,32 = 8,33 €.
         "edf_zen_week_end_plus:week_end_jour_vendredi",
+        # Dyneff Contrat+ Base (#47, révisable) : 36 x 0,19069 + 3/365 x 187,80 = 8,41 €, à égalité
+        # avec Plenitude Pleniweb Base ; départage par le nom.
+        "dyneff_contrat_plus:base",
         "plenitude_pleniweb_1an:base",
         # Hunélec HC (#326) : 36 x 0,19129 + 3/365 x 191,52 = 8,46 € ;
         # 100 % vert (#328) : + 2,27 €/mois = 8,68 € ; TRV Base : 8,77 €.
@@ -253,6 +261,8 @@ async def test_capteurs(hass: HomeAssistant):
         # Ohm Extra Éco Base (#37, révisable) : 36 x 0,1940 + 3/365 x 183,36 = 8,49 €, à égalité
         # avec EDF Zen Online Base, départagée par le nom.
         "ohm_extra_eco:base",
+        # Dyneff Contrat+ Verte Base (#46, révisable) : 36 x 0,19369 + 3/365 x 187,80 = 8,52 €.
+        "dyneff_contrat_plus_verte:base",
         # Jeety Elec-Dom Base (#59, indexée TRV) : 36 x 0,1940 + 3/365 x 188,40 = 8,53 €.
         "jeety_elec_dom:base",
         # TRV local Energis Base (#200) : 36 x 0,19522 + 3/365 x 190,32 = 8,59 €.
