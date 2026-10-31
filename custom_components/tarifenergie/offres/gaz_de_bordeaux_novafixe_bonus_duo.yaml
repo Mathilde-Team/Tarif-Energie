@@ -1,0 +1,38 @@
+# Gaz de Bordeaux NovaFixe Bonus Duo, partie électricité — option Heures
+# pleines / heures creuses (issue #336 ; option Base en #181 ; partie gaz
+# documentée hors moteur, #182 ; inventaire #6).
+# Offre mixte électricité + gaz : le moteur ne compare que l'électricité, la
+# grille ci-dessous est la partie électricité de la fiche descriptive
+# d'octobre 2026. Décision du 28/10/2026 (commentaire de #98) : un fichier par
+# offre, avec une copie de la grille de la partie électricité ; la partie élec
+# est identique, à la date de la grille, à NovaFixe Bonus Élec
+# (gaz_de_bordeaux_novafixe_bonus.yaml, #99 / #371) ; option Base (#181) et
+# HP/HC (#336) reprises toutes les deux. Remise de 100 € TTC après
+# 11 mois d'ancienneté non modélisée : le moteur n'a pas de champ de remise.
+# Prix fixe 3 ans de l'abonnement HTT et du kWh HTT, hors coûts réglementaires
+# (TURPE, CEE) ; kWh HT 10 % moins cher que le TRV à la souscription. Fiche
+# descriptive « souscription entre le 01/10/2026 et le 31/10/2026 pour BORDEAUX »
+# (TTC maximum indicatif, taxes locales variables). Base de 3 à 15 kVA, HP/HC
+# de 6 à 36 kVA (pas de 3 kVA). Nouvelle fiche chaque mois : grille à relever.
+id: gaz_de_bordeaux_novafixe_bonus_duo
+fournisseur: Gaz de Bordeaux
+offre: NovaFixe Bonus Duo (partie électricité)
+type_prix: fixe
+grille_du: 2026-10-01
+duree_fixite_mois: 36
+source: https://www.gazdebordeaux.fr/nos-offres-d-energie/gaz-naturel-et-electricite/offre-duale-gaz-et-electricite-bonus
+options:
+  # Option Base (#181) : grille de la même fiche descriptive (partie électricité
+  # identique à NovaFixe Bonus Élec, #99) ; incluse car le moteur exige une
+  # option principale, de 3 à 15 kVA seulement.
+  base:
+    abonnement_mensuel_ttc: {3: 12.13, 6: 15.87, 9: 19.88, 12: 23.76, 15: 27.40}
+    kwh_ttc_par_puissance:
+      3: {base: 0.18373}
+      6: {base: 0.18373}
+      9: {base: 0.18233}
+      12: {base: 0.18233}
+      15: {base: 0.18233}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 15.87, 9: 19.88, 12: 23.76, 15: 27.40, 18: 31.14, 24: 39.13, 30: 46.46, 36: 53.88}
+    kwh_ttc: {hp: 0.19648, hc: 0.14669}

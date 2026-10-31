@@ -1,0 +1,31 @@
+# Régie d'électricité de Bitche — TRV local, Tarif Bleu résidentiel (issues
+# #283 Base, #284 HC ; phase 2 des ELD, #189). Seul fournisseur du TRV sur son
+# réseau (Bitche, Moselle, ≤ 36 kVA) ; pas de filtre de zone dans le moteur
+# (comme ÉS #72). Grille officielle du 01/08/2026 (PDF), abonnement publié en
+# € TTC/an, repris tel quel. Composition TTC : abonnement + CTA (réseau ELD) +
+# TVA 20 % ; kWh + accise + TVA 20 %. Base 9-36 kVA en extinction (arrêté du
+# 28/01/2025) : publiée pour les contrats en cours. HC dès 3 kVA, plages
+# 22h30-6h30 ou 0h-8h. Tempo non repris (limite du moteur).
+id: bitche_trv_local
+fournisseur: Régie d'électricité de Bitche
+offre: TRV local (Tarif Bleu)
+type_prix: reglemente
+eld: bitche
+grille_du: 2026-08-01
+source: https://www.regiedebitche.fr/wp-content/uploads/2026/08/Tarif-Bleu-v01082026-A4-DOM.pdf
+options:
+  base:
+    abonnement_annuel_ttc: {3: 132.77, 6: 171.94, 9: 214.56, 12: 255.46, 15: 293.47, 18: 332.78, 24: 417.46, 30: 494.21, 36: 571.82}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2001}
+      6: {base: 0.2001}
+      9: {base: 0.1985}
+      12: {base: 0.1985}
+      15: {base: 0.1985}
+      18: {base: 0.1985}
+      24: {base: 0.1985}
+      30: {base: 0.1985}
+      36: {base: 0.1985}
+  hphc:
+    abonnement_annuel_ttc: {3: 132.77, 6: 171.94, 9: 214.56, 12: 255.46, 15: 293.47, 18: 332.78, 24: 417.46, 30: 494.21, 36: 571.82}
+    kwh_ttc: {hp: 0.2142, hc: 0.1589}

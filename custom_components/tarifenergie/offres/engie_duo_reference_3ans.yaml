@@ -1,0 +1,37 @@
+# Engie Duo Référence 3 ans, partie électricité — option Base (issue #98 ;
+# option HP/HC en #135 ; partie gaz documentée hors moteur, #113 ; inventaire #6).
+# Offre mixte électricité + gaz : le moteur ne compare que l'électricité, la
+# grille ci-dessous est la partie électricité de la fiche descriptive d'octobre
+# 2026. Décision du 28/10/2026 (commentaire de #98) : un fichier par offre, avec
+# une copie de la grille de la partie électricité ; la partie élec est identique,
+# à la date de la grille, à Elec Référence 3 ans (engie_elec_reference_3ans.yaml,
+# #28 / #127). Une éventuelle remise propre au Duo n'est pas modélisée.
+# « Prix fixe de la part fourniture » 3 ans (typologie CRE) : seule la fourniture
+# est fixe ; l'acheminement suit le TURPE et les obligations (CEE, capacité)
+# varient dans la limite d'un plafond. Prix publiés en trois parts, TTC « hors
+# évolution des impôts » ; chaque total ci-dessous est la somme fourniture +
+# acheminement + obligations (prix à la souscription), avec l'acheminement
+# courant CU (Base) : fourniture 45,79 €/an et 16,379 c€, CU 5,988 c€,
+# obligations 1,838 c€ (3-6 kVA) ou 2,010 c€ (9-36 kVA). Les options
+# d'acheminement CU4 et MU4 (4 plages saisonnières) ne sont pas reprises.
+# Abonnement publié en €/an : abonnement_annuel_ttc (fourniture + acheminement).
+id: engie_duo_reference_3ans
+fournisseur: Engie
+offre: Duo Référence 3 ans (partie électricité)
+type_prix: fixe
+grille_du: 2026-10-01
+duree_fixite_mois: 36
+source: https://particuliers.engie.fr/content/dam/pdf/fiches-descriptives/fiche_descriptive_duo_reference_3_ans.pdf
+options:
+  base:
+    abonnement_annuel_ttc: {3: 147.94, 6: 195.18, 9: 242.41, 12: 289.65, 15: 336.89, 18: 384.12, 24: 478.60, 30: 573.07, 36: 667.55}
+    kwh_ttc_par_puissance:
+      3: {base: 0.24205}
+      6: {base: 0.24205}
+      9: {base: 0.24377}
+      12: {base: 0.24377}
+      15: {base: 0.24377}
+      18: {base: 0.24377}
+      24: {base: 0.24377}
+      30: {base: 0.24377}
+      36: {base: 0.24377}
