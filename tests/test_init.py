@@ -210,6 +210,8 @@ async def test_capteurs(hass: HomeAssistant):
         "la_bellenergie_constance:hphc",
         # Dyneff Contrat+ Verte HC (#154, révisable) : 36 x 0,16334 + 3/365 x 187,80 = 7,42 €.
         "dyneff_contrat_plus_verte:hphc",
+        # TRV local Seyssel HC (#254, grille du 01/08/2025) : 36 x 0,1636 + 3/365 x 194,28 = 7,49 €.
+        "es_seyssel_trv_local:hphc",
         # EDF Zen Estival hiver (#20) : 36 x 0,1738 + 3/365 x 151,20 = 7,50 €.
         "edf_zen_estival:hphc_saisonnieres",
         # EDF Zen Fixe HC (#114) : 36 x 0,1650 + 3/365 x 190,32 = 7,50 €.
@@ -267,6 +269,8 @@ async def test_capteurs(hass: HomeAssistant):
         "dyneff_contrat_plus_verte:base",
         # Jeety Elec-Dom Base (#59, indexée TRV) : 36 x 0,1940 + 3/365 x 188,40 = 8,53 €.
         "jeety_elec_dom:base",
+        # TRV local Seyssel Base (#253, grille du 01/08/2025) : 36 x 0,1952 + 3/365 x 187,08 = 8,56 €.
+        "es_seyssel_trv_local:base",
         # TRV local Energis Base (#200) : 36 x 0,19522 + 3/365 x 190,32 = 8,59 €.
         "energis_trv_local:base",
         "la_bellenergie_prudence:base",

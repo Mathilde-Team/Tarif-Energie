@@ -12,6 +12,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 - **Données et licences** (#474) : section du README sur la source et les conditions de réutilisation des TRV (open data CRE, attribution) et des grilles des fournisseurs.
 
 ### Ajouté
+- **TRV local d'Énergie et Services de Seyssel** (#253 Base, #254 HC) : fiches standardisées « en vigueur depuis le 01/08/2025 » — dernière édition publiée, le site de l'ELD étant en panne (502) à la livraison, fiches relevées via l'archive web. Abonnement mensuel TTC propre à chaque option (plus cher en HC) ; kWh Base 19,52 c€ uniforme, HC 20,81 / 16,36 c€ dès 6 kVA. Base 9-36 kVA en extinction mais publiée ; Tempo et EJP (#255) non repris.
 - **TRV local de CESML** (#248 Base, #249 HP/HC) : grille résidentielle officielle du 01/08/2026, abonnement mensuel identique en Base et en HC, HC dès 3 kVA. Base 9-36 kVA en extinction mais publiée. Tempo et EJP ne sont pas repris.
 - **TRV local de Gazélec Péronne** (#208 Base, #209 HP/HC) : annexe tarifaire résidentielle du 01/08/2026 (PDF officiel), même abonnement en Base et en HC, HC dès 3 kVA. Base 9-36 kVA en extinction mais publiée. Tempo n'est pas repris.
 - **TRV local d'Enes Hagondange** (#203 Base, #204 HP/HC) : grille « Tarif BLEU au 01/08/2026 » publiée en HTML sur la page Électricité de l'ELD (mêmes montants que la grille OMEGA). Base 9-36 kVA en extinction mais publiée ; HC dès 3 kVA (146,68 €/an). Tempo n'est pas repris.

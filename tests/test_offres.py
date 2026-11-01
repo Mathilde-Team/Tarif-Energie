@@ -54,6 +54,7 @@ def test_quatre_offres_livrees(offres):
         "enes_schoeneck_trv_local",
         "engie_duo_reference_3ans",
         "engie_elec_reference_3ans",
+        "es_seyssel_trv_local",
         "es_trv_local",
         "es_verte_fixe_1an",
         "es_verte_regionale_fixe_1an",
@@ -2708,3 +2709,22 @@ def test_urban_solar_smb_revisable(offres):
     assert g.prix == {"hp": Decimal("0.2377"), "hc": Decimal("0.1750")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["urban_solar_smb:hphc"].en_vigueur(3, jour)
+
+
+def test_es_seyssel_trv_local(offres):
+    """Seyssel (#253 Base, #254 HC) : TRV local, grille du 01/08/2025 (dernière publiée)."""
+    offre = offres["es_seyssel_trv_local"]
+    assert (offre.type_prix, offre.eld) == ("reglemente", "es_seyssel")
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 24).date()
+    g = grilles["es_seyssel_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2025, 8, 1).date(),
+        Decimal("187.08"),  # 15,59 x 12
+        {"base": Decimal("0.1952")},
+    )
+    g = grilles["es_seyssel_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("687.36")  # 57,28 x 12
+    assert g.prix == {"hp": Decimal("0.2081"), "hc": Decimal("0.1636")}
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["es_seyssel_trv_local:hphc"].en_vigueur(3, jour)

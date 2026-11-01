@@ -83,8 +83,9 @@ Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie d
 (Marange-Silvange), RMMS La Réole (La Réole), Enes Creutzwald (Creutzwald), Enes Hombourg-Haut
 (Hombourg-Haut), Enes Schoeneck (Schoeneck), UME (Usine Municipale
 d'Erstein), Soréa (Maurienne), SICAE-Précy (Aube), SICAE de la Somme, du Cambraisis, SICAE de la
-Vallée du Sausseron, SICAP Pithiviers, SIEL Labergement-Sainte-Marie et Énergies Services Lavaur
-(Lavaur, Saint-Paul-Cap-de-Joux).
+Vallée du Sausseron, SICAP Pithiviers, SIEL Labergement-Sainte-Marie, Énergies Services Lavaur
+(Lavaur, Saint-Paul-Cap-de-Joux) et Énergie et Services de Seyssel (Seyssel ; grille du
+01/08/2025, dernière publiée).
 
 Les offres **indexées sur le TRV** (`type_prix: indexe_trv`) n'ont pas de durée de fixité et
 pas de réseau `eld:`. Leur grille TTC datée est à mettre à jour à chaque mouvement du TRV :
