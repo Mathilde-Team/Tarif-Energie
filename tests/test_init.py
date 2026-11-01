@@ -179,6 +179,9 @@ async def test_capteurs(hass: HomeAssistant):
         "synelva_trv_local:hphc",
         # TRV local UEM HC (#243) : 7,30 €.
         "uem_trv_local:hphc",
+        # EDF Zen Week-End Flex (#97) : jours Éco début octobre, nuit en HC Flex (20 h-8 h) à 15,95 c€
+        # + 3/365 x 190,32 ≈ 7,31 €.
+        "edf_zen_week_end:flex",
         # Dyneff Contrat+ HC (#155, révisable) : 36 x 0,16034 + 3/365 x 187,80 = 7,32 €, à égalité
         # avec les TRV locaux Enes et ÉS ; départage par le nom.
         "dyneff_contrat_plus:hphc",
