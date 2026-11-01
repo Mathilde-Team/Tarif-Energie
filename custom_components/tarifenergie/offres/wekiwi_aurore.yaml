@@ -1,0 +1,32 @@
+# Wekiwi — Offre Aurore — Base et HP/HC
+# (issues #84 Base, #173 HP/HC ; inventaire #6). Forfait d'électricité
+# (mensualisation, régularisation annuelle sur la consommation réelle),
+# version standard : kWh HT fixes 1 an, relevés en TTC sur la page officielle
+# le 19/10/2026, revérifiés inchangés le 01/11/2026 — Base 0,2182 € (3-6 kVA)
+# / 0,2270 € (9-36 kVA) ; HP 0,2325 / HC 0,1901 €, toutes puissances. Les prix
+# « remisés à l'entrée » ne sont pas modélisés (assiette et durée non
+# publiées). Heures creuses : plages Enedis du point de livraison.
+# Abonnement : non publié par Wekiwi — décision du propriétaire du 28/10/2026
+# (même règle que l'Offre Duo, #183/#337) : abonnement du TRV en vigueur
+# (grilles CRE du 01/08/2026, fichiers tarifs/Option_Base.csv et
+# Option_HPHC.csv du dépôt), repris tel que publié en € TTC/an. Base 18-36 kVA
+# en extinction (comme le TRV). Sans engagement.
+id: wekiwi_aurore
+fournisseur: Wekiwi
+offre: Aurore
+type_prix: fixe
+grille_du: 2026-10-19
+duree_fixite_mois: 12
+source: https://www.wekiwi.fr/offre-aurore/
+options:
+  base:  # 18 à 36 kVA en extinction, comme le TRV
+    abonnement_annuel_ttc: {3: 145.76, 6: 190.81, 9: 239.84, 12: 286.86, 15: 330.57}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2182}
+      6: {base: 0.2182}
+      9: {base: 0.2270}
+      12: {base: 0.2270}
+      15: {base: 0.2270}
+  hphc:
+    abonnement_annuel_ttc: {3: 145.7629941, 6: 190.8131821, 9: 239.8378787, 12: 286.8590281, 15: 330.5695129, 18: 375.7961526, 24: 473.1632964, 30: 561.4324739, 36: 650.6862576}
+    kwh_ttc: {hp: 0.2325, hc: 0.1901}
