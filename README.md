@@ -68,7 +68,9 @@ les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
 - SÉLIA Mon Contrat élec vert Fixe,
 - TotalEnergies Fixe 2 ans,
 - elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients),
-- Wekiwi Offre Duo, électricité Aurore Base et HP/HC (partie électricité seule ; abonnement TRV par défaut, non publié par Wekiwi).
+- Wekiwi Offre Duo, électricité Aurore Base et HP/HC (partie électricité seule ; abonnement TRV par défaut, non publié par Wekiwi),
+- Wekiwi Aurore Base et HP/HC (forfait à prix fixe 1 an ; abonnement TRV par défaut, non publié par Wekiwi),
+- Wekiwi Pierre, électricité au réel, Base et HP/HC (facturation mensuelle à la consommation réelle, prix fixe 1 an ; abonnement TRV par défaut, non publié par Wekiwi).
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr

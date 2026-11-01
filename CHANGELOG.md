@@ -90,6 +90,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 - **Tests AST des règles** (`tests/test_journal_regles.py`, d'après `modele-depot`) et **audit** `scripts/audit_debug_sorties.py`. La référence `scripts/audit_debug_sorties.baseline` est à **0**. Le job Qualité échoue si un écart est ajouté.
 - `scripts/check_branch_protection.py` est remplacé par la version loguru de `modele-depot`, avec ses tests. Les workflows de release et de protection installent loguru (`uv run --only-group scripts`).
 - 4 tests de `offres.py` (`Offre.cles`, erreurs de `charger_offre`) : couverture de 98,0 % à 98,9 %.
+- **Offres Wekiwi Aurore et Pierre** (#84/#173 Aurore Base et HP/HC ; #86/#174 Pierre Base et HP/HC) : kWh TTC relevés le 19/10/2026 sur les pages officielles et revérifiés inchangés le 01/11/2026 — Aurore (forfait, mensualisation et régularisation annuelle) Base 0,2182 € (3-6 kVA) / 0,2270 € (9-36 kVA), HP 0,2325 / HC 0,1901 € ; Pierre (électricité au réel, facturation mensuelle à la consommation) Base 0,1882 € (3-6 kVA) / 0,1970 € (9-36 kVA), HP 0,2025 / HC 0,1601 €. Prix fixes 1 an, remises d'entrée non modélisées. Abonnement non publié par Wekiwi : par décision du propriétaire du 28/10/2026 (même règle que l'Offre Duo), abonnement du TRV en vigueur (grilles CRE du 01/08/2026), hypothèse documentée dans les YAML. HC dès 3 kVA, Base 18-36 kVA en extinction (comme le TRV), sans engagement.
 
 ## [0.1.0] - 2026-10-22
 
