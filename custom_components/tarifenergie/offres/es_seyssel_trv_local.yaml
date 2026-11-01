@@ -1,0 +1,30 @@
+# Énergie et Services de Seyssel — TRV local, Tarif Bleu résidentiel (issues
+# #253 Base, #254 HC ; phase 2 des ELD, #189). Seul fournisseur du TRV sur son
+# réseau (Seyssel et Argonay, Haute-Savoie, ≤ 36 kVA) ; pas de filtre de zone
+# dans le moteur (comme ÉS #72).
+# Fiches de présentation standardisée « TARIF BLEU PARTICULIER OPTION BASE » et
+# « TARIF BLEU DOMESTIQUE » (options Base et Heures Creuses), en vigueur
+# depuis le 01/08/2025, relevées le 01/11/2026 avec pdftotext -layout. Le site
+# de l'ELD (es-seyssel.com) est en panne ce jour (502) : fiches récupérées via
+# l'archive web (web.archive.org, capture du 13/01/2026 de la page
+# particuliers.html) — dernière édition publiée, donc la grille en vigueur au
+# moteur. Abonnement publié en terme fixe mensuel TTC, distinct en Base et en
+# HC (plus cher en HC) ; kWh Base 19,52 c€ uniforme de 3 à 36 kVA — les
+# puissances Base 9-36 kVA sont EN EXTINCTION (« n'est plus proposé ») :
+# publiées pour les contrats en cours. HC dès 6 kVA (pas de HC en 3 kVA),
+# plages 23h-7h ou 22h-6h selon le code du point de livraison. Tempo et EJP
+# (#255) non repris : le moteur ne connaît que Base et HC.
+id: es_seyssel_trv_local
+fournisseur: Énergie et Services de Seyssel
+offre: TRV local (Tarif Bleu)
+type_prix: reglemente
+eld: es_seyssel
+grille_du: 2025-08-01
+source: http://web.archive.org/web/20260113121136im_/https://www.es-seyssel.com/TAR-tarif_bleu_residentiel_ST_01.08.2025.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 11.80, 6: 15.59, 9: 19.58, 12: 23.58, 15: 27.37, 18: 31.14, 24: 39.29, 30: 47.08, 36: 55.04}
+    kwh_ttc: {base: 0.1952}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 16.19, 9: 20.48, 12: 24.65, 15: 28.61, 18: 32.68, 24: 41.26, 30: 49.24, 36: 57.28}
+    kwh_ttc: {hp: 0.2081, hc: 0.1636}
