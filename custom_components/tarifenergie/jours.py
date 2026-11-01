@@ -13,8 +13,14 @@ from __future__ import annotations
 
 import logging
 from datetime import date, timedelta
+from functools import cache
+from pathlib import Path
+
+import yaml
 
 _LOGGER = logging.getLogger(__name__)
+
+CALENDRIER_TEMPO_ROUGE = Path(__file__).parent / "calendriers" / "tempo_rouge.yaml"
 
 
 def paques(annee: int) -> date:
@@ -63,4 +69,26 @@ def est_week_end(jour: date) -> bool:
     _LOGGER.debug("est_week_end: entrée")
     resultat = jour.weekday() >= 5 or jour in jours_feries(jour.year)
     _LOGGER.debug("est_week_end: sortie")
+    return resultat
+
+
+@cache
+def jours_rouges_tempo(chemin: Path = CALENDRIER_TEMPO_ROUGE) -> frozenset[date]:
+    """Jours rouges Tempo connus (``calendriers/tempo_rouge.yaml``), toutes saisons confondues."""
+    _LOGGER.debug("jours_rouges_tempo: entrée")
+    donnees = yaml.safe_load(chemin.read_text(encoding="utf-8"))
+    jours = frozenset(j for liste in donnees["saisons"].values() for j in liste)
+    _LOGGER.debug("jours_rouges_tempo: %s jour(s)", len(jours))
+    return jours
+
+
+def est_jour_sobriete(jour: date) -> bool:
+    """Jour Sobriété de l'option Flex (#97), estimé par les jours rouges Tempo.
+
+    EDF annonce ses jours Sobriété la veille, sans historique public : on retient les jours
+    rouges Tempo (décision du 01/11/2026). Un jour absent du calendrier est un jour Éco.
+    """
+    _LOGGER.debug("est_jour_sobriete: entrée")
+    resultat = jour in jours_rouges_tempo()
+    _LOGGER.debug("est_jour_sobriete: sortie")
     return resultat

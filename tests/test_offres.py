@@ -1919,7 +1919,9 @@ def test_cout_option_prudence_sur_un_kwh(offres):
 def test_comparaison_trv_contre_offres(offres):
     """Le classement mélange TRV et offres.
 
-    Avec 10 kWh un lundi (19/10/2026) : EDF Zen Week-End Plus jour choisi lundi
+    Avec 10 kWh un lundi (19/10/2026) à 14 h : EDF Zen Week-End Flex (#97), en heures creuses
+    imposées par l'offre (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €), passe devant ;
+    puis EDF Zen Week-End Plus jour choisi lundi
     (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO -15 % Base (17,04 c€,
     196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
     241,92 €/an : 2,34 €), le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais
@@ -1931,7 +1933,8 @@ def test_comparaison_trv_contre_offres(offres):
     grilles = {option: GrillesTRV.charger(option) for option in OPTIONS}
     grilles.update(grilles_offres(offres))
     comp = comparer(grilles, 6, DIX_KWH, PLAGES, "base")
-    assert comp.moins_chere.option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.moins_chere.option == "edf_zen_week_end:flex"
+    assert comp.classement[1].option == "edf_zen_week_end_plus:week_end_jour_lundi"
     assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]
@@ -2728,3 +2731,58 @@ def test_es_seyssel_trv_local(offres):
     assert g.prix == {"hp": Decimal("0.2081"), "hc": Decimal("0.1636")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["es_seyssel_trv_local:hphc"].en_vigueur(3, jour)
+
+
+def test_zen_week_end_flex(offres):
+    """#97 : option Flex, 6 à 36 kVA, HC imposées par l'offre (17 h par jour), quatre postes."""
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["edf_zen_week_end:flex"].en_vigueur(3, jour)
+    g = grilles["edf_zen_week_end:flex"].en_vigueur(6, jour)
+    assert g.abonnement_an == Decimal("15.86") * 12
+    assert PlagesHC(plages=g.plages_hc).minutes_par_jour() == 17 * 60
+    assert g.prix == {
+        "eco_hp": Decimal("0.2142"),
+        "eco_hc": Decimal("0.1595"),
+        "sobriete_hp": Decimal("0.7467"),
+        "sobriete_hc": Decimal("0.2142"),
+    }
+
+
+def _offre_flex(**option):
+    from datetime import date
+
+    return {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Flex",
+        "type_prix": "fixe",
+        "duree_fixite_mois": 6,
+        "grille_du": date(2026, 9, 15),
+        "source": "https://exemple.fr/flex.pdf",
+        "options": {
+            "base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}},
+            "flex": {
+                "abonnement_mensuel_ttc": {6: 15.0},
+                "kwh_ttc": {"eco_hp": 0.2, "eco_hc": 0.1, "sobriete_hp": 0.7, "sobriete_hc": 0.2},
+                **option,
+            },
+        },
+    }
+
+
+def test_flex_exige_ses_plages():
+    with pytest.raises(OffreInvalide, match="plages_hc attendues"):
+        offre_depuis_dict(_offre_flex(), "x")
+    assert offre_depuis_dict(_offre_flex(plages_hc="13:00-18:00, 20:00-08:00"), "x").cles() == [
+        "x:base",
+        "x:flex",
+    ]
+
+
+def test_plages_hc_reservees_a_flex():
+    donnees = _offre_flex(plages_hc="13:00-18:00")
+    donnees["options"]["base"]["plages_hc"] = "22:00-06:00"
+    with pytest.raises(OffreInvalide, match="réservé à l'option flex"):
+        offre_depuis_dict(donnees, "x")

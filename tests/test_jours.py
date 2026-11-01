@@ -35,3 +35,15 @@ def test_est_week_end():
     assert not est_week_end(date(2026, 10, 28))  # mercredi
     assert est_week_end(date(2026, 5, 14))  # Ascension, un jeudi férié
     assert not est_week_end(date(2026, 5, 13))  # mercredi ordinaire
+
+
+def test_jours_rouges_tempo_et_sobriete():
+    """#97 : 22 jours rouges par saison connue, en semaine ; un jour absent est un jour Éco."""
+    from custom_components.tarifenergie.jours import est_jour_sobriete, jours_rouges_tempo
+
+    rouges = jours_rouges_tempo()
+    assert len(rouges) == 4 * 22
+    assert all(j.weekday() < 5 and j.month in (11, 12, 1, 2, 3) for j in rouges)
+    assert est_jour_sobriete(date(2026, 1, 5))
+    assert not est_jour_sobriete(date(2026, 1, 8))
+    assert not est_jour_sobriete(date(2026, 7, 14))
