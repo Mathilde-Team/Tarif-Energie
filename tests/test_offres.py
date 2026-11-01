@@ -121,7 +121,9 @@ def test_quatre_offres_livrees(offres):
         "ume_trv_local",
         "urban_solar_smb",
         "vialis_trv_local",
+        "wekiwi_aurore",
         "wekiwi_duo_aurore",
+        "wekiwi_pierre",
     ]
     # Chaque offre propose au moins une option sans heures creuses (sa « Base ») :
     # base, week_end, une variante à jour choisi (#10) ou des postes saisonniers
@@ -2589,6 +2591,58 @@ def test_wekiwi_duo_aurore_grille_du_19_octobre_2026(offres):
     assert g.prix == {"hp": Decimal("0.2325"), "hc": Decimal("0.1901")}
     # HC dès 3 kVA (abonnement TRV HPHC 3 kVA)
     assert grilles["wekiwi_duo_aurore:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
+
+
+def test_wekiwi_aurore_grille_du_19_octobre_2026(offres):
+    """Offre Wekiwi Aurore, forfait — Base et HP/HC (#84, #173) : kWh TTC
+    relevés le 19/10/2026 sur la page officielle (revérifiés inchangés le
+    01/11/2026), abonnement TRV par décision du propriétaire du 28/10/2026
+    (non publié par Wekiwi)."""
+    offre = offres["wekiwi_aurore"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 12)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    # Base : kWh 0,2182 € (3-6 kVA) / 0,2270 € (9-36 kVA), 18-36 kVA en extinction
+    g = grilles["wekiwi_aurore:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.81"))
+    assert g.prix == {"base": Decimal("0.2182")}
+    g = grilles["wekiwi_aurore:base"].en_vigueur(15, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("330.57"), {"base": Decimal("0.2270")})
+    # HP/HC : kWh Aurore standard toutes puissances, remise d'entrée non modélisée
+    g = grilles["wekiwi_aurore:hphc"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.8131821"))
+    assert g.prix == {"hp": Decimal("0.2325"), "hc": Decimal("0.1901")}
+    g = grilles["wekiwi_aurore:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("650.6862576")
+    assert g.prix == {"hp": Decimal("0.2325"), "hc": Decimal("0.1901")}
+    # HC dès 3 kVA (abonnement TRV HPHC 3 kVA)
+    assert grilles["wekiwi_aurore:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
+
+
+def test_wekiwi_pierre_grille_du_19_octobre_2026(offres):
+    """Offre Wekiwi Pierre, électricité au réel — Base et HP/HC (#86, #174) :
+    kWh TTC relevés le 19/10/2026 sur la page officielle (revérifiés inchangés
+    le 01/11/2026), abonnement TRV par décision du propriétaire du 28/10/2026
+    (non publié par Wekiwi)."""
+    offre = offres["wekiwi_pierre"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 12)
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 10, 19).date()
+    # Base : kWh 0,1882 € (3-6 kVA) / 0,1970 € (9-36 kVA), 18-36 kVA en extinction
+    g = grilles["wekiwi_pierre:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.81"))
+    assert g.prix == {"base": Decimal("0.1882")}
+    g = grilles["wekiwi_pierre:base"].en_vigueur(15, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("330.57"), {"base": Decimal("0.1970")})
+    # HP/HC : kWh Pierre toutes puissances, remise non modélisée
+    g = grilles["wekiwi_pierre:hphc"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.8131821"))
+    assert g.prix == {"hp": Decimal("0.2025"), "hc": Decimal("0.1601")}
+    g = grilles["wekiwi_pierre:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("650.6862576")
+    assert g.prix == {"hp": Decimal("0.2025"), "hc": Decimal("0.1601")}
+    # HC dès 3 kVA (abonnement TRV HPHC 3 kVA)
+    assert grilles["wekiwi_pierre:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
 
 
 @pytest.mark.parametrize(
