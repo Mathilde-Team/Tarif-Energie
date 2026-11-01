@@ -77,6 +77,9 @@ class Grille:
     # Saisons été/hiver des offres à postes saisonniers (#20) : ``None`` sinon.
     # Les postes de ``prix`` sont alors préfixés par la saison (``ete_hp``…).
     saisons: tuple[Saison, ...] | None = None
+    # Heures creuses imposées par l'offre (option Flex de Zen Week-End, #97), en minutes
+    # comme ``PlagesHC`` : ``None`` quand ce sont celles du point de livraison.
+    plages_hc: tuple[tuple[int, int], ...] | None = None
 
     def couvre(self, jour: date) -> bool:
         _LOGGER.debug("Grille.couvre: entrée")

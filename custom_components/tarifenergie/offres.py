@@ -5,8 +5,9 @@ telle que publiée dans les grilles des fournisseurs (inventaire #6, une issue p
 offre). Le moteur lit les offres **à prix fixe** et **indexées sur le TRV** (typologie
 CRE), ainsi que les TRV locaux des ELD et les offres à option Week-end (postes
 semaine / week-end : tarif week-end les samedis, dimanches et jours fériés
-nationaux) ; les offres dynamiques ou à coloration de jours (OctoTempo…)
-viendront plus tard avec leurs structures propres.
+nationaux), ainsi que l'option Flex de Zen Week-End (jours Éco / Sobriété, #97 :
+jours Sobriété estimés par les jours rouges Tempo de ``calendriers/tempo_rouge.yaml``) ;
+les offres dynamiques (OctoTempo…) viendront plus tard avec leurs structures propres.
 
 Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
 
@@ -31,6 +32,10 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
       week_end:                          # option « Week-end » (ex. ÉS Énergies, #330)
         abonnement_mensuel_ttc: {3: 12.13, …}
         kwh_ttc: {semaine: 0.31108, week_end: 0.22878}         # les deux postes exigés
+      flex:                              # option Flex de Zen Week-End (#97) : jours Éco / Sobriété
+        abonnement_mensuel_ttc: {6: 15.86, …}
+        plages_hc: "13:00-18:00, 20:00-08:00"                  # heures creuses imposées par l'offre
+        kwh_ttc: {eco_hp: 0.2142, eco_hc: 0.1595, sobriete_hp: 0.7467, sobriete_hc: 0.2142}
 
 Les prix sont TTC, en €/kWh (les grilles des fournisseurs sont en c€ TTC/kWh).
 L'abonnement mensuel est converti en €/an (multiplié par 12, en ``Decimal`` exact) ;
@@ -95,6 +100,11 @@ POSTES = (
     "annee_hsc",
     "annee_hc",
     "annee_hp",
+    # Option Flex de Zen Week-End (#97) : jours Éco et jours Sobriété, chacun en HP/HC.
+    "eco_hp",
+    "eco_hc",
+    "sobriete_hp",
+    "sobriete_hc",
 )
 MOIS_PAR_AN = Decimal("12")
 
@@ -105,6 +115,11 @@ POSTES_PAR_OPTION: dict[str, tuple[frozenset[str], str]] = {
     "week_end_hphc": (
         frozenset({"semaine_hp", "semaine_hc", "week_end_hp", "week_end_hc"}),
         "semaine_hp+semaine_hc+week_end_hp+week_end_hc attendus (option week_end_hphc)",
+    ),
+    # Option Flex (#97) : 345 jours Éco, 20 jours Sobriété (estimés par les jours rouges Tempo).
+    "flex": (
+        frozenset({"eco_hp", "eco_hc", "sobriete_hp", "sobriete_hc"}),
+        "eco_hp+eco_hc+sobriete_hp+sobriete_hc attendus (option flex)",
     ),
 }
 
@@ -324,6 +339,18 @@ def _saisons_couvre_annee(saisons: tuple[Saison, ...]) -> bool:
     return len(vues) == 366
 
 
+def _plages_offre(donnees: dict[str, Any], chemin: str, option: str) -> tuple[tuple[int, int], ...] | None:
+    """Heures creuses imposées par l'offre (``plages_hc``) : exigées par l'option Flex, refusées ailleurs."""
+    _LOGGER.debug("_plages_offre: entrée")
+    if option != "flex":
+        _exiger("plages_hc" not in donnees, f"{chemin}.plages_hc", "réservé à l'option flex")
+        _LOGGER.debug("_plages_offre: sans objet")
+        return None
+    plages = _plages_saison(donnees, "plages_hc", chemin, True)
+    _LOGGER.debug("_plages_offre: %s plage(s)", len(plages))
+    return plages
+
+
 def _grilles_option(
     donnees: dict[str, Any],
     chemin: str,
@@ -341,6 +368,7 @@ def _grilles_option(
     """
     _LOGGER.debug("_grilles_option: entrée")
     abonnements = _puissances(donnees, chemin)
+    plages_hc = _plages_offre(donnees, chemin, option)
     grilles: dict[int, Grille] = {}
     if "kwh_ttc_par_puissance" in donnees:
         _exiger("kwh_ttc" not in donnees, chemin, "kwh_ttc et kwh_ttc_par_puissance sont exclusifs")
@@ -359,13 +387,15 @@ def _grilles_option(
                 prix[poste] = _decimal(montant, f"{chemin}[{puissance}].{poste}")
             _exiger_postes(prix, option, f"{chemin}[{puissance}]")
             grilles[puissance] = Grille(
-                cles, puissance, debut, None, abonnements[puissance], prix, jour_choisi
+                cles, puissance, debut, None, abonnements[puissance], prix, jour_choisi, plages_hc=plages_hc
             )
     else:
         prix_uniforme = _postes(donnees, chemin)
         _exiger_postes(prix_uniforme, option, chemin)
         for puissance, abonnement in abonnements.items():
-            grilles[puissance] = Grille(cles, puissance, debut, None, abonnement, prix_uniforme, jour_choisi)
+            grilles[puissance] = Grille(
+                cles, puissance, debut, None, abonnement, prix_uniforme, jour_choisi, plages_hc=plages_hc
+            )
     _LOGGER.debug("_grilles_option: %s grille(s)", len(grilles))
     return grilles
 
@@ -449,7 +479,8 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     # seules ne permettraient aucun comparatif pour un client sans heures creuses.
     _exiger(
         isinstance(options, dict)
-        and set(options) <= {"base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", *JOUR_CHOISI}
+        and set(options)
+        <= {"base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", *JOUR_CHOISI}
         and set(options)
         & {
             "base",
@@ -464,7 +495,7 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
         " les autres sont facultatives",
     )
     grilles: dict[str, Grilles] = {}
-    for option in ("base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", *JOUR_CHOISI):
+    for option in ("base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", *JOUR_CHOISI):
         if option not in options:
             continue
         if option == "hphc_saisonnieres":

@@ -300,3 +300,32 @@ def test_week_end_hphc_jour_choisi_repartition():
         "week_end_hc": Decimal(1),
     }
     assert cout.energie == Decimal("0.2314") + 5 * Decimal("0.1731")
+
+
+def test_flex_jours_sobriete_et_plages_de_l_offre():
+    """#97 : option Flex, HC imposées (13-18 h, 20-8 h), jour Sobriété = jour rouge Tempo."""
+    prix = {"eco_hp": "0.2142", "eco_hc": "0.1595", "sobriete_hp": "0.7467", "sobriete_hc": "0.2142"}
+    plages = PlagesHC.lire("13:00-18:00, 20:00-08:00").plages
+    grilles = Grilles(
+        [
+            Grille(
+                "o:flex",
+                6,
+                date(2025, 1, 1),
+                None,
+                Decimal("365"),
+                {k: Decimal(v) for k, v in prix.items()},
+                plages_hc=plages,
+            )
+        ]
+    )
+    rouge, eco = date(2026, 1, 5), date(2026, 1, 8)  # lundi rouge Tempo 2025-2026, jeudi bleu
+    conso = [(datetime(j.year, j.month, j.day, h), 1.0) for j in (rouge, eco) for h in (9, 14)]
+    cout = cout_option("o:flex", grilles, 6, conso)
+    assert cout.kwh == {
+        "sobriete_hp": Decimal(1),
+        "sobriete_hc": Decimal(1),
+        "eco_hp": Decimal(1),
+        "eco_hc": Decimal(1),
+    }
+    assert cout.energie == Decimal("0.7467") + Decimal("0.2142") + Decimal("0.2142") + Decimal("0.1595")

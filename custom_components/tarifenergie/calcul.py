@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
-from .jours import est_week_end
+from .jours import est_jour_sobriete, est_week_end
 from .modele import Grilles, Saison, TarifIntrouvable
 
 _LOGGER = logging.getLogger(__name__)
@@ -229,6 +229,12 @@ def cout_option(
             else:
                 prefixe = "semaine_"
             hc = quantite * plages.fraction_hc(debut.hour)
+            repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
+        elif set(grille.prix) == {"eco_hp", "eco_hc", "sobriete_hp", "sobriete_hc"}:
+            # Option Flex de Zen Week-End (#97) : heures creuses imposées par l'offre ;
+            # jours Sobriété estimés par les jours rouges Tempo (EDF les annonce la veille).
+            prefixe = "sobriete_" if est_jour_sobriete(jour) else "eco_"
+            hc = quantite * PlagesHC(plages=grille.plages_hc or ()).fraction_hc(debut.hour)
             repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
         elif grille.saisons is not None:
             # Offre à postes saisonniers (Zen Estival, #20) : l'été compte
