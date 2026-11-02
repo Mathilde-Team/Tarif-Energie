@@ -242,8 +242,14 @@ def cout_option(
             # sont portées par la grille (fixées par l'offre), pas par le
             # compteur du client.
             saison = _saison_du(jour, grille.saisons)
-            hsc = quantite * PlagesHC(plages=saison.hsc).fraction_hc(debut.hour) if saison.hsc else Decimal(0)
-            hc = quantite * PlagesHC(plages=saison.hc).fraction_hc(debut.hour)
+            if saison.week_end_hc and est_week_end(jour):
+                # Week-ends et jours fériés tout en HC (Flexibilité Enercoop, #50, #51).
+                hsc, hc = Decimal(0), quantite
+            else:
+                hsc = Decimal(0)
+                if saison.hsc:
+                    hsc = quantite * PlagesHC(plages=saison.hsc).fraction_hc(debut.hour)
+                hc = quantite * PlagesHC(plages=saison.hc).fraction_hc(debut.hour)
             repartition = {f"{saison.nom}_hc": hc, f"{saison.nom}_hp": quantite - hsc - hc}
             if saison.hsc:
                 repartition[f"{saison.nom}_hsc"] = hsc

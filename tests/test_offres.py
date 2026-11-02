@@ -47,6 +47,8 @@ def test_quatre_offres_livrees(offres):
         "edf_zen_week_end_plus",
         "elmy_prix_fixe_2ans",
         "enercoop",
+        "enercoop_flexi_watt_nuit_week_end",
+        "enercoop_flexibilite_2_saisons",
         "energis_trv_local",
         "enes_creutzwald_trv_local",
         "enes_hagondange_trv_local",
@@ -72,6 +74,7 @@ def test_quatre_offres_livrees(offres):
         "happe_elec_1an",
         "hunelec_prix_fixe_1an",
         "hunelec_prix_fixe_1an_vert",
+        "hunelec_trv_local",
         "ilek_enrfixe_plus",
         "ilek_voiture_electrique",
         "jeety_elec_dom",
@@ -1919,9 +1922,11 @@ def test_cout_option_prudence_sur_un_kwh(offres):
 def test_comparaison_trv_contre_offres(offres):
     """Le classement mélange TRV et offres.
 
-    Avec 10 kWh un lundi (19/10/2026) à 14 h : EDF Zen Week-End Flex (#97), en heures creuses
-    imposées par l'offre (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €), passe devant ;
-    puis EDF Zen Week-End Plus jour choisi lundi
+    Avec 10 kWh un lundi (19/10/2026) à 14 h : Enercoop Flexibilité 2 saisons (#51), en heures
+    creuses d'été imposées par l'offre (11 h-17 h ; 13,831 c€, 189,84 €/an : 1,90 €), passe
+    devant ; puis EDF Zen Week-End Flex (#97), en heures creuses imposées par l'offre
+    (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €) ; puis EDF Zen Week-End Plus jour
+    choisi lundi
     (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO -15 % Base (17,04 c€,
     196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
     241,92 €/an : 2,34 €), le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais
@@ -1933,8 +1938,10 @@ def test_comparaison_trv_contre_offres(offres):
     grilles = {option: GrillesTRV.charger(option) for option in OPTIONS}
     grilles.update(grilles_offres(offres))
     comp = comparer(grilles, 6, DIX_KWH, PLAGES, "base")
-    assert comp.moins_chere.option == "edf_zen_week_end:flex"
-    assert comp.classement[1].option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.moins_chere.option == "enercoop_flexibilite_2_saisons:hphc_saisonnieres"
+    assert comp.moins_chere.total == Decimal("1.90")
+    assert comp.classement[1].option == "edf_zen_week_end:flex"
+    assert comp.classement[2].option == "edf_zen_week_end_plus:week_end_jour_lundi"
     assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]
@@ -2572,6 +2579,77 @@ def test_saison_annee_incomplete_refusee():
         offre_depuis_dict(donnees, "x")
 
 
+def test_enercoop_flexi_watt_nuit_week_end(offres):
+    """Flexi Watt nuit & week-end (#50) : grille du 01/08/2026, HC 23-6 h en semaine,
+    tout le week-end et les jours fériés (plages fixées par Enercoop)."""
+    offre = offres["enercoop_flexi_watt_nuit_week_end"]
+    assert offre.type_prix == "revisable"
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["enercoop_flexi_watt_nuit_week_end:hphc_saisonnieres"]
+    g = grilles_option.en_vigueur(6, datetime(2026, 11, 2).date())
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 8, 1).date(), Decimal("182.04"))  # 15,17 x 12
+    assert g.prix == {"annee_hc": Decimal("0.17290"), "annee_hp": Decimal("0.30638")}
+    assert [(s.nom, s.debut, s.fin, s.hc, s.week_end_hc) for s in g.saisons] == [
+        ("annee", (1, 1), (12, 31), ((1380, 360),), True)
+    ]
+    # Lundi 02/11/2026 : 3 h et 23 h en HC, 12 h en HP ; samedi 07/11 et mercredi
+    # 11/11 (férié) : 12 h en HC.
+    conso = [(datetime(2026, 11, 2, h, 0), 1.0) for h in (3, 12, 23)]
+    conso += [(datetime(2026, 11, j, 12, 0), 1.0) for j in (7, 11)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso)
+    assert cout.kwh == {"annee_hc": Decimal(4), "annee_hp": Decimal(1)}
+    assert cout.energie == 4 * Decimal("0.17290") + Decimal("0.30638")
+
+
+def test_enercoop_flexibilite_2_saisons(offres):
+    """Flexibilité 2 saisons (#51) : hiver (novembre-mars) HC 0-7 h et 13-16 h, été
+    (avril-octobre) HC 11-17 h, en semaine ; week-ends et jours fériés en HC."""
+    offre = offres["enercoop_flexibilite_2_saisons"]
+    assert offre.type_prix == "revisable"
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["enercoop_flexibilite_2_saisons:hphc_saisonnieres"]
+    g = grilles_option.en_vigueur(9, datetime(2026, 11, 2).date())
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 8, 1).date(), Decimal("253.20"))  # 21,10 x 12
+    assert g.prix == {
+        "ete_hc": Decimal("0.13831"),
+        "ete_hp": Decimal("0.19567"),
+        "hiver_hc": Decimal("0.22356"),
+        "hiver_hp": Decimal("0.31601"),
+    }
+    assert [(s.nom, s.debut, s.fin, s.hc, s.week_end_hc) for s in g.saisons] == [
+        ("ete", (4, 1), (10, 31), ((660, 1020),), True),
+        ("hiver", (11, 1), (3, 31), ((0, 420), (780, 960)), True),
+    ]
+    # Hiver, lundi 02/11/2026 : 3 h et 14 h en HC, 8 h en HP ; dimanche 01/11
+    # (férié) à 8 h en HC.
+    conso_hiver = [(datetime(2026, 11, 2, h, 0), 1.0) for h in (3, 8, 14)]
+    conso_hiver.append((datetime(2026, 11, 1, 8, 0), 1.0))
+    cout = cout_option("hphc_saisonnieres", grilles_option, 9, conso_hiver)
+    assert cout.kwh == {"hiver_hc": Decimal(3), "hiver_hp": Decimal(1)}
+    assert cout.energie == 3 * Decimal("0.22356") + Decimal("0.31601")
+    # Été, jeudi 01/10/2026 : 12 h en HC, 3 h en HP ; samedi 03/10 à 3 h en HC.
+    conso_ete = [(datetime(2026, 10, 1, h, 0), 1.0) for h in (3, 12)] + [(datetime(2026, 10, 3, 3, 0), 1.0)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 9, conso_ete)
+    assert cout.kwh == {"ete_hc": Decimal(2), "ete_hp": Decimal(1)}
+
+
+def test_saison_week_end_hc_non_booleen_refuse():
+    """``week_end_hc`` (#50, #51) : un booléen, rien d'autre."""
+    donnees = _zen_estival_dict()
+    donnees["options"]["hphc_saisonnieres"]["saisons"]["hiver"]["week_end_hc"] = "oui"
+    with pytest.raises(OffreInvalide, match="booléen attendu"):
+        offre_depuis_dict(donnees, "x")
+
+
+def test_saison_sans_week_end_hc_garde_ses_plages(offres):
+    """Sans ``week_end_hc``, un samedi suit les plages de la saison (Zen Estival)."""
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["edf_zen_estival:hphc_saisonnieres"]
+    assert not any(s.week_end_hc for s in grilles_option.en_vigueur(6, datetime(2026, 10, 3).date()).saisons)
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, [(datetime(2026, 10, 3, 20, 0), 1.0)])
+    assert cout.kwh == {"hiver_hc": Decimal(0), "hiver_hp": Decimal(1)}
+
+
 def test_wekiwi_duo_aurore_grille_du_19_octobre_2026(offres):
     """Offre Duo Wekiwi, électricité Aurore Base et HP/HC (#183, #337) : partie
     électricité seule, abonnement TRV par décision du propriétaire du 28/10/2026
@@ -2786,3 +2864,25 @@ def test_plages_hc_reservees_a_flex():
     donnees["options"]["base"]["plages_hc"] = "22:00-06:00"
     with pytest.raises(OffreInvalide, match="réservé à l'option flex"):
         offre_depuis_dict(donnees, "x")
+
+
+def test_hunelec_trv_local(offres):
+    """Hunélec (#260 Base, #261 HC) : TRV local, grille du 01/08/2026 (fiche descriptive)."""
+    offre = offres["hunelec_trv_local"]
+    assert (offre.type_prix, offre.eld) == ("reglemente", "hunelec")
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 11, 2).date()
+    g = grilles["hunelec_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("191.40"),  # 15,95 x 12
+        {"base": Decimal("0.20006")},
+    )
+    g = grilles["hunelec_trv_local:base"].en_vigueur(36, jour)
+    assert g.prix == {"base": Decimal("0.19850")}
+    g = grilles["hunelec_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("669.12")  # 55,76 x 12
+    assert g.prix == {"hp": Decimal("0.21422"), "hc": Decimal("0.15890")}
+    # HC dès 3 kVA (contrairement au TRV national).
+    g = grilles["hunelec_trv_local:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("147.48")  # 12,29 x 12

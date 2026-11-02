@@ -274,8 +274,10 @@ def _saisons(donnees: dict[str, Any], chemin: str) -> tuple[tuple[Saison, ...], 
     Deux formes : été+hiver (postes saisonniers, ex. Zen Estival) ou une saison
     unique ``annee`` pour des plages constantes toute l'année (ex. Charge'Heures).
     Chaque saison exige hc et hp, plus hsc facultatif ; les HSC et HC d'une
-    saison ne se chevauchent pas. Les saisons doivent partitionner l'année
-    (aucun jour hors saison, aucun doublon).
+    saison ne se chevauchent pas. ``week_end_hc: true`` (facultatif) met les
+    week-ends et jours fériés de la saison entièrement en heures creuses (#50,
+    #51). Les saisons doivent partitionner l'année (aucun jour hors saison,
+    aucun doublon).
     """
     _LOGGER.debug("_saisons: entrée")
     saisons_brutes = donnees.get("saisons")
@@ -313,7 +315,9 @@ def _saisons(donnees: dict[str, Any], chemin: str) -> tuple[tuple[Saison, ...], 
             f"{chemin_saison}.plages",
             "les plages HSC et HC ne doivent pas se chevaucher",
         )
-        saisons.append(Saison(nom, debut, fin, hsc, hc))
+        week_end_hc = saison.get("week_end_hc", False)
+        _exiger(isinstance(week_end_hc, bool), f"{chemin_saison}.week_end_hc", "booléen attendu")
+        saisons.append(Saison(nom, debut, fin, hsc, hc, week_end_hc))
         for poste in brutes:
             prix[f"{nom}_{poste}"] = _decimal(brutes[poste], f"{chemin_saison}.kwh_ttc[{poste}]")
     _exiger(
