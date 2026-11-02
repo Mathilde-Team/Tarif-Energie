@@ -74,6 +74,7 @@ def test_quatre_offres_livrees(offres):
         "happe_elec_1an",
         "hunelec_prix_fixe_1an",
         "hunelec_prix_fixe_1an_vert",
+        "hunelec_trv_local",
         "ilek_enrfixe_plus",
         "ilek_voiture_electrique",
         "jeety_elec_dom",
@@ -2863,3 +2864,25 @@ def test_plages_hc_reservees_a_flex():
     donnees["options"]["base"]["plages_hc"] = "22:00-06:00"
     with pytest.raises(OffreInvalide, match="réservé à l'option flex"):
         offre_depuis_dict(donnees, "x")
+
+
+def test_hunelec_trv_local(offres):
+    """Hunélec (#260 Base, #261 HC) : TRV local, grille du 01/08/2026 (fiche descriptive)."""
+    offre = offres["hunelec_trv_local"]
+    assert (offre.type_prix, offre.eld) == ("reglemente", "hunelec")
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 11, 2).date()
+    g = grilles["hunelec_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("191.40"),  # 15,95 x 12
+        {"base": Decimal("0.20006")},
+    )
+    g = grilles["hunelec_trv_local:base"].en_vigueur(36, jour)
+    assert g.prix == {"base": Decimal("0.19850")}
+    g = grilles["hunelec_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("669.12")  # 55,76 x 12
+    assert g.prix == {"hp": Decimal("0.21422"), "hc": Decimal("0.15890")}
+    # HC dès 3 kVA (contrairement au TRV national).
+    g = grilles["hunelec_trv_local:hphc"].en_vigueur(3, jour)
+    assert g.abonnement_an == Decimal("147.48")  # 12,29 x 12

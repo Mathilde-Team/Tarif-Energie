@@ -1,0 +1,32 @@
+# Hunélec (Électricité de Huningue, ELD du Haut-Rhin) — TRV local, Tarif Bleu
+# résidentiel (issues #260 Base, #261 HC ; phase 2 des ELD, inventaire #6). Seul
+# fournisseur du TRV sur son réseau (Huningue, Ranspach-le-Bas, Rosenau, ≤ 36 kVA) ;
+# pas de filtre de zone dans le moteur (comme l'ÉS #72).
+# Grille de la fiche descriptive « TRV résidentiels » au 01/08/2026 (INF 456),
+# publiée sur la page « Tarifs réglementés » de hunelec.fr et relevée avec
+# pdftotext -layout le 02/11/2026. Montants du barème national, identiques au TRV
+# local ÉS. Base 9-36 kVA en extinction (arrêté du 28/01/2025) mais publiée pour
+# les contrats en cours ; HC dès 3 kVA. Tempo et EJP ne sont pas repris.
+id: hunelec_trv_local
+fournisseur: Hunélec
+offre: TRV local (Tarif Bleu)
+type_prix: reglemente
+eld: hunelec
+grille_du: 2026-08-01
+source: https://www.hunelec.fr/wp-content/uploads/2026/11/2026-08-01_Fiche-descriptive_TRV_residentiels.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 12.18, 6: 15.95, 9: 20.02, 12: 23.94, 15: 27.62, 18: 31.41, 24: 39.49, 30: 46.92, 36: 54.41}
+    kwh_ttc_par_puissance:
+      3: {base: 0.20006}
+      6: {base: 0.20006}
+      9: {base: 0.19850}
+      12: {base: 0.19850}
+      15: {base: 0.19850}
+      18: {base: 0.19850}
+      24: {base: 0.19850}
+      30: {base: 0.19850}
+      36: {base: 0.19850}
+  hphc:
+    abonnement_mensuel_ttc: {3: 12.29, 6: 16.18, 9: 20.35, 12: 24.39, 15: 28.18, 18: 32.08, 24: 40.39, 30: 48.04, 36: 55.76}
+    kwh_ttc: {hp: 0.21422, hc: 0.15890}
