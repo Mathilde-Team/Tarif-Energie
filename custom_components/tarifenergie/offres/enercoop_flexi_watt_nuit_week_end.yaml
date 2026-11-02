@@ -1,0 +1,29 @@
+# Enercoop — Flexi Watt nuit & week-end (issue #50) ; inventaire #6.
+# Prix révisables par le fournisseur (coopérative, grille publiée à chaque
+# évolution) : type_prix revisable (décision du 28/10/2026 sur #9).
+# Grille « Tarifs pour les particuliers, applicables à partir du 1er août 2026 »
+# (annexe tarifaire officielle, PDF de la FAQ Enercoop), relevée le 02/11/2026
+# avec pdftotext -layout. Un seul prix HP et HC pour toutes les puissances.
+# Heures creuses fixées par Enercoop, indépendantes d'Enedis : en semaine de
+# 23 h à 6 h, tout le week-end et les jours fériés (note (3) de l'annexe) — une
+# saison annuelle aux plages constantes, week_end_hc. Grille publiée de 1 à
+# 36 kVA, reprise aux puissances du moteur.
+id: enercoop_flexi_watt_nuit_week_end
+fournisseur: Enercoop
+offre: Flexi Watt nuit & week-end
+type_prix: revisable
+grille_du: 2026-08-01
+source: https://www.faq.enercoop.fr/hc/article_attachments/37607556170770
+options:
+  hphc_saisonnieres:
+    abonnement_mensuel_ttc: {3: 9.68, 6: 15.17, 9: 20.49, 12: 25.80, 15: 31.03, 18: 36.32, 24: 47.69, 30: 58.47, 36: 69.25}
+    saisons:
+      annee:  # plages constantes toute l'année
+        du: 01-01
+        au: 12-31
+        plages:
+          hc: 23:00-06:00
+        week_end_hc: true
+        kwh_ttc:
+          hc: 0.17290
+          hp: 0.30638

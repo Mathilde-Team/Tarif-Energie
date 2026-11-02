@@ -1,0 +1,40 @@
+# Enercoop — Flexibilité 2 saisons, sans l'option « Jours de pointe » (issue #51 ;
+# l'option Jours de pointe, #377, n'est pas reprise) ; inventaire #6.
+# Prix révisables par le fournisseur : type_prix revisable (décision du
+# 28/10/2026 sur #9).
+# Grille « Tarifs pour les particuliers, applicables à partir du 1er août 2026 »
+# (annexe tarifaire officielle, PDF de la FAQ Enercoop), relevée le 02/11/2026
+# avec pdftotext -layout. Un seul prix par poste pour toutes les puissances.
+# Heures creuses fixées par Enercoop (note (4) de l'annexe) : hiver (novembre à
+# mars) en semaine de 0 h à 7 h et de 13 h à 16 h, été (avril à octobre) en
+# semaine de 11 h à 17 h ; toute l'année, week-ends et jours fériés en heures
+# creuses (week_end_hc). Grille publiée de 1 à 36 kVA, reprise aux puissances
+# du moteur. Différente de l'ancienne offre « 2 saisons HP/HC », fermée (#413).
+id: enercoop_flexibilite_2_saisons
+fournisseur: Enercoop
+offre: Flexibilité 2 saisons
+type_prix: revisable
+grille_du: 2026-08-01
+source: https://www.faq.enercoop.fr/hc/article_attachments/37607556170770
+options:
+  hphc_saisonnieres:
+    abonnement_mensuel_ttc: {3: 10.05, 6: 15.82, 9: 21.10, 12: 26.60, 15: 32.02, 18: 37.51, 24: 48.22, 30: 59.14, 36: 70.05}
+    saisons:
+      ete:
+        du: 04-01
+        au: 10-31
+        plages:
+          hc: 11:00-17:00
+        week_end_hc: true
+        kwh_ttc:
+          hc: 0.13831
+          hp: 0.19567
+      hiver:
+        du: 11-01
+        au: 03-31
+        plages:
+          hc: 00:00-07:00, 13:00-16:00
+        week_end_hc: true
+        kwh_ttc:
+          hc: 0.22356
+          hp: 0.31601
