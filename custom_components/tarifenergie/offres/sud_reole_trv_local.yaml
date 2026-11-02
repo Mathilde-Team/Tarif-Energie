@@ -1,0 +1,34 @@
+# Régie d'électricité du Syndicat du Sud de La Réole — TRV local, Tarif Bleu
+# résidentiel (issues #268 Base, #269 HC ; phase 2 des ELD, #189). Seul fournisseur
+# du TRV sur son réseau (sud de La Réole, Gironde, ≤ 36 kVA) ; pas de filtre de
+# zone dans le moteur (comme ÉS #72).
+# Grille « TRVe Clients Résidentiels et Particuliers » applicable au 01/08/2025 —
+# dernière édition publiée (aucune grille 2026 dans la médiathèque du site au
+# 02/11/2026), relevée avec pdftotext -layout et recoupée visuellement. Comme pour
+# le Seyssel (#253), la grille 2025 est reprise telle quelle en attendant la
+# publication 2026. kWh Base uniforme ; HC de 6 à 36 kVA. Base 9-36 kVA en
+# extinction (arrêté) mais publiée pour les contrats en cours. Majorations
+# (auto-producteurs, non-Linky) non modélisées. Tempo et EJP non repris.
+id: sud_reole_trv_local
+fournisseur: Régie du Sud-La-Réole
+offre: TRV local (Tarif Bleu)
+type_prix: reglemente
+eld: sud_reole
+grille_du: 2025-08-01
+source: https://electricite-sud-reole.fr/wp-content/uploads/2025/08/2-Grille-Prix-Tarif-TTC-TRV-Particulier-V-08-2025.pdf
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 11.73, 6: 15.47, 9: 19.39, 12: 23.32, 15: 27.06, 18: 30.76, 24: 38.79, 30: 46.44, 36: 54.29}
+    kwh_ttc_par_puissance:
+      3: {base: 0.1952}
+      6: {base: 0.1952}
+      9: {base: 0.1952}
+      12: {base: 0.1952}
+      15: {base: 0.1952}
+      18: {base: 0.1952}
+      24: {base: 0.1952}
+      30: {base: 0.1952}
+      36: {base: 0.1952}
+  hphc:
+    abonnement_mensuel_ttc: {6: 15.74, 9: 19.81, 12: 23.76, 15: 27.49, 18: 31.34, 24: 39.47, 30: 47.02, 36: 54.61}
+    kwh_ttc: {hp: 0.2081, hc: 0.1635}

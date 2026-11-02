@@ -114,6 +114,7 @@ def test_quatre_offres_livrees(offres):
         "siel_labergement_trv_local",
         "sorea_trv_local",
         "soregies_trv_local",
+        "sud_reole_trv_local",
         "synelva_trv_local",
         "totalenergies_access",
         "totalenergies_charge_heures",
@@ -2886,3 +2887,25 @@ def test_hunelec_trv_local(offres):
     # HC dès 3 kVA (contrairement au TRV national).
     g = grilles["hunelec_trv_local:hphc"].en_vigueur(3, jour)
     assert g.abonnement_an == Decimal("147.48")  # 12,29 x 12
+
+
+def test_sud_reole_trv_local(offres):
+    """Sud-La-Réole (#268 Base, #269 HC) : TRV local, grille du 01/08/2025 (dernière publiée)."""
+    offre = offres["sud_reole_trv_local"]
+    assert (offre.type_prix, offre.eld) == ("reglemente", "sud_reole")
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 11, 2).date()
+    g = grilles["sud_reole_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2025, 8, 1).date(),
+        Decimal("185.64"),  # 15,47 x 12
+        {"base": Decimal("0.1952")},
+    )
+    g = grilles["sud_reole_trv_local:base"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("651.48")  # 54,29 x 12
+    g = grilles["sud_reole_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("655.32")  # 54,61 x 12
+    assert g.prix == {"hp": Decimal("0.2081"), "hc": Decimal("0.1635")}
+    # Pas d'option HC en 3 kVA.
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["sud_reole_trv_local:hphc"].en_vigueur(3, jour)
