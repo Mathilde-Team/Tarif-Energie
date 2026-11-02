@@ -41,6 +41,8 @@ class Saison:
     chaque année (l'hiver peut passer l'année : 10-01 → 04-14). Les plages
     (heures super creuses, heures creuses) sont en minutes depuis minuit,
     fin exclue, passage de minuit permis — comme ``PlagesHC``.
+    ``week_end_hc`` : samedis, dimanches et jours fériés entièrement en heures
+    creuses, quelles que soient les plages (offres Flexibilité d'Enercoop, #50, #51).
     """
 
     nom: str
@@ -48,6 +50,7 @@ class Saison:
     fin: tuple[int, int]
     hsc: tuple[tuple[int, int], ...] = ()
     hc: tuple[tuple[int, int], ...] = ()
+    week_end_hc: bool = False
 
     def couvre(self, jour: date) -> bool:
         """Le jour (mois, jour) tombe-t-il dans cette saison ?"""

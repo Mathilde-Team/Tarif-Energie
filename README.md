@@ -104,6 +104,9 @@ Les offres **révisables** (`type_prix: revisable`, « Autre offre » de la typo
 prix de marché que le fournisseur révise à date fixe, sans suivre le TRV : pas de durée de fixité
 ni de réseau `eld:`, et une grille TTC datée à mettre à jour à chaque révision. Enercoop
 Basic Watt et Flexi Watt heures creuses (prix révisés par Enercoop ; Base et HC de 3 à 36 kVA),
+Enercoop Flexi Watt nuit & week-end et Flexibilité 2 saisons (heures creuses fixées par Enercoop :
+23-6 h en semaine, ou 0-7 h et 13-16 h l'hiver, 11-17 h l'été ; week-ends et jours fériés
+entièrement en heures creuses — `week_end_hc: true` dans la saison ; 3 à 36 kVA),
 EDF Vert Électrique Régional (révision 2 fois par an ; Base et HC de 6 à 36 kVA), EDF Vert Électrique
 (révision 2 fois par an ; Base de 3 à 36 kVA, pas de grille HC publiée), Dyneff Contrat+
 Électricité et Contrat+ Électricité Verte (prix « molécule » révisable avec un mois de préavis ;

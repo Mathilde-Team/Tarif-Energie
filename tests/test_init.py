@@ -223,6 +223,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Vert Électrique Week-End HC (#120) : tout à 16,91 c€ (nuit HC + samedi
         # 03/10) + 3/365 x 190,32 = 7,65 €.
         "edf_vert_electrique_week_end:week_end_hphc",
+        # Enercoop Flexi Watt nuit & week-end (#50, révisable) : tout en HC (0-6 h en
+        # semaine, samedi 03/10 entier), 36 x 0,1729 + 3/365 x 182,04 = 7,72 €.
+        "enercoop_flexi_watt_nuit_week_end:hphc_saisonnieres",
         # Primeo Fixe ECO -15 % Base (#185) : 36 x 0,1704 + 3/365 x 196,32 = 7,75 €,
         # juste devant Primeo Fixe Confort Base.
         "primeo_fixe_eco_15:base",
@@ -237,6 +240,10 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Zen Week-End HC (#117) : tout à 17,62 c€ (nuit HC + samedi 03/10)
         # + 3/365 x 190,32 = 7,91 €.
         "edf_zen_week_end:week_end_hphc",
+        # Enercoop Flexibilité 2 saisons (#51, révisable), été : 0-6 h en HP les 01 et
+        # 02/10 (24 x 0,19567), samedi 03/10 en HC (12 x 0,13831)
+        # + 3/365 x 189,84 = 7,92 €.
+        "enercoop_flexibilite_2_saisons:hphc_saisonnieres",
         "primeo_fixe_confort:base",
         # TotalEnergies Fixe 2 ans HC (#126) : 36 x 0,1791 + 3/365 x 192,60 = 8,03 €.
         "totalenergies_fixe_2ans:hphc",
