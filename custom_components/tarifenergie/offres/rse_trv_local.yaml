@@ -1,0 +1,36 @@
+# Régie Services Énergie (Ambérieux-en-Dombes) — TRV local, Tarif Bleu
+# résidentiel (issues #294 Base, #295 HC ; phase 2 des ELD, #189). Seul fournisseur
+# du TRV sur son réseau (19 communes de l'Ain, ≤ 36 kVA) ; pas de filtre de zone
+# dans le moteur (comme ÉS #72).
+# Grille « Tarifs Réglementés de Vente applicables au 1er février 2026 (Contrats
+# Résidentiels) » — dernière édition publiée (aucune grille 08/2026 sur le site de
+# l'ELD au 03/11/2026, la page TRV présente toujours cette grille comme en
+# vigueur), relevée avec pdftotext -layout et recoupée visuellement avec le rendu
+# du PDF. Reprise telle quelle, comme pour le Seyssel (#253) et le Sud-La-Réole
+# (#268). Abonnements annuels TTC (facturation trimestrielle) ; Base 9-36 kVA en
+# extinction (« TARIFS EN EXTINCTION, NE SONT PLUS PROPOSES A LA CLIENTELE »)
+# mais publiée pour les contrats en cours ; Double Tarif (HP/HC) de 6 à 36 kVA,
+# HC 23 h - 7 h. Tempo complet publié mais non repris.
+id: rse_trv_local
+fournisseur: Régie Services Énergie
+offre: TRV local (Tarif Bleu)
+type_prix: reglemente
+eld: regie_services_energie
+grille_du: 2026-02-01
+source: https://www.rse01.com/wp-content/uploads/2026/02/2026-02-01-BLEUS-RESIDENTIELS-TRV-HT-TTC.pdf
+options:
+  base:
+    abonnement_annuel_ttc: {3: 144.35, 6: 187.82, 9: 234.75, 12: 279.81, 15: 322.14, 18: 365.90, 24: 458.90, 30: 544.41, 36: 630.50}
+    kwh_ttc_par_puissance:
+      3: {base: 0.1940}
+      6: {base: 0.1940}
+      9: {base: 0.1927}
+      12: {base: 0.1927}
+      15: {base: 0.1927}
+      18: {base: 0.1927}
+      24: {base: 0.1927}
+      30: {base: 0.1927}
+      36: {base: 0.1927}
+  hphc:
+    abonnement_annuel_ttc: {6: 187.82, 9: 234.75, 12: 279.81, 15: 322.14, 18: 365.90, 24: 458.90, 30: 544.41, 36: 630.50}
+    kwh_ttc: {hp: 0.2065, hc: 0.1579}
