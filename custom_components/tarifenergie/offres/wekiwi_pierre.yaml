@@ -1,32 +1,38 @@
 # Wekiwi — Offre Pierre — Base et HP/HC
 # (issues #86 Base, #174 HP/HC ; inventaire #6). Électricité « au réel » :
 # facturation mensuelle à la consommation réelle (pas un forfait), kWh HT fixes
-# 1 an, relevés en TTC sur la page officielle le 19/10/2026, revérifiés
-# inchangés le 01/11/2026 — Base 0,1882 € (3-6 kVA) / 0,1970 € (9-36 kVA) ;
-# HP 0,2025 / HC 0,1601 €, toutes puissances. Les prix « remisés » ne sont pas
-# modélisés (assiette et durée non publiées). Heures creuses : plages Enedis
-# du point de livraison.
-# Abonnement : non publié par Wekiwi — décision du propriétaire du 28/10/2026
-# (même règle que l'Offre Duo, #183/#337) : abonnement du TRV en vigueur
-# (grilles CRE du 01/08/2026, fichiers tarifs/Option_Base.csv et
-# Option_HPHC.csv du dépôt), repris tel que publié en € TTC/an. Base 18-36 kVA
-# en extinction (comme le TRV). Sans engagement.
+# 1 an. Source : grille tarifaire officielle Wekiwi « wekiWEB | Pierre »,
+# version du 1 mars 2026, en vigueur au 1 mars 2026
+# (202603_EL_PART_FIX_WEB_SIMPLE-PIERRE.pdf, liée depuis la page Tarifs et CGV),
+# lue le 03/11/2026 ; kWh identiques à la page de l'offre (19/10/2026,
+# 01/11/2026, 03/11/2026). Prix « brut » TTC : Base 0,1882 € (3-6 kVA) /
+# 0,1970 € (9-36 kVA) ; HP 0,2025 / HC 0,1601 €, toutes puissances. Remise
+# digitale (0,015 € HT/kWh, perdue avant 12 mois) non modélisée.
+# Abonnement : colonne TTC de la grille officielle (€/an ; TVA 20 %, CTA, taxes
+# locales au plus haut, hypothèse Paris de la grille). Remplace l'abonnement
+# TRV retenu faute de grille publiée (décision du propriétaire du 28/10/2026).
+# HP/HC à partir de 6 kVA (pas de 3 kVA dans la grille). Heures creuses :
+# plages Enedis du point de livraison. Sans engagement.
 id: wekiwi_pierre
 fournisseur: Wekiwi
 offre: Pierre (électricité au réel)
 type_prix: fixe
-grille_du: 2026-10-19
+grille_du: 2026-03-01
 duree_fixite_mois: 12
-source: https://www.wekiwi.fr/offre-pierre/
+source: https://www.wekiwi.fr/wp-content/uploads/2026/03/202603_EL_PART_FIX_WEB_SIMPLE-PIERRE.pdf
 options:
-  base:  # 18 à 36 kVA en extinction, comme le TRV
-    abonnement_annuel_ttc: {3: 145.76, 6: 190.81, 9: 239.84, 12: 286.86, 15: 330.57}
+  base:
+    abonnement_annuel_ttc: {3: 132.77, 6: 177.60, 9: 258.00, 12: 302.84, 15: 347.67, 18: 392.51, 24: 482.17, 30: 571.84, 36: 661.51}
     kwh_ttc_par_puissance:
       3: {base: 0.1882}
       6: {base: 0.1882}
       9: {base: 0.1970}
       12: {base: 0.1970}
       15: {base: 0.1970}
+      18: {base: 0.1970}
+      24: {base: 0.1970}
+      30: {base: 0.1970}
+      36: {base: 0.1970}
   hphc:
-    abonnement_annuel_ttc: {3: 145.7629941, 6: 190.8131821, 9: 239.8378787, 12: 286.8590281, 15: 330.5695129, 18: 375.7961526, 24: 473.1632964, 30: 561.4324739, 36: 650.6862576}
+    abonnement_annuel_ttc: {6: 231.48, 9: 285.02, 12: 338.58, 15: 392.12, 18: 445.67, 24: 552.75, 30: 659.85, 36: 766.94}
     kwh_ttc: {hp: 0.2025, hc: 0.1601}

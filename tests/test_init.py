@@ -231,6 +231,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Vert Électrique Week-End HC (#120) : tout à 16,91 c€ (nuit HC + samedi
         # 03/10) + 3/365 x 190,32 = 7,65 €.
         "edf_vert_electrique_week_end:week_end_hphc",
+        # Wekiwi Pierre HC (#174, grille du 01/03/2026) : 36 x 0,1601 + 3/365 x 231,48
+        # = 7,67 €.
+        "wekiwi_pierre:hphc",
         # Enercoop Flexi Watt nuit & week-end (#50, révisable) : tout en HC (0-6 h en
         # semaine, samedi 03/10 entier), 36 x 0,1729 + 3/365 x 182,04 = 7,72 €.
         "enercoop_flexi_watt_nuit_week_end:hphc_saisonnieres",
@@ -264,6 +267,9 @@ async def test_capteurs(hass: HomeAssistant):
         "gaz_de_bordeaux_novafixe_bonus_duo:base",
         # TotalEnergies Access Base (#23) : 36 x 0,1837 + 3/365 x 190,32 = 8,18 €.
         "totalenergies_access:base",
+        # Wekiwi Pierre Base (#86, grille du 01/03/2026) : 36 x 0,1882 + 3/365 x 177,60
+        # = 8,23 €.
+        "wekiwi_pierre:base",
         # EDF Zen Week-End Plus Base, jour choisi vendredi (#10) : 24 x 0,2259
         # + 12 x 0,1691 (vendredi choisi) + 3/365 x 190,32 = 8,33 €.
         "edf_zen_week_end_plus:week_end_jour_vendredi",
