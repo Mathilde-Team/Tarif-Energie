@@ -100,6 +100,9 @@ async def test_capteurs(hass: HomeAssistant):
         "ohm_extra_eco:hphc",
         # EDF Vert Électrique Régional HC (#119, révisable) : 36 x 0,1560 + 3/365 x 190,32 = 7,18 €.
         "edf_vert_electrique_regional:hphc",
+        # TRV local Régie Services Énergie HC (#295, grille du 01/02/2026) :
+        # 36 x 0,1579 + 3/365 x 187,82 = 7,23 €.
+        "rse_trv_local:hphc",
         "alterna_fixe_1an:hphc",
         # Alterna indexée HC (#153) : 36 x 0,1528 + 3/365 x 211,92 = 7,24 €, juste
         # derrière Alterna fixe HC, à égalité au centime.
@@ -284,6 +287,10 @@ async def test_capteurs(hass: HomeAssistant):
         "dyneff_contrat_plus_verte:base",
         # Jeety Elec-Dom Base (#59, indexée TRV) : 36 x 0,1940 + 3/365 x 188,40 = 8,53 €.
         "jeety_elec_dom:base",
+        # TRV local Régie Services Énergie Base (#294, grille du 01/02/2026) :
+        # 36 x 0,1940 + 3/365 x 187,82 = 8,53 €, ex æquo au centime avec Jeety,
+        # départagé par le nom de l'option.
+        "rse_trv_local:base",
         # TRV local Sud-La-Réole Base (#268, grille du 01/08/2025) : 36 x 0,1952 + 3/365 x 185,64 = 8,55 €.
         "sud_reole_trv_local:base",
         # TRV local Seyssel Base (#253, grille du 01/08/2025) : 36 x 0,1952 + 3/365 x 187,08 = 8,56 €.

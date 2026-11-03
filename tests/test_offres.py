@@ -103,6 +103,7 @@ def test_quatre_offres_livrees(offres):
         "primeo_fixe_confort",
         "primeo_fixe_eco_15",
         "rombas_trv_local",
+        "rse_trv_local",
         "sarre_union_trv_local",
         "selia_elec_vert_fixe",
         "seolis_trv_local",
@@ -2909,3 +2910,26 @@ def test_sud_reole_trv_local(offres):
     # Pas d'option HC en 3 kVA.
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["sud_reole_trv_local:hphc"].en_vigueur(3, jour)
+
+
+def test_rse_trv_local(offres):
+    """Régie Services Énergie (#294 Base, #295 HC) : TRV local, grille du 01/02/2026 (dernière publiée)."""
+    offre = offres["rse_trv_local"]
+    assert (offre.type_prix, offre.eld) == ("reglemente", "regie_services_energie")
+    grilles = grilles_offres(offres)
+    jour = datetime(2026, 11, 3).date()
+    g = grilles["rse_trv_local:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 2, 1).date(),
+        Decimal("187.82"),  # annuel, facturation trimestrielle
+        {"base": Decimal("0.1940")},
+    )
+    g = grilles["rse_trv_local:base"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("630.50")
+    assert g.prix == {"base": Decimal("0.1927")}
+    g = grilles["rse_trv_local:hphc"].en_vigueur(36, jour)
+    assert g.abonnement_an == Decimal("630.50")
+    assert g.prix == {"hp": Decimal("0.2065"), "hc": Decimal("0.1579")}
+    # Double Tarif (HP/HC) de 6 à 36 kVA : pas d'option HC en 3 kVA.
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["rse_trv_local:hphc"].en_vigueur(3, jour)
