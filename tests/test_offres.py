@@ -2733,30 +2733,30 @@ def test_wekiwi_aurore_grille_du_19_octobre_2026(offres):
     assert grilles["wekiwi_aurore:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
 
 
-def test_wekiwi_pierre_grille_du_19_octobre_2026(offres):
+def test_wekiwi_pierre_grille_du_1er_mars_2026(offres):
     """Offre Wekiwi Pierre, électricité au réel — Base et HP/HC (#86, #174) :
-    kWh TTC relevés le 19/10/2026 sur la page officielle (revérifiés inchangés
-    le 01/11/2026), abonnement TRV par décision du propriétaire du 28/10/2026
-    (non publié par Wekiwi)."""
+    grille officielle Wekiwi « wekiWEB | Pierre » en vigueur au 1 mars 2026
+    (202603_EL_PART_FIX_WEB_SIMPLE-PIERRE.pdf, lue le 03/11/2026), colonne TTC ;
+    kWh identiques à la page de l'offre (19/10/2026)."""
     offre = offres["wekiwi_pierre"]
     assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 12)
     grilles = grilles_offres(offres)
-    jour = datetime(2026, 10, 19).date()
-    # Base : kWh 0,1882 € (3-6 kVA) / 0,1970 € (9-36 kVA), 18-36 kVA en extinction
+    jour = datetime(2026, 11, 3).date()
+    # Base : kWh 0,1882 € (3-6 kVA) / 0,1970 € (9-36 kVA), 3 à 36 kVA publiés
     g = grilles["wekiwi_pierre:base"].en_vigueur(6, jour)
-    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.81"))
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 3, 1).date(), Decimal("177.60"))
     assert g.prix == {"base": Decimal("0.1882")}
-    g = grilles["wekiwi_pierre:base"].en_vigueur(15, jour)
-    assert (g.abonnement_an, g.prix) == (Decimal("330.57"), {"base": Decimal("0.1970")})
-    # HP/HC : kWh Pierre toutes puissances, remise non modélisée
+    assert grilles["wekiwi_pierre:base"].en_vigueur(3, jour).abonnement_an == Decimal("132.77")
+    g = grilles["wekiwi_pierre:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("661.51"), {"base": Decimal("0.1970")})
+    # HP/HC : kWh toutes puissances, abonnement 6 à 36 kVA
     g = grilles["wekiwi_pierre:hphc"].en_vigueur(6, jour)
-    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.8131821"))
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 3, 1).date(), Decimal("231.48"))
     assert g.prix == {"hp": Decimal("0.2025"), "hc": Decimal("0.1601")}
-    g = grilles["wekiwi_pierre:hphc"].en_vigueur(36, jour)
-    assert g.abonnement_an == Decimal("650.6862576")
-    assert g.prix == {"hp": Decimal("0.2025"), "hc": Decimal("0.1601")}
-    # HC dès 3 kVA (abonnement TRV HPHC 3 kVA)
-    assert grilles["wekiwi_pierre:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
+    assert grilles["wekiwi_pierre:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("766.94")
+    # Pas de HP/HC en 3 kVA dans la grille Wekiwi
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["wekiwi_pierre:hphc"].en_vigueur(3, jour)
 
 
 @pytest.mark.parametrize(
