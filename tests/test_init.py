@@ -64,11 +64,14 @@ async def test_capteurs(hass: HomeAssistant):
     assert prudence is not None
     assert prudence.state == "7.15"
     assert prudence.attributes["kwh"] == {"hp": 0.0, "hc": 36.0}
+    # Symphonics (#102) passe devant : HC 00h-06h à 12,546 c€ (-50 % du HP HT du TRV),
+    # 36 x 0,12546 + 3/365 x 190,81 = 6,08 €.
     moins_chere = hass.states.get("sensor.maison_cheapest_option").state
-    assert moins_chere == "totalenergies_charge_heures:hphc_saisonnieres"
+    assert moins_chere == "symphonics:hphc_saisonnieres"
     economie = hass.states.get("sensor.maison_possible_12_month_saving")
-    assert economie.state == "2.13"
+    assert economie.state == "2.69"
     assert [e["option"] for e in economie.attributes["classement"]] == [
+        "symphonics:hphc_saisonnieres",
         # Charge'Heures (#24) : 24 x 0,1335 + 12 x 0,1576 + 3/365 x 188,28 = 6,64 €.
         "totalenergies_charge_heures:hphc_saisonnieres",
         "primeo_fixe_confort:hphc",
@@ -519,9 +522,10 @@ async def test_option_indisponible_au_dela_de_15_kva(hass: HomeAssistant):
     # Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, juste
     # devant TotalEnergies Access HC (même abonnement, 14,67 c€), EDF Zen Online HC (15,31 c€ :
     # 10,83 €), Plenitude HC (681,72 €/an, 14,67 c€ : 10,88 €), Prudence HC et le TRV HC.
+    # Symphonics (#102, 650,69 €/an, HC 12,546 c€) passe devant : 9,86 €.
     moins_chere = hass.states.get("sensor.maison_cheapest_option").state
-    assert moins_chere == "totalenergies_charge_heures:hphc_saisonnieres"
-    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.78"
+    assert moins_chere == "symphonics:hphc_saisonnieres"
+    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "1.21"
 
 
 async def test_sans_donnees(hass: HomeAssistant):
