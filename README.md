@@ -47,6 +47,9 @@ les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
   d'été, heures creuses d'hiver — postes et plages saisonniers portés par l'offre),
 - TotalEnergies Charge'Heures (heures super creuses 2-6 h et heures creuses
   23-2 h / 6-7 h toute l'année — plages portées par l'offre, sans option Base),
+- Symphonics -50 % sur les Heures Creuses (prix fixés 12 mois sur le TRVE à la souscription ;
+  HC 0-6 h / 14-16 h toute l'année à -50 % du HP HT — plages portées par l'offre, sans option
+  Base ; Linky et équipement pilotable requis, condition non vérifiée ; surplus solaire non modélisé),
 - EDF Zen Fixe 2 ans (kWh HT fixe 2 ans et 1 mois),
 - EDF Vert Électrique Week-End (électricité verte, remise week-end et jours fériés, prix révisables 2 fois par an),
 - EDF Zen Week-End (remise week-end et jours fériés ; sans jour choisi, contrairement à la Plus) et EDF Zen Week-End Plus (remise week-end, jours fériés et jour choisi — lundi, mercredi ou vendredi ; trois variantes simulées) ; prix révisables 2 fois par an,
@@ -70,7 +73,7 @@ les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
 - elmy Particuliers prix fixe 2 ans (contrats repris par Octopus Energy, plus proposée aux nouveaux clients),
 - Wekiwi Offre Duo, électricité Aurore Base et HP/HC (partie électricité seule ; abonnement TRV par défaut, non publié par Wekiwi),
 - Wekiwi Aurore Base et HP/HC (forfait à prix fixe 1 an ; abonnement TRV par défaut, non publié par Wekiwi),
-- Wekiwi Pierre, électricité au réel, Base et HP/HC (facturation mensuelle à la consommation réelle, prix fixe 1 an ; abonnement TRV par défaut, non publié par Wekiwi).
+- Wekiwi Pierre, électricité au réel, Base et HP/HC (facturation mensuelle à la consommation réelle, prix fixe 1 an ; grille officielle Wekiwi du 1 mars 2026, abonnement compris, HP/HC dès 6 kVA).
 
 S'y ajoutent les **TRV locaux** des entreprises locales de distribution (`type_prix: reglemente`,
 sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électricité Réseaux), Barr

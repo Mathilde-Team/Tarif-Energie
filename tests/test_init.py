@@ -64,11 +64,14 @@ async def test_capteurs(hass: HomeAssistant):
     assert prudence is not None
     assert prudence.state == "7.15"
     assert prudence.attributes["kwh"] == {"hp": 0.0, "hc": 36.0}
+    # Symphonics (#102) passe devant : HC 00h-06h à 12,546 c€ (-50 % du HP HT du TRV),
+    # 36 x 0,12546 + 3/365 x 190,81 = 6,08 €.
     moins_chere = hass.states.get("sensor.maison_cheapest_option").state
-    assert moins_chere == "totalenergies_charge_heures:hphc_saisonnieres"
+    assert moins_chere == "symphonics:hphc_saisonnieres"
     economie = hass.states.get("sensor.maison_possible_12_month_saving")
-    assert economie.state == "2.13"
+    assert economie.state == "2.69"
     assert [e["option"] for e in economie.attributes["classement"]] == [
+        "symphonics:hphc_saisonnieres",
         # Charge'Heures (#24) : 24 x 0,1335 + 12 x 0,1576 + 3/365 x 188,28 = 6,64 €.
         "totalenergies_charge_heures:hphc_saisonnieres",
         "primeo_fixe_confort:hphc",
@@ -231,6 +234,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Vert Électrique Week-End HC (#120) : tout à 16,91 c€ (nuit HC + samedi
         # 03/10) + 3/365 x 190,32 = 7,65 €.
         "edf_vert_electrique_week_end:week_end_hphc",
+        # Wekiwi Pierre HC (#174, grille du 01/03/2026) : 36 x 0,1601 + 3/365 x 231,48
+        # = 7,67 €.
+        "wekiwi_pierre:hphc",
         # Enercoop Flexi Watt nuit & week-end (#50, révisable) : tout en HC (0-6 h en
         # semaine, samedi 03/10 entier), 36 x 0,1729 + 3/365 x 182,04 = 7,72 €.
         "enercoop_flexi_watt_nuit_week_end:hphc_saisonnieres",
@@ -264,6 +270,9 @@ async def test_capteurs(hass: HomeAssistant):
         "gaz_de_bordeaux_novafixe_bonus_duo:base",
         # TotalEnergies Access Base (#23) : 36 x 0,1837 + 3/365 x 190,32 = 8,18 €.
         "totalenergies_access:base",
+        # Wekiwi Pierre Base (#86, grille du 01/03/2026) : 36 x 0,1882 + 3/365 x 177,60
+        # = 8,23 €.
+        "wekiwi_pierre:base",
         # EDF Zen Week-End Plus Base, jour choisi vendredi (#10) : 24 x 0,2259
         # + 12 x 0,1691 (vendredi choisi) + 3/365 x 190,32 = 8,33 €.
         "edf_zen_week_end_plus:week_end_jour_vendredi",
@@ -513,9 +522,10 @@ async def test_option_indisponible_au_dela_de_15_kva(hass: HomeAssistant):
     # Gaz de Bordeaux NovaFixe HC (646,56 €/an, 14,669 c€, #372) : 10,60 €, juste
     # devant TotalEnergies Access HC (même abonnement, 14,67 c€), EDF Zen Online HC (15,31 c€ :
     # 10,83 €), Plenitude HC (681,72 €/an, 14,67 c€ : 10,88 €), Prudence HC et le TRV HC.
+    # Symphonics (#102, 650,69 €/an, HC 12,546 c€) passe devant : 9,86 €.
     moins_chere = hass.states.get("sensor.maison_cheapest_option").state
-    assert moins_chere == "totalenergies_charge_heures:hphc_saisonnieres"
-    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "0.78"
+    assert moins_chere == "symphonics:hphc_saisonnieres"
+    assert hass.states.get("sensor.maison_possible_12_month_saving").state == "1.21"
 
 
 async def test_sans_donnees(hass: HomeAssistant):

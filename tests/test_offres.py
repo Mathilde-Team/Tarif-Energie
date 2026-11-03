@@ -116,6 +116,7 @@ def test_quatre_offres_livrees(offres):
         "sorea_trv_local",
         "soregies_trv_local",
         "sud_reole_trv_local",
+        "symphonics",
         "synelva_trv_local",
         "totalenergies_access",
         "totalenergies_charge_heures",
@@ -1924,13 +1925,13 @@ def test_cout_option_prudence_sur_un_kwh(offres):
 def test_comparaison_trv_contre_offres(offres):
     """Le classement mélange TRV et offres.
 
-    Avec 10 kWh un lundi (19/10/2026) à 14 h : Enercoop Flexibilité 2 saisons (#51), en heures
-    creuses d'été imposées par l'offre (11 h-17 h ; 13,831 c€, 189,84 €/an : 1,90 €), passe
-    devant ; puis EDF Zen Week-End Flex (#97), en heures creuses imposées par l'offre
-    (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €) ; puis EDF Zen Week-End Plus jour
-    choisi lundi
-    (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO -15 % Base (17,04 c€,
-    196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
+    Avec 10 kWh un lundi (19/10/2026) à 14 h : Symphonics (#102), en heures creuses imposées
+    par l'offre (14 h-16 h ; 12,546 c€, 190,81 €/an : 1,78 €), passe devant ; puis Enercoop
+    Flexibilité 2 saisons (#51), en heures creuses d'été imposées par l'offre (11 h-17 h ;
+    13,831 c€, 189,84 €/an : 1,90 €) ; puis EDF Zen Week-End Flex (#97), en heures creuses
+    imposées par l'offre (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €) ; puis EDF Zen
+    Week-End Plus jour choisi lundi (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO
+    -15 % Base (17,04 c€, 196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
     241,92 €/an : 2,34 €), le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais
     grille du 05/10).
     """
@@ -1940,10 +1941,12 @@ def test_comparaison_trv_contre_offres(offres):
     grilles = {option: GrillesTRV.charger(option) for option in OPTIONS}
     grilles.update(grilles_offres(offres))
     comp = comparer(grilles, 6, DIX_KWH, PLAGES, "base")
-    assert comp.moins_chere.option == "enercoop_flexibilite_2_saisons:hphc_saisonnieres"
-    assert comp.moins_chere.total == Decimal("1.90")
-    assert comp.classement[1].option == "edf_zen_week_end:flex"
-    assert comp.classement[2].option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.moins_chere.option == "symphonics:hphc_saisonnieres"
+    assert comp.moins_chere.total == Decimal("1.78")
+    assert comp.classement[1].option == "enercoop_flexibilite_2_saisons:hphc_saisonnieres"
+    assert comp.classement[1].total == Decimal("1.90")
+    assert comp.classement[2].option == "edf_zen_week_end:flex"
+    assert comp.classement[3].option == "edf_zen_week_end_plus:week_end_jour_lundi"
     assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]
@@ -2566,6 +2569,33 @@ def test_charge_heures_cout(offres):
     assert cout.energie == 2 * Decimal("0.1576") + Decimal("0.1335") + Decimal("0.2302")
 
 
+def test_symphonics_grille_et_plages(offres):
+    """Symphonics (#102) : TRV HP/HC du 01/08/2026, HC = -50 % du HP HT, plages 00-06 et 14-16."""
+    offre = offres["symphonics"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 12)
+    grilles = grilles_offres(offres)
+    g = grilles["symphonics:hphc_saisonnieres"].en_vigueur(6, datetime(2026, 11, 3).date())
+    # Abonnement : part fixe TTC du TRV HP/HC 6 kVA, arrondie au centime.
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 8, 1).date(), Decimal("190.81"))
+    # 0,2142 - 1,2 x 0,1479 / 2 : taxes du TRV inchangées sur un HT divisé par deux.
+    assert g.prix == {"annee_hc": Decimal("0.12546"), "annee_hp": Decimal("0.2142")}
+    assert [(s.nom, s.debut, s.fin, s.hsc, s.hc) for s in g.saisons] == [
+        ("annee", (1, 1), (12, 31), (), ((0, 360), (840, 960)))
+    ]
+    trv = Grilles.charger("hphc").en_vigueur(6, datetime(2026, 11, 3).date())
+    assert g.abonnement_an == trv.abonnement_an.quantize(Decimal("0.01"))
+    assert g.prix["annee_hp"] == trv.prix["hp"]
+
+
+def test_symphonics_cout(offres):
+    """HC de 0 h à 6 h et de 14 h à 16 h, HP le reste (y compris 22 h-24 h)."""
+    grilles = grilles_offres(offres)
+    conso = [(datetime(2026, 11, 3, h, 0), 1.0) for h in (0, 5, 14, 16, 22)]
+    cout = cout_option("hphc_saisonnieres", grilles["symphonics:hphc_saisonnieres"], 6, conso)
+    assert cout.kwh == {"annee_hc": Decimal(3), "annee_hp": Decimal(2)}
+    assert cout.energie == 3 * Decimal("0.12546") + 2 * Decimal("0.2142")
+
+
 def test_saison_annee_incomplete_refusee():
     """Une saison unique « annee » doit couvrir toute l'année."""
     donnees = _zen_estival_dict()
@@ -2703,30 +2733,30 @@ def test_wekiwi_aurore_grille_du_19_octobre_2026(offres):
     assert grilles["wekiwi_aurore:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
 
 
-def test_wekiwi_pierre_grille_du_19_octobre_2026(offres):
+def test_wekiwi_pierre_grille_du_1er_mars_2026(offres):
     """Offre Wekiwi Pierre, électricité au réel — Base et HP/HC (#86, #174) :
-    kWh TTC relevés le 19/10/2026 sur la page officielle (revérifiés inchangés
-    le 01/11/2026), abonnement TRV par décision du propriétaire du 28/10/2026
-    (non publié par Wekiwi)."""
+    grille officielle Wekiwi « wekiWEB | Pierre » en vigueur au 1 mars 2026
+    (202603_EL_PART_FIX_WEB_SIMPLE-PIERRE.pdf, lue le 03/11/2026), colonne TTC ;
+    kWh identiques à la page de l'offre (19/10/2026)."""
     offre = offres["wekiwi_pierre"]
     assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 12)
     grilles = grilles_offres(offres)
-    jour = datetime(2026, 10, 19).date()
-    # Base : kWh 0,1882 € (3-6 kVA) / 0,1970 € (9-36 kVA), 18-36 kVA en extinction
+    jour = datetime(2026, 11, 3).date()
+    # Base : kWh 0,1882 € (3-6 kVA) / 0,1970 € (9-36 kVA), 3 à 36 kVA publiés
     g = grilles["wekiwi_pierre:base"].en_vigueur(6, jour)
-    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.81"))
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 3, 1).date(), Decimal("177.60"))
     assert g.prix == {"base": Decimal("0.1882")}
-    g = grilles["wekiwi_pierre:base"].en_vigueur(15, jour)
-    assert (g.abonnement_an, g.prix) == (Decimal("330.57"), {"base": Decimal("0.1970")})
-    # HP/HC : kWh Pierre toutes puissances, remise non modélisée
+    assert grilles["wekiwi_pierre:base"].en_vigueur(3, jour).abonnement_an == Decimal("132.77")
+    g = grilles["wekiwi_pierre:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("661.51"), {"base": Decimal("0.1970")})
+    # HP/HC : kWh toutes puissances, abonnement 6 à 36 kVA
     g = grilles["wekiwi_pierre:hphc"].en_vigueur(6, jour)
-    assert (g.debut, g.abonnement_an) == (datetime(2026, 10, 19).date(), Decimal("190.8131821"))
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 3, 1).date(), Decimal("231.48"))
     assert g.prix == {"hp": Decimal("0.2025"), "hc": Decimal("0.1601")}
-    g = grilles["wekiwi_pierre:hphc"].en_vigueur(36, jour)
-    assert g.abonnement_an == Decimal("650.6862576")
-    assert g.prix == {"hp": Decimal("0.2025"), "hc": Decimal("0.1601")}
-    # HC dès 3 kVA (abonnement TRV HPHC 3 kVA)
-    assert grilles["wekiwi_pierre:hphc"].en_vigueur(3, jour).abonnement_an == Decimal("145.7629941")
+    assert grilles["wekiwi_pierre:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("766.94")
+    # Pas de HP/HC en 3 kVA dans la grille Wekiwi
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["wekiwi_pierre:hphc"].en_vigueur(3, jour)
 
 
 @pytest.mark.parametrize(
