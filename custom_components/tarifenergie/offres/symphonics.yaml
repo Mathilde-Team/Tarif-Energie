@@ -1,0 +1,37 @@
+# Symphonics — offre « -50 % sur les Heures Creuses » (issue #102 ; inventaire #6).
+# Fiche descriptive Particulier V260413 (« Tarifs en vigueur au 1er Avril 2026 »,
+# relevée avec pdftotext -layout le 03/11/2026). « Offre à prix fixes » selon la
+# CRE : prix fixés pour 12 mois à la souscription, à partir du TRVE en vigueur à
+# cette date. Abonnement et HP identiques au prix HT des HP du TRVE, HC avec une
+# remise de 50 % sur ce prix HT, heures creuses imposées : 00h-06h et 14h-16h.
+# Symphonics ne publie aucune grille chiffrée par kVA : la grille est donc dérivée
+# du TRV HP/HC du 01/08/2026 (tarifs/Option_HPHC.csv, CRE). Abonnement : part fixe
+# TTC du TRV, arrondie au centime (€/an). HP : 0,2142 € TTC (TRV). HC : taxes du
+# TRV inchangées, soit 0,2142 - 1,2 x 0,1479 / 2 = 0,12546 € TTC.
+# Éligibilité (art. 3 et 4 des CGV, d'après la fiche) : particuliers raccordés au
+# réseau Enedis avec un Linky communicant de niveau 2, disposant d'au moins un
+# équipement de production, de stockage OU de consommation pilotable par
+# Symphonics (batterie, ballon d'eau chaude, radiateur…). Le solaire n'est pas
+# exigé. Condition non vérifiée par le moteur (comme ilek Voiture électrique, #58).
+# Rachat du surplus solaire : prix non publié, non modélisé (le moteur ne compte
+# que la consommation). À remettre à jour à chaque mouvement du TRV (souscriptions
+# nouvelles).
+id: symphonics
+fournisseur: Symphonics
+offre: -50 % sur les Heures Creuses
+type_prix: fixe
+duree_fixite_mois: 12
+grille_du: 2026-08-01
+source: https://symphonics.fr/app/uploads/2026/04/Fiche-descriptive-Particulier-V260413.pdf
+options:
+  hphc_saisonnieres:
+    abonnement_annuel_ttc: {3: 145.76, 6: 190.81, 9: 239.84, 12: 286.86, 15: 330.57, 18: 375.80, 24: 473.16, 30: 561.43, 36: 650.69}
+    saisons:
+      annee:  # plages constantes toute l'année : pas de saisonnalité
+        du: 01-01
+        au: 12-31
+        plages:
+          hc: 00:00-06:00, 14:00-16:00
+        kwh_ttc:
+          hc: 0.12546
+          hp: 0.2142
