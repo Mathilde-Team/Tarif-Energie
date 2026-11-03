@@ -5,6 +5,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 ## [Non publié]
 
 ### Corrigé
+- **Wekiwi Pierre** (#86 Base, #174 HP/HC) : abonnement repris de la grille tarifaire officielle Wekiwi en vigueur au 1 mars 2026 (`202603_EL_PART_FIX_WEB_SIMPLE-PIERRE.pdf`) au lieu de l'abonnement TRV retenu faute de grille publiée ; Base 3-36 kVA (6 kVA : 177,60 € TTC/an), HP/HC 6-36 kVA (6 kVA : 231,48 €). kWh inchangés.
 - **Métadonnées** (#474) : `manifest.json` (`documentation`, `issue_tracker`) et liens du README pointent vers `Mathilde-Team/Tarif-Energie` (faute de frappe « Mathide-Team »).
 
 ### Documentation
