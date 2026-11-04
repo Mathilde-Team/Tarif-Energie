@@ -2848,13 +2848,34 @@ def test_urban_solar_stockage_virtuel_reservee_aux_autoproducteurs(offres):
     assert (g.abonnement_an, g.prix) == (Decimal("666.48"), {"base": Decimal("0.1985")})  # 55,54 x 12
 
 
+def test_urban_solar_stockage_virtuel_heures_creuses(offres):
+    """Option HC (#172) : 6 à 36 kVA, kWh HP/HC = TRV, abonnement majoré, réservée aussi."""
+    assert "urban_solar_stockage_virtuel:hphc" not in grilles_offres(offres)
+    grilles = grilles_offres(offres, autoproducteur=True)
+    jour = datetime(2026, 11, 4).date()
+    g = grilles["urban_solar_stockage_virtuel:hphc"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("207.72"),  # 17,31 x 12
+        {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")},
+    )
+    trv = Grilles.charger("hphc").en_vigueur(6, jour)
+    assert g.prix == trv.prix
+    assert g.abonnement_an > trv.abonnement_an
+    assert grilles["urban_solar_stockage_virtuel:hphc"].en_vigueur(36, jour).abonnement_an == Decimal(
+        "773.40"
+    )
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["urban_solar_stockage_virtuel:hphc"].en_vigueur(3, jour)
+
+
 def test_reserve_autoproducteurs_par_defaut_et_filtre(offres):
     """Seules les offres marquées sont écartées ; avec l'option, toutes les grilles sont là."""
     reservees = {ident for ident, o in offres.items() if o.reserve_autoproducteurs}
     assert reservees == {"urban_solar_stockage_virtuel"}
     sans = grilles_offres(offres)
     avec = grilles_offres(offres, autoproducteur=True)
-    assert set(avec) - set(sans) == {"urban_solar_stockage_virtuel:base"}
+    assert set(avec) - set(sans) == {"urban_solar_stockage_virtuel:base", "urban_solar_stockage_virtuel:hphc"}
     assert set(sans) <= set(avec)
 
 
