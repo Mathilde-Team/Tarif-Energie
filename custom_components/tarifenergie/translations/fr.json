@@ -9,12 +9,14 @@
           "entite_energie": "Capteur d'énergie consommée",
           "puissance": "Puissance souscrite",
           "option_actuelle": "Option tarifaire actuelle",
-          "heures_creuses": "Heures creuses du compteur"
+          "heures_creuses": "Heures creuses du compteur",
+          "autoproducteur": "Foyer autoproducteur (panneaux solaires)"
         },
         "data_description": {
           "entite_energie": "Le capteur utilisé dans le tableau de bord Énergie (compteur Linky, pince, etc.).",
           "puissance": "Indiquée sur la facture (kVA).",
-          "heures_creuses": "Plages indiquées sur la facture ou l'espace client Enedis, par exemple « 22:00-06:00 » ou « 02:00-07:00, 13:00-16:00 ». Elles servent à simuler l'option Heures creuses, même si votre option actuelle est Base."
+          "heures_creuses": "Plages indiquées sur la facture ou l'espace client Enedis, par exemple « 22:00-06:00 » ou « 02:00-07:00, 13:00-16:00 ». Elles servent à simuler l'option Heures creuses, même si votre option actuelle est Base.",
+          "autoproducteur": "Ajoute au classement les offres réservées aux foyers équipés de panneaux solaires (Urban Solar Energy avec stockage virtuel…). Le stockage virtuel lui-même n'est pas simulé."
         }
       }
     },
@@ -35,11 +37,13 @@
         "data": {
           "puissance": "Puissance souscrite",
           "option_actuelle": "Option tarifaire actuelle",
-          "heures_creuses": "Heures creuses du compteur"
+          "heures_creuses": "Heures creuses du compteur",
+          "autoproducteur": "Foyer autoproducteur (panneaux solaires)"
         },
         "data_description": {
           "puissance": "Indiquée sur la facture (kVA).",
-          "heures_creuses": "Plages indiquées sur la facture ou l'espace client Enedis, par exemple « 22:00-06:00 » ou « 02:00-07:00, 13:00-16:00 ». Elles servent à simuler l'option Heures creuses, même si votre option actuelle est Base."
+          "heures_creuses": "Plages indiquées sur la facture ou l'espace client Enedis, par exemple « 22:00-06:00 » ou « 02:00-07:00, 13:00-16:00 ». Elles servent à simuler l'option Heures creuses, même si votre option actuelle est Base.",
+          "autoproducteur": "Ajoute au classement les offres réservées aux foyers équipés de panneaux solaires (Urban Solar Energy avec stockage virtuel…). Le stockage virtuel lui-même n'est pas simulé."
         }
       }
     },

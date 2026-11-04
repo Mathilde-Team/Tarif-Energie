@@ -127,6 +127,7 @@ def test_quatre_offres_livrees(offres):
         "uem_trv_local",
         "ume_trv_local",
         "urban_solar_smb",
+        "urban_solar_stockage_virtuel",
         "vialis_trv_local",
         "wekiwi_aurore",
         "wekiwi_duo_aurore",
@@ -2822,6 +2823,57 @@ def test_urban_solar_smb_revisable(offres):
     assert g.prix == {"hp": Decimal("0.2377"), "hc": Decimal("0.1750")}
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["urban_solar_smb:hphc"].en_vigueur(3, jour)
+
+
+def test_urban_solar_stockage_virtuel_reservee_aux_autoproducteurs(offres):
+    """Urban Solar stockage virtuel (#70) : indexée TRV, réservée aux autoproducteurs."""
+    offre = offres["urban_solar_stockage_virtuel"]
+    assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
+    assert offre.reserve_autoproducteurs is True
+    # Hors du classement par défaut (décision du 28/10/2026), présente pour un autoproducteur.
+    assert "urban_solar_stockage_virtuel:base" not in grilles_offres(offres)
+    grilles = grilles_offres(offres, autoproducteur=True)
+    jour = datetime(2026, 11, 4).date()
+    g = grilles["urban_solar_stockage_virtuel:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 8, 1).date(),
+        Decimal("204.96"),  # 17,08 x 12 : majoration autoproducteur au-dessus du TRV
+        {"base": Decimal("0.2001")},
+    )
+    # kWh TTC = TRV Base (HTT 0,1361 / 0,1348) ; abonnement au-dessus du TRV.
+    trv = Grilles.charger("base").en_vigueur(6, jour)
+    assert g.prix["base"] == trv.prix["base"]
+    assert g.abonnement_an > trv.abonnement_an
+    g = grilles["urban_solar_stockage_virtuel:base"].en_vigueur(36, jour)
+    assert (g.abonnement_an, g.prix) == (Decimal("666.48"), {"base": Decimal("0.1985")})  # 55,54 x 12
+
+
+def test_reserve_autoproducteurs_par_defaut_et_filtre(offres):
+    """Seules les offres marquées sont écartées ; avec l'option, toutes les grilles sont là."""
+    reservees = {ident for ident, o in offres.items() if o.reserve_autoproducteurs}
+    assert reservees == {"urban_solar_stockage_virtuel"}
+    sans = grilles_offres(offres)
+    avec = grilles_offres(offres, autoproducteur=True)
+    assert set(avec) - set(sans) == {"urban_solar_stockage_virtuel:base"}
+    assert set(sans) <= set(avec)
+
+
+@pytest.mark.parametrize("valeur", ["oui", 1, None])
+def test_reserve_autoproducteurs_invalide(valeur):
+    from datetime import date
+
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Solaire",
+        "type_prix": "indexe_trv",
+        "grille_du": date(2026, 8, 1),
+        "source": "https://exemple.fr/grille.pdf",
+        "reserve_autoproducteurs": valeur,
+        "options": {"base": {"abonnement_mensuel_ttc": {6: 15.0}, "kwh_ttc": {"base": 0.2}}},
+    }
+    with pytest.raises(OffreInvalide, match=r"offre\.reserve_autoproducteurs"):
+        offre_depuis_dict(donnees, "x")
 
 
 def test_es_seyssel_trv_local(offres):

@@ -21,6 +21,9 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
     grille_du: 2026-08-01                 # date d'effet de la grille tarifaire
     duree_fixite_mois: 12
     source: https://…/grille.pdf         # fiche de référence (registre #27)
+    reserve_autoproducteurs: true        # facultatif (#70) : offre réservée aux foyers équipés de
+                                         # panneaux solaires, hors classement sauf option
+                                         # « autoproducteur » de la configuration
     options:
       base:
         abonnement_mensuel_ttc: {3: 11.63, 6: 15.36, …}     # € TTC/mois par puissance
@@ -431,6 +434,9 @@ class Offre:
     grilles: dict[str, Grilles]  # option du TRV ("base", "hphc") → Grilles
     type_prix: str = "fixe"
     eld: str | None = None  # réseau de l'ELD, pour un TRV local
+    # Offre réservée aux foyers équipés de panneaux solaires (#70, décision du
+    # 28/10/2026) : hors du classement, sauf si l'utilisateur se déclare autoproducteur.
+    reserve_autoproducteurs: bool = False
 
     def cles(self) -> list[str]:
         """Clés de comparaison : ``<id>:<option>`` (ex. ``la_bellenergie_prudence:hphc``)."""
@@ -475,6 +481,8 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
         "date attendue (YYYY-MM-DD)",
     )
     _texte(donnees, "source", "offre.source")
+    reserve = donnees.get("reserve_autoproducteurs", False)
+    _exiger(isinstance(reserve, bool), "offre.reserve_autoproducteurs", "booléen attendu (true ou false)")
     options = donnees.get("options")
     # Au moins une option sans heures creuses (la « Base » de l'offre) : base,
     # week_end, une variante à jour choisi (#10) ou des postes saisonniers
@@ -529,6 +537,7 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
         grilles,
         type_prix,
         eld,
+        reserve,
     )
 
 
@@ -565,11 +574,19 @@ def lire_offres(dossier: Path = DOSSIER_OFFRES) -> dict[str, Offre]:
     return offres
 
 
-def grilles_offres(offres: dict[str, Offre]) -> dict[str, Grilles]:
-    """Grilles de toutes les offres, indexées par clé de comparaison ``<id>:<option>``."""
-    _LOGGER.debug("grilles_offres: entrée")
+def grilles_offres(offres: dict[str, Offre], autoproducteur: bool = False) -> dict[str, Grilles]:
+    """Grilles des offres, indexées par clé de comparaison ``<id>:<option>``.
+
+    Les offres ``reserve_autoproducteurs`` (#70) n'y figurent que si l'utilisateur
+    se déclare autoproducteur (option de configuration) : un foyer sans panneaux
+    solaires ne peut pas y souscrire.
+    """
+    _LOGGER.debug("grilles_offres: entrée (autoproducteur=%s)", autoproducteur)
     resultats: dict[str, Grilles] = {}
     for offre in offres.values():
+        if offre.reserve_autoproducteurs and not autoproducteur:
+            _LOGGER.debug("grilles_offres: %s écartée (réservée aux autoproducteurs)", offre.id)
+            continue
         for option, grilles in offre.grilles.items():
             resultats[f"{offre.id}:{option}"] = grilles
     _LOGGER.debug("grilles_offres: %s grille(s) %s", len(resultats), sorted(resultats))

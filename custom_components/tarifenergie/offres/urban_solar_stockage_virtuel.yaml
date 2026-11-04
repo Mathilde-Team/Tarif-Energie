@@ -1,0 +1,34 @@
+# Urban Solar Energy — particuliers avec centrale photovoltaïque et stockage
+# virtuel, option Base (issue #70 ; HC en #172) ; inventaire #6.
+# Offre réservée aux autoproducteurs : hors du classement par défaut, ajoutée par
+# l'option « Foyer autoproducteur » de la configuration (décision du 28/10/2026).
+# Indexée sur le TRV (catégorie CRE de la page des tarifs) : kWh HTT = TRV (0,1361
+# jusqu'à 6 kVA, 0,1348 au-delà), grille TTC à mettre à jour à chaque mouvement
+# du TRV. Abonnement au-dessus du TRV : part fixe d'acheminement plus une
+# majoration autoproducteur (« 9,84 € / an » dans la note, « 8.28 €/an » en
+# surimpression dans le PDF : les abonnements TTC ci-dessous sont ceux du tableau).
+# Non modélisés : le stockage virtuel (1 € HT par kWc et par mois ; kWh déstockés
+# au prix de l'acheminement, 0,1110 € TTC/kWh) et les frais de mise en service.
+# Grille « Tarifs particuliers avec centrale photovoltaïque et stockage virtuel —
+# Base, courte utilisation, au 01/08/2026 », relevée le 04/11/2026 avec
+# pdftotext -layout.
+id: urban_solar_stockage_virtuel
+fournisseur: Urban Solar Energy
+offre: Stockage virtuel
+type_prix: indexe_trv
+grille_du: 2026-08-01
+source: https://www.urbansolarenergy.fr/wp-content/uploads/2026/08/TARIFS-BV-PARTICULIER-BASE.pdf
+reserve_autoproducteurs: true
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 13.31, 6: 17.08, 9: 21.15, 12: 25.07, 15: 28.75, 18: 32.54, 24: 40.62, 30: 48.05, 36: 55.54}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2001}
+      6: {base: 0.2001}
+      9: {base: 0.1985}
+      12: {base: 0.1985}
+      15: {base: 0.1985}
+      18: {base: 0.1985}
+      24: {base: 0.1985}
+      30: {base: 0.1985}
+      36: {base: 0.1985}
