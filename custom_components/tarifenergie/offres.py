@@ -28,7 +28,7 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
       base:
         abonnement_mensuel_ttc: {3: 11.63, 6: 15.36, …}     # € TTC/mois par puissance
         kwh_ttc_par_puissance: {3: {base: 0.1968}, …}         # c'→€ TTC/kWh par poste
-      hphc:                              # option facultative (jamais en 3 kVA au TRV)
+      hphc:                              # facultative, ou seule pour une offre sans Base (#78)
         abonnement_mensuel_ttc: {6: 15.36, …}
         kwh_ttc: {hp: 0.2106, hc: 0.1565}                     # prix uniforme
         # ou abonnement_annuel_ttc: {6: 190.36, …} pour une grille publiée en €/an
@@ -484,11 +484,11 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     reserve = donnees.get("reserve_autoproducteurs", False)
     _exiger(isinstance(reserve, bool), "offre.reserve_autoproducteurs", "booléen attendu (true ou false)")
     options = donnees.get("options")
-    # Au moins une option sans heures creuses (la « Base » de l'offre) : base,
-    # week_end, une variante à jour choisi (#10) ou des postes saisonniers
-    # (#20 : les plages HSC/HC sont portées par l'offre, pas par le compteur —
-    # un client sans heures creuses y est simulable aussi) ; hphc/week_end_hphc
-    # seules ne permettraient aucun comparatif pour un client sans heures creuses.
+    # Au moins une option principale : base, week_end, une variante à jour choisi
+    # (#10), des postes saisonniers (#20 : plages portées par l'offre) ou, depuis
+    # #78 (décision du 28/10/2026), hphc seule pour les offres sans Base (Engie
+    # Elec'Car) : elle est alors « indisponible » pour un client sans heures
+    # creuses, comme l'option HC du TRV. week_end_hphc seule reste refusée.
     _exiger(
         isinstance(options, dict)
         and set(options)
@@ -496,6 +496,7 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
         and set(options)
         & {
             "base",
+            "hphc",
             "week_end",
             "week_end_jour_lundi",
             "week_end_jour_mercredi",
@@ -503,8 +504,8 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
             "hphc_saisonnieres",
         },
         "offre.options",
-        "option Base attendue (base, week_end, week_end_jour_* ou hphc_saisonnieres) ;"
-        " les autres sont facultatives",
+        "option principale attendue (base, hphc, week_end, week_end_jour_* ou"
+        " hphc_saisonnieres) ; les autres sont facultatives",
     )
     grilles: dict[str, Grilles] = {}
     for option in ("base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", *JOUR_CHOISI):

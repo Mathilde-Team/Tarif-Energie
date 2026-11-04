@@ -13,6 +13,7 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Les numéros 
 - **Données et licences** (#474) : section du README sur la source et les conditions de réutilisation des TRV (open data CRE, attribution) et des grilles des fournisseurs.
 
 ### Ajouté
+- **Engie Elec'Car 1 an** (#78) : offre indexée TRV en HP/HC seule (grille de novembre 2026, 6 kVA : 194,11 € TTC/an, HP 25,512 et HC 14,593 c€ TTC/kWh). Le moteur admet désormais une offre dont l'option principale est `hphc` (décision du 28/10/2026) ; une offre sans option reste refusée.
 - **mylight150 Vert France** (#66 Base, #168 HP/HC) : grille d'octobre 2026, réservée aux autoproducteurs ; prix de bienvenue des 12 premiers mois (kWh = TRV ; 6 kVA : 17,08 € TTC/mois en Base, 20,70 € en HC), hausse après 12 mois signalée mais non simulée.
 - **Urban Solar Energy, stockage virtuel, option Heures creuses** (#172) : 6 à 36 kVA, grille du 01/08/2026 (6 kVA : 17,31 € TTC/mois, HP 21,42 et HC 15,89 c€ TTC/kWh, kWh = TRV) ; réservée aux autoproducteurs comme l'option Base (#70).
 - **Offres réservées aux autoproducteurs** (#70, décision du 28/10/2026) : champ facultatif `reserve_autoproducteurs: true` des offres YAML ; ces offres restent hors du classement, sauf si la case « Foyer autoproducteur » de la configuration (et des options) est cochée. Première offre concernée : **Urban Solar Energy, stockage virtuel**, option Base (`urban_solar_stockage_virtuel`, indexée TRV, grille du 01/08/2026, 3 à 36 kVA, 6 kVA : 17,08 € TTC/mois et 20,01 c€ TTC/kWh) ; le stockage virtuel n'est pas simulé.
