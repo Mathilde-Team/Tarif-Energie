@@ -552,7 +552,7 @@ def test_ilek_voiture_electrique_base_indexee_trv(offres):
     offre = offres["ilek_voiture_electrique"]
     assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
     grilles = grilles_offres(offres)
-    assert "ilek_voiture_electrique:hphc" not in grilles  # plages propres à ilek (#159, #160)
+    assert "ilek_voiture_electrique:hphc" not in grilles  # plages propres à ilek (#159)
     jour = datetime(2026, 10, 24).date()
     g = grilles["ilek_voiture_electrique:base"].en_vigueur(6, jour)
     assert (g.debut, g.abonnement_an, g.prix) == (
@@ -562,6 +562,23 @@ def test_ilek_voiture_electrique_base_indexee_trv(offres):
     )
     g = grilles["ilek_voiture_electrique:base"].en_vigueur(36, jour)
     assert (g.abonnement_an, g.prix) == (Decimal("1064.88"), {"base": Decimal("0.1985")})
+
+
+def test_ilek_voiture_electrique_heures_creuses(offres):
+    """Option Heures creuses (#159) : plages ilek 1 h-3 h et 13 h-15 h, pas celles d'Enedis."""
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["ilek_voiture_electrique:hphc_saisonnieres"]
+    g = grilles_option.en_vigueur(6, datetime(2026, 10, 24).date())
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 8, 1).date(), Decimal("341.40"))  # 28,45 x 12
+    assert g.prix == {"annee_hc": Decimal("0.1589"), "annee_hp": Decimal("0.2142")}
+    assert [(s.nom, s.debut, s.fin, s.hsc, s.hc) for s in g.saisons] == [
+        ("annee", (1, 1), (12, 31), (), ((60, 180), (780, 900)))
+    ]
+    assert grilles_option.en_vigueur(36, datetime(2026, 10, 24).date()).abonnement_an == Decimal("1068.60")
+    assert 3 not in grilles_option.puissances()
+    conso = [(datetime(2026, 10, 19, h, 0), 1.0) for h in (0, 1, 2, 3, 13, 14, 23)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso)
+    assert cout.kwh == {"annee_hc": Decimal(4), "annee_hp": Decimal(3)}
 
 
 def test_papernest_grille_du_22_septembre_2026(offres):

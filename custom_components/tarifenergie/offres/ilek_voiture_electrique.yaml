@@ -4,9 +4,12 @@
 # possesseurs (ou acquéreurs) d'une voiture électrique, sur attestation, avec un
 # Linky communicant : condition non vérifiée par le moteur.
 # Grille ID275 « Grille tarifaire au 1er août 2026 », relevée le 26/10/2026 avec
-# pdftotext -layout. Option Base seule : les options Heures creuses (#159) et Super
-# Heures Creuses (#160) suivent des plages horaires propres à ilek (1h01-3h00 et
-# 13h01-15h00 ; 3h01-7h00), que le moteur ne modélise pas encore.
+# pdftotext -layout. Option Heures creuses (#159) : plages propres à ilek, les mêmes
+# pour tous les abonnés (fiche descriptive ID275 : « 4 heures creuses : de 1h à 3h et
+# de 13h à 15h »), d'où une option à plages imposées (saison unique « annee »), et
+# non les heures creuses Enedis du compteur ; 1h01-3h00 et 13h01-15h00 arrondies à
+# l'heure (statistiques horaires). HC/HP TTC uniformes de 6 à 36 kVA (pas de 3 kVA).
+# L'option Super Heures Creuses (#160, 3h01-7h00) n'est pas encore reprise.
 id: ilek_voiture_electrique
 fournisseur: ilek
 offre: Offre Voiture électrique
@@ -26,3 +29,14 @@ options:
       24: {base: 0.1985}
       30: {base: 0.1985}
       36: {base: 0.1985}
+  hphc_saisonnieres:  # option Heures creuses (#159), plages ilek
+    abonnement_mensuel_ttc: {6: 28.45, 9: 39.26, 12: 45.82, 15: 52.27, 18: 57.92, 24: 69.85, 30: 74.81, 36: 89.05}
+    saisons:
+      annee:  # plages constantes toute l'année
+        du: 01-01
+        au: 12-31
+        plages:
+          hc: 01:00-03:00, 13:00-15:00
+        kwh_ttc:
+          hc: 0.1589
+          hp: 0.2142
