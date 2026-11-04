@@ -456,6 +456,9 @@ async def test_capteurs(hass: HomeAssistant):
         "totalenergies_fixe_2ans:base",
         # Happ-e Électricité 1 an HC (#128) : 36 x 0,22398 + 3/365 x 214,35 = 9,83 €.
         "happe_elec_1an:hphc",
+        # ilek Voiture électrique HC (#159), plages ilek 1 h-3 h en HC, 0 h et 3 h-6 h en HP :
+        # 12 x 0,1589 + 24 x 0,2142 + 3/365 x 341,40 = 9,85 €.
+        "ilek_voiture_electrique:hphc_saisonnieres",
         # elmy prix fixe 2 ans Base (#104) : 36 x 0,2323 + 3/365 x 190,32 = 9,93 €.
         "elmy_prix_fixe_2ans:base",
         "ilek_enrfixe_plus:hphc",

@@ -107,7 +107,7 @@ Gaz de Bordeaux NovaFlex Élec (kWh HT -5 %, fiche de Bordeaux ; Base de 3 à 15
 Mint Énergie Online & Green (kWh HTT -5 %), Alterna Mon électricité française indexée,
 Alpiq Électricité Sérénité (kWh HT -0,5 %), Primeo Offre Essentielle Verte (kWh HT -5 %),
 Jeety Energy Elec-Dom (ex-« élecocité », grille de février 2026, dernière publiée ; HC à partir de 6 kVA)
-et ilek Offre Voiture électrique (kWh du TRV, abonnement ilek, Base seule, réservée aux
+et ilek Offre Voiture électrique (kWh du TRV, abonnement ilek, Base et Heures creuses aux plages propres à ilek, 1 h-3 h et 13 h-15 h, réservée aux
 possesseurs d'une voiture électrique).
 
 Les offres **révisables** (`type_prix: revisable`, « Autre offre » de la typologie CRE) ont des
