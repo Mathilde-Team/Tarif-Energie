@@ -53,6 +53,9 @@ async def test_capteurs(hass: HomeAssistant):
     assert base.attributes["kwh"] == {"base": 36.0}
     assert base.attributes["jours_couverts"] == 3
     assert base.attributes["grilles"] == ["2026-08-01"]
+    tempo = hass.states.get("sensor.maison_12_month_cost_tempo_option")
+    assert tempo.state == "6.44"
+    assert tempo.attributes["kwh"] == {"bleu_hc": 36.0, "bleu_hp": 0.0}
     # Offres de marché (issues #40, #44, #63, #64 et lot 2) : à cette consommation
     # nocturne, Charge'Heures (#24) est la moins chère (24 kWh en HSC à 13,35 c€,
     # 12 kWh en HC à 15,76 c€) ; les grilles
@@ -72,6 +75,9 @@ async def test_capteurs(hass: HomeAssistant):
     assert economie.state == "2.69"
     assert [e["option"] for e in economie.attributes["classement"]] == [
         "symphonics:hphc_saisonnieres",
+        # TRV Tempo (#108) : 1er au 3/10/2026, jours bleus, 0 h-6 h en HC du jour Tempo de la veille ;
+        # 36 x 0,1356 + 3/365 x 189,9802924 = 6,44 €.
+        "tempo",
         # Charge'Heures (#24) : 24 x 0,1335 + 12 x 0,1576 + 3/365 x 188,28 = 6,64 €.
         "totalenergies_charge_heures:hphc_saisonnieres",
         "primeo_fixe_confort:hphc",

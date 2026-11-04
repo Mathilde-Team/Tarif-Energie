@@ -34,7 +34,7 @@ def _libelle(cle: str, offres: dict[str, Offre]) -> str:
     _LOGGER.debug("_libelle: entrée")
     if ":" not in cle:
         _LOGGER.debug("_libelle: sortie")
-        return {"base": "Base", "hphc": "Off-peak"}.get(cle, cle)
+        return {"base": "Base", "hphc": "Off-peak", "tempo": "Tempo"}.get(cle, cle)
     ident, option = cle.split(":", 1)
     offre = offres.get(ident)
     if offre is None:

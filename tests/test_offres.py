@@ -1934,7 +1934,8 @@ def test_comparaison_trv_contre_offres(offres):
     par l'offre (14 h-16 h ; 12,546 c€, 190,81 €/an : 1,78 €), passe devant ; puis Enercoop
     Flexibilité 2 saisons (#51), en heures creuses d'été imposées par l'offre (11 h-17 h ;
     13,831 c€, 189,84 €/an : 1,90 €) ; puis EDF Zen Week-End Flex (#97), en heures creuses
-    imposées par l'offre (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €) ; puis EDF Zen
+    imposées par l'offre (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €) ; puis le TRV Tempo
+    (#108), un jour bleu en heures pleines (16,54 c€, 189,98 €/an : 2,17 €) ; puis EDF Zen
     Week-End Plus jour choisi lundi (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO
     -15 % Base (17,04 c€, 196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
     241,92 €/an : 2,34 €), le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais
@@ -1951,7 +1952,9 @@ def test_comparaison_trv_contre_offres(offres):
     assert comp.classement[1].option == "enercoop_flexibilite_2_saisons:hphc_saisonnieres"
     assert comp.classement[1].total == Decimal("1.90")
     assert comp.classement[2].option == "edf_zen_week_end:flex"
-    assert comp.classement[3].option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.classement[3].option == "tempo"
+    assert comp.classement[3].total == Decimal("2.17")
+    assert comp.classement[4].option == "edf_zen_week_end_plus:week_end_jour_lundi"
     assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]

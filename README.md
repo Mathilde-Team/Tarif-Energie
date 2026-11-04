@@ -7,11 +7,12 @@ Plutôt qu'une consommation théorique de 4 000 ou 5 000 kWh/an, tarifenergie re
 ## Ce que fait la version 0.1
 
 Elle compare, sur les 12 derniers mois de consommation réelle, le coût TTC des options
-de tarification des tarifs réglementés (Base, Heures creuses) : abonnement au prorata
+de tarification des tarifs réglementés (Base, Heures creuses, Tempo) : abonnement au prorata
 du jour, kWh au prix en vigueur à la date de la consommation, heures creuses réparties
 au prorata des minutes. La v0.2 y ajoute les offres de marché (voir ci-dessous).
 
-- Compare les **tarifs réglementés** (tarif Bleu) publiés par la [CRE](https://www.data.gouv.fr/datasets/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels) : options **Base** et **Heures pleines / Heures creuses**, prix TTC.
+- Compare les **tarifs réglementés** (tarif Bleu) publiés par la [CRE](https://www.data.gouv.fr/datasets/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels) : options **Base**, **Heures pleines / Heures creuses** et **Tempo**, prix TTC.
+- Tempo (#108) : chaque heure prend la couleur (bleu, blanc, rouge) de son jour Tempo, qui court de 6 h à 6 h le lendemain, et les heures creuses fixées par EDF (22 h-6 h), quelles que soient celles du compteur. Couleurs lues dans les calendriers versionnés `calendriers/tempo_blanc.yaml` et `tempo_rouge.yaml` (source [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr/), données RTE/EDF, saisons 2022-2023 à 2025-2026), mis à jour par PR à la fin de chaque saison.
 - Applique à chaque heure le tarif **en vigueur ce jour-là** : un an de consommation à cheval sur le 1er février et le 1er août est compté avec les bonnes grilles.
 - Compte l'abonnement au jour près, pour la puissance souscrite.
 - Prend vos plages d'heures creuses (elles dépendent du compteur, pas du fournisseur), même plusieurs plages (« 02:00-07:00, 13:00-16:00 »).
@@ -22,8 +23,9 @@ au prorata des minutes. La v0.2 y ajoute les offres de marché (voir ci-dessous)
 |---|---|---|
 | Coût sur 12 mois, option Base (TRV) | € TTC | kWh, part énergie et abonnement, grilles CRE utilisées, période couverte |
 | Coût sur 12 mois, option Heures creuses (TRV) | € TTC | kWh HP et HC, idem |
+| Coût sur 12 mois, option Tempo (TRV) | € TTC | kWh HP et HC de chaque couleur, idem |
 | Coût sur 12 mois, chaque option de chaque offre de marché | € TTC | idem |
-| Option la moins chère | `base` / `hphc` ou `<offre>:<option>` (ex. `la_bellenergie_prudence:hphc`) | classement complet avec libellés, options indisponibles et pourquoi |
+| Option la moins chère | `base` / `hphc` / `tempo` ou `<offre>:<option>` (ex. `la_bellenergie_prudence:hphc`) | classement complet avec libellés, options indisponibles et pourquoi |
 | Économie possible sur 12 mois | € par rapport à l'option actuelle | classement |
 | Consommation sur 12 mois | kWh | période couverte |
 | Part en heures creuses | % | |
@@ -149,7 +151,8 @@ YAML sur le modèle des existants, une issue d'inventaire la documentant.
 
 - La CRE ne publie l'option Base que jusqu'à 15 kVA : au-delà, elle est signalée indisponible.
 - Statistiques horaires : une heure à cheval sur une limite d'heures creuses (ex. 23:30) est répartie au prorata des minutes.
-- Pas encore de Tempo (#3), de gaz (#4) ni d'offres de marché des fournisseurs (#5).
+- Pas encore de gaz (#4) ni d'offres de marché des fournisseurs (#5).
+- Tempo : un jour absent des calendriers versionnés (saison en cours, pas encore relevée) est compté bleu, la couleur la plus fréquente ; le coût Tempo des derniers mois est alors un minorant tant que le calendrier n'est pas mis à jour. Option Tempo du TRV national seulement : les Tempo des TRV locaux (ELD) ne sont pas encore repris. La CRE ne publie pas Tempo en 3 kVA : option signalée indisponible.
 - Parties gaz des offres mixtes (TotalEnergies Spéciale #112, Engie Duo Référence #113) : hors comparateur, grilles documentées dans [docs/sources.md](docs/sources.md).
 
 Sources et particularités des données : [docs/sources.md](docs/sources.md).

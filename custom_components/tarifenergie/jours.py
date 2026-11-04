@@ -21,6 +21,7 @@ import yaml
 _LOGGER = logging.getLogger(__name__)
 
 CALENDRIER_TEMPO_ROUGE = Path(__file__).parent / "calendriers" / "tempo_rouge.yaml"
+CALENDRIER_TEMPO_BLANC = Path(__file__).parent / "calendriers" / "tempo_blanc.yaml"
 
 
 def paques(annee: int) -> date:
@@ -72,14 +73,48 @@ def est_week_end(jour: date) -> bool:
     return resultat
 
 
+def _lire_calendrier(chemin: Path) -> frozenset[date]:
+    """Jours d'un calendrier Tempo versionné (``calendriers/*.yaml``), toutes saisons confondues."""
+    _LOGGER.debug("_lire_calendrier: entrée (%s)", chemin.name)
+    donnees = yaml.safe_load(chemin.read_text(encoding="utf-8"))
+    jours = frozenset(j for liste in donnees["saisons"].values() for j in liste)
+    _LOGGER.debug("_lire_calendrier: %s jour(s)", len(jours))
+    return jours
+
+
 @cache
 def jours_rouges_tempo(chemin: Path = CALENDRIER_TEMPO_ROUGE) -> frozenset[date]:
     """Jours rouges Tempo connus (``calendriers/tempo_rouge.yaml``), toutes saisons confondues."""
     _LOGGER.debug("jours_rouges_tempo: entrée")
-    donnees = yaml.safe_load(chemin.read_text(encoding="utf-8"))
-    jours = frozenset(j for liste in donnees["saisons"].values() for j in liste)
-    _LOGGER.debug("jours_rouges_tempo: %s jour(s)", len(jours))
+    jours = _lire_calendrier(chemin)
+    _LOGGER.debug("jours_rouges_tempo: sortie")
     return jours
+
+
+@cache
+def jours_blancs_tempo(chemin: Path = CALENDRIER_TEMPO_BLANC) -> frozenset[date]:
+    """Jours blancs Tempo connus (``calendriers/tempo_blanc.yaml``), toutes saisons confondues."""
+    _LOGGER.debug("jours_blancs_tempo: entrée")
+    jours = _lire_calendrier(chemin)
+    _LOGGER.debug("jours_blancs_tempo: sortie")
+    return jours
+
+
+def couleur_tempo(jour: date) -> str:
+    """Couleur Tempo (``bleu``, ``blanc`` ou ``rouge``) du jour Tempo ``jour`` (de 6 h à 6 h le lendemain).
+
+    Un jour absent des deux calendriers versionnés (pas encore relevé) est compté bleu, la
+    couleur la plus fréquente (300 jours par an) : le coût Tempo est alors un minorant.
+    """
+    _LOGGER.debug("couleur_tempo: entrée")
+    if jour in jours_rouges_tempo():
+        couleur = "rouge"
+    elif jour in jours_blancs_tempo():
+        couleur = "blanc"
+    else:
+        couleur = "bleu"
+    _LOGGER.debug("couleur_tempo: %s", couleur)
+    return couleur
 
 
 def est_jour_sobriete(jour: date) -> bool:

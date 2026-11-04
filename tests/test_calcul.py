@@ -329,3 +329,42 @@ def test_flex_jours_sobriete_et_plages_de_l_offre():
         "eco_hc": Decimal(1),
     }
     assert cout.energie == Decimal("0.7467") + Decimal("0.2142") + Decimal("0.2142") + Decimal("0.1595")
+
+
+def test_tempo_couleur_du_jour_de_6h_a_6h():
+    """#108 : HC 22 h-6 h imposées ; une heure avant 6 h prend la couleur de la veille."""
+    prix = {
+        "bleu_hc": "0.1356",
+        "bleu_hp": "0.1654",
+        "blanc_hc": "0.1536",
+        "blanc_hp": "0.1921",
+        "rouge_hc": "0.1615",
+        "rouge_hp": "0.7295",
+    }  # grille CRE du 01/08/2026, 6 kVA
+    grilles = Grilles(
+        [Grille("tempo", 6, date(2025, 1, 1), None, Decimal(365), {k: Decimal(v) for k, v in prix.items()})]
+    )
+    # 07/01/2026 rouge, 08/01/2026 blanc, 09/01/2026 bleu (saison 2025-2026).
+    conso = [
+        (datetime(2026, 1, 7, 12), 1.0),  # rouge HP
+        (datetime(2026, 1, 7, 23), 1.0),  # rouge HC
+        (datetime(2026, 1, 8, 3), 1.0),  # encore le jour Tempo du 07 : rouge HC
+        (datetime(2026, 1, 8, 6), 1.0),  # blanc HP (fin des HC à 6 h)
+        (datetime(2026, 1, 9, 5), 1.0),  # jour Tempo du 08 : blanc HC
+        (datetime(2026, 1, 9, 22), 1.0),  # bleu HC
+        (datetime(2026, 1, 9, 21), 1.0),  # bleu HP
+    ]
+    # Les heures creuses du point de livraison n'ont pas d'effet sur Tempo.
+    cout = cout_option("tempo", grilles, 6, conso, PlagesHC.lire("02:00-07:00, 13:00-16:00"))
+    assert cout.kwh == {
+        "rouge_hp": Decimal(1),
+        "rouge_hc": Decimal(2),
+        "blanc_hp": Decimal(1),
+        "blanc_hc": Decimal(1),
+        "bleu_hc": Decimal(1),
+        "bleu_hp": Decimal(1),
+    }
+    assert cout.energie == sum(
+        (Decimal(prix[p]) * n for p, n in {**{k: 1 for k in prix}, "rouge_hc": 2}.items()), Decimal(0)
+    )
+    assert cout.abonnement == Decimal(3)  # trois jours calendaires (07, 08, 09)
