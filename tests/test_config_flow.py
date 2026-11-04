@@ -42,8 +42,17 @@ async def test_creation(hass: HomeAssistant):
         "puissance": 9,
         "option_actuelle": "base",
         "heures_creuses": "23:30-07:30",
+        "autoproducteur": False,
     }
     assert res["result"].unique_id == CAPTEUR
+
+
+async def test_creation_autoproducteur(hass: HomeAssistant):
+    """Foyer équipé de panneaux solaires (#70) : la case est enregistrée telle quelle."""
+    res = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+    res = await hass.config_entries.flow.async_configure(res["flow_id"], {**SAISIE, "autoproducteur": True})
+    assert res["type"] is FlowResultType.CREATE_ENTRY
+    assert res["data"]["autoproducteur"] is True
 
 
 @pytest.mark.parametrize(
@@ -109,4 +118,35 @@ async def test_options(hass: HomeAssistant):
         "puissance": 12,
         "option_actuelle": "hphc",
         "heures_creuses": "02:00-07:00, 13:00-16:00",
+        "autoproducteur": False,
     }
+
+
+async def test_options_autoproducteur(hass: HomeAssistant):
+    """L'option autoproducteur (#70) se coche et se décoche ; la valeur actuelle est proposée."""
+    entree = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id=CAPTEUR,
+        data={
+            "entite_energie": CAPTEUR,
+            "puissance": 6,
+            "option_actuelle": "base",
+            "heures_creuses": "22:00-06:00",
+        },
+        options={"autoproducteur": True},
+    )
+    entree.add_to_hass(hass)
+    res = await hass.config_entries.options.async_init(entree.entry_id)
+    cles = {str(cle): cle for cle in res["data_schema"].schema}
+    assert cles["autoproducteur"].default() is True
+    res = await hass.config_entries.options.async_configure(
+        res["flow_id"],
+        {
+            "puissance": "6",
+            "option_actuelle": "base",
+            "heures_creuses": "22:00-06:00",
+            "autoproducteur": False,
+        },
+    )
+    assert res["type"] is FlowResultType.CREATE_ENTRY
+    assert entree.options["autoproducteur"] is False

@@ -9,12 +9,14 @@
           "entite_energie": "Energy consumption sensor",
           "puissance": "Subscribed power",
           "option_actuelle": "Current tariff option",
-          "heures_creuses": "Meter off-peak hours"
+          "heures_creuses": "Meter off-peak hours",
+          "autoproducteur": "Self-producing household (solar panels)"
         },
         "data_description": {
           "entite_energie": "The sensor used in the Energy dashboard (Linky meter, clamp, etc.).",
           "puissance": "Shown on the bill (kVA).",
-          "heures_creuses": "Ranges shown on the bill or the Enedis customer area, e.g. \"22:00-06:00\" or \"02:00-07:00, 13:00-16:00\". Used to simulate the off-peak option even if your current option is Base."
+          "heures_creuses": "Ranges shown on the bill or the Enedis customer area, e.g. \"22:00-06:00\" or \"02:00-07:00, 13:00-16:00\". Used to simulate the off-peak option even if your current option is Base.",
+          "autoproducteur": "Adds offers reserved for households with solar panels (Urban Solar Energy with virtual storage…) to the ranking. Virtual storage itself is not simulated."
         }
       }
     },
@@ -35,11 +37,13 @@
         "data": {
           "puissance": "Subscribed power",
           "option_actuelle": "Current tariff option",
-          "heures_creuses": "Meter off-peak hours"
+          "heures_creuses": "Meter off-peak hours",
+          "autoproducteur": "Self-producing household (solar panels)"
         },
         "data_description": {
           "puissance": "Shown on the bill (kVA).",
-          "heures_creuses": "Ranges shown on the bill or the Enedis customer area, e.g. \"22:00-06:00\" or \"02:00-07:00, 13:00-16:00\". Used to simulate the off-peak option even if your current option is Base."
+          "heures_creuses": "Ranges shown on the bill or the Enedis customer area, e.g. \"22:00-06:00\" or \"02:00-07:00, 13:00-16:00\". Used to simulate the off-peak option even if your current option is Base.",
+          "autoproducteur": "Adds offers reserved for households with solar panels (Urban Solar Energy with virtual storage…) to the ranking. Virtual storage itself is not simulated."
         }
       }
     },

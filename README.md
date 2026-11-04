@@ -122,7 +122,16 @@ Base de 3 à 36 kVA, HC à partir de 6 kVA, réseau Enedis), Urban Solar Energy 
 
 Chaque offre est comparée sur la consommation réelle comme les tarifs réglementés :
 puissances non proposées (ex. Heures creuses en 3 kVA) signalées comme indisponibles,
-grilles datées appliquées au jour le jour. Les offres dynamiques ou à coloration de
+grilles datées appliquées au jour le jour.
+
+Les offres **réservées aux autoproducteurs** (foyers équipés de panneaux solaires,
+`reserve_autoproducteurs: true` dans le YAML, #70) sont hors du classement par défaut :
+cochez « Foyer autoproducteur » dans la configuration (ou ses options) pour les y
+ajouter. C'est le cas d'Urban Solar Energy avec stockage virtuel (indexée TRV, Base de 3
+à 36 kVA, abonnement majoré pour les autoproducteurs) ; le stockage virtuel lui-même
+(1 € HT par kWc et par mois, kWh déstockés au prix de l'acheminement) n'est pas simulé.
+
+Les offres dynamiques ou à coloration de
 jours (OctoTempo) viendront ensuite. Pour ajouter une offre : un fichier
 YAML sur le modèle des existants, une issue d'inventaire la documentant.
 
