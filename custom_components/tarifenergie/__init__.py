@@ -14,7 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
-from .const import OPTIONS
+from .const import CONF_AUTOPRODUCTEUR, OPTIONS
 from .coordinateur import CoordinateurTarifs
 from .modele import Grilles
 from .offres import grilles_offres, lire_offres
@@ -26,11 +26,15 @@ PLATFORMS: list[Platform] = [Platform.SENSOR]
 type TarifenergieConfigEntry = ConfigEntry[CoordinateurTarifs]
 
 
-def _charger_grilles() -> dict[str, Grilles]:
-    """Options du TRV + offres de marché, indexées par clé de comparaison."""
-    _LOGGER.debug("_charger_grilles: entrée")
+def _charger_grilles(autoproducteur: bool = False) -> dict[str, Grilles]:
+    """Options du TRV + offres de marché, indexées par clé de comparaison.
+
+    Les offres réservées aux autoproducteurs (#70) ne sont chargées que si le foyer
+    est déclaré autoproducteur dans la configuration.
+    """
+    _LOGGER.debug("_charger_grilles: entrée (autoproducteur=%s)", autoproducteur)
     grilles = {option: Grilles.charger(option) for option in OPTIONS}
-    grilles.update(grilles_offres(lire_offres()))
+    grilles.update(grilles_offres(lire_offres(), autoproducteur))
     _LOGGER.debug("_charger_grilles: options %s", sorted(grilles))
     return grilles
 
@@ -38,7 +42,9 @@ def _charger_grilles() -> dict[str, Grilles]:
 async def async_setup_entry(hass: HomeAssistant, entry: TarifenergieConfigEntry) -> bool:
     """Charge les grilles CRE (hors boucle), calcule une première fois, puis crée les capteurs."""
     _LOGGER.debug("async_setup_entry: entrée")
-    grilles = await hass.async_add_executor_job(_charger_grilles)
+    config = {**entry.data, **entry.options}
+    autoproducteur = bool(config.get(CONF_AUTOPRODUCTEUR, False))
+    grilles = await hass.async_add_executor_job(_charger_grilles, autoproducteur)
     coordinateur = CoordinateurTarifs(hass, entry, grilles)
     await coordinateur.async_config_entry_first_refresh()
     entry.runtime_data = coordinateur

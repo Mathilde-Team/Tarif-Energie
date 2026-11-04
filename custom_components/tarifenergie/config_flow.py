@@ -1,7 +1,9 @@
 """Configuration depuis l'interface (issue #2).
 
 Une étape : capteur d'énergie (statistiques en kWh), puissance souscrite, option
-actuelle et plages d'heures creuses du compteur. Les options permettent de changer
+actuelle, plages d'heures creuses du compteur et foyer autoproducteur (#70 : les
+offres réservées aux foyers équipés de panneaux solaires entrent alors dans le
+classement). Les options permettent de changer
 tout sauf le capteur. Une entrée par capteur.
 """
 
@@ -19,6 +21,7 @@ from homeassistant.helpers import selector
 
 from .calcul import PlagesHC, PlagesInvalides
 from .const import (
+    CONF_AUTOPRODUCTEUR,
     CONF_ENERGIE,
     CONF_HEURES_CREUSES,
     CONF_NOM,
@@ -71,6 +74,9 @@ def _schema_contrat(valeurs: dict[str, Any]) -> dict[vol.Marker, Any]:
         vol.Required(
             CONF_HEURES_CREUSES, default=valeurs.get(CONF_HEURES_CREUSES, HEURES_CREUSES_PAR_DEFAUT)
         ): selector.TextSelector(),
+        vol.Required(CONF_AUTOPRODUCTEUR, default=bool(valeurs.get(CONF_AUTOPRODUCTEUR, False))): (
+            selector.BooleanSelector()
+        ),
     }
 
 
@@ -131,7 +137,7 @@ class TarifenergieConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class TarifenergieOptionsFlow(OptionsFlowWithReload):
-    """Changement de puissance, d'option ou d'heures creuses (recharge l'entrée)."""
+    """Changement de puissance, d'option, d'heures creuses ou d'autoproduction (recharge l'entrée)."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         _LOGGER.debug("TarifenergieOptionsFlow.async_step_init: entrée")

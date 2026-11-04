@@ -12,6 +12,9 @@ CONF_ENERGIE: Final = "entite_energie"
 CONF_PUISSANCE: Final = "puissance"
 CONF_OPTION: Final = "option_actuelle"
 CONF_HEURES_CREUSES: Final = "heures_creuses"
+# Foyer équipé de panneaux solaires : les offres réservées aux autoproducteurs (#70)
+# entrent dans le classement.
+CONF_AUTOPRODUCTEUR: Final = "autoproducteur"
 
 NOM_PAR_DEFAUT: Final = "Électricité"
 HEURES_CREUSES_PAR_DEFAUT: Final = "22:00-06:00"

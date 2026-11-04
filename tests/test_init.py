@@ -528,6 +528,23 @@ async def test_option_indisponible_au_dela_de_15_kva(hass: HomeAssistant):
     assert hass.states.get("sensor.maison_possible_12_month_saving").state == "1.21"
 
 
+async def test_offre_reservee_aux_autoproducteurs(hass: HomeAssistant):
+    """#70 : l'offre Urban Solar stockage virtuel n'est classée que pour un foyer autoproducteur."""
+    cle = "urban_solar_stockage_virtuel:base"
+    entree = await _installer(hass, _nuit())
+    assert cle not in entree.runtime_data.grilles
+    classement = hass.states.get("sensor.maison_cheapest_option").attributes["classement"]
+    assert cle not in {ligne["option"] for ligne in classement}
+    assert await hass.config_entries.async_unload(entree.entry_id)
+    await hass.async_block_till_done()
+    assert await hass.config_entries.async_remove(entree.entry_id)
+    entree = await _installer(hass, _nuit(), {**DONNEES, "autoproducteur": True})
+    assert cle in entree.runtime_data.grilles
+    classement = hass.states.get("sensor.maison_cheapest_option").attributes["classement"]
+    # 36 kWh à 0,2001 + 3 jours de 17,08 x 12 = 204,96 €/an : 7,20 + 1,68 = 8,89 €.
+    assert {ligne["option"]: ligne["total"] for ligne in classement}[cle] == 8.89
+
+
 async def test_sans_donnees(hass: HomeAssistant):
     await _installer(hass, [])
     # Sans consommation, toutes les options coûtent 0,00 € : le classement départage
