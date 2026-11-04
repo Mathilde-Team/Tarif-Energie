@@ -6,7 +6,10 @@ offre). Le moteur lit les offres **à prix fixe** et **indexées sur le TRV** (t
 CRE), ainsi que les TRV locaux des ELD et les offres à option Week-end (postes
 semaine / week-end : tarif week-end les samedis, dimanches et jours fériés
 nationaux), ainsi que l'option Flex de Zen Week-End (jours Éco / Sobriété, #97 :
-jours Sobriété estimés par les jours rouges Tempo de ``calendriers/tempo_rouge.yaml``) ;
+jours Sobriété estimés par les jours rouges Tempo de ``calendriers/tempo_rouge.yaml``),
+l'option Heures Eco+ de TotalEnergies (HP/HC et heures de vigilance des jours
+Éclair, #26 : jours Éclair estimés de même) et l'option Tempo des TRV locaux
+(#285, mêmes règles que le Tempo du TRV national, #108) ;
 les offres dynamiques (OctoTempo…) viendront plus tard avec leurs structures propres.
 
 Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
@@ -39,6 +42,14 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
         abonnement_mensuel_ttc: {6: 15.86, …}
         plages_hc: "13:00-18:00, 20:00-08:00"                  # heures creuses imposées par l'offre
         kwh_ttc: {eco_hp: 0.2142, eco_hc: 0.1595, sobriete_hp: 0.7467, sobriete_hc: 0.2142}
+      hphc_vigilance:                    # Heures Eco+ de TotalEnergies (#26), sans Base
+        abonnement_mensuel_ttc: {6: 15.69, …}
+        plages_vigilance: "07:00-15:00, 18:00-20:00"           # heures de vigilance des jours Éclair
+        kwh_ttc: {hp: 0.1977, hc: 0.1455, hv: 0.6375}         # HP/HC du point de livraison
+      tempo:                             # option Tempo d'un TRV local (#285) : jour Tempo 6 h-6 h,
+        abonnement_annuel_ttc: {6: 201.41, …}                 # HC fixes 22 h-6 h, calendriers #108
+        kwh_ttc: {bleu_hc: 0.1356, bleu_hp: 0.1654, blanc_hc: 0.1536, blanc_hp: 0.1921,
+                  rouge_hc: 0.1615, rouge_hp: 0.7295}
 
 Les prix sont TTC, en €/kWh (les grilles des fournisseurs sont en c€ TTC/kWh).
 L'abonnement mensuel est converti en €/an (multiplié par 12, en ``Decimal`` exact) ;
@@ -108,6 +119,16 @@ POSTES = (
     "eco_hc",
     "sobriete_hp",
     "sobriete_hc",
+    # Option Heures Eco+ de TotalEnergies (#26) : HP/HC, plus les heures de vigilance
+    # des jours Éclair.
+    "hv",
+    # Option Tempo (#108, #285) : heures pleines / creuses de chaque couleur de jour.
+    "bleu_hc",
+    "bleu_hp",
+    "blanc_hc",
+    "blanc_hp",
+    "rouge_hc",
+    "rouge_hp",
 )
 MOIS_PAR_AN = Decimal("12")
 
@@ -124,7 +145,24 @@ POSTES_PAR_OPTION: dict[str, tuple[frozenset[str], str]] = {
         frozenset({"eco_hp", "eco_hc", "sobriete_hp", "sobriete_hc"}),
         "eco_hp+eco_hc+sobriete_hp+sobriete_hc attendus (option flex)",
     ),
+    # Option Heures Eco+ (#26) : HP/HC du point de livraison, heures de vigilance (hv)
+    # les 20 jours Éclair (estimés par les jours rouges Tempo).
+    "hphc_vigilance": (
+        frozenset({"hp", "hc", "hv"}),
+        "hp+hc+hv attendus (option hphc_vigilance)",
+    ),
+    # Option Tempo (TRV locaux des ELD, #285) : comme le Tempo du TRV national (#108), jour
+    # Tempo de 6 h à 6 h, heures creuses fixes 22 h-6 h, couleurs des calendriers versionnés.
+    "tempo": (
+        frozenset({"bleu_hc", "bleu_hp", "blanc_hc", "blanc_hp", "rouge_hc", "rouge_hp"}),
+        "bleu_hc+bleu_hp+blanc_hc+blanc_hp+rouge_hc+rouge_hp attendus (option tempo)",
+    ),
 }
+
+# Options à postes et plages portées par l'offre (saisons, #20, #24) : « hphc_saisonnieres »,
+# et « super_heures_creuses » pour une offre qui propose les deux (ilek Voiture électrique :
+# Heures creuses #159 et Super Heures Creuses #160, aux plages propres à ilek).
+OPTIONS_SAISONNIERES: tuple[str, ...] = ("hphc_saisonnieres", "super_heures_creuses")
 
 # Jour de semaine du « jour choisi » des offres Zen Week-End Plus (#10, #116) :
 # le client choisit lundi, mercredi ou vendredi, et le moteur simule les trois
@@ -358,6 +396,24 @@ def _plages_offre(donnees: dict[str, Any], chemin: str, option: str) -> tuple[tu
     return plages
 
 
+def _plages_vigilance(
+    donnees: dict[str, Any], chemin: str, option: str
+) -> tuple[tuple[int, int], ...] | None:
+    """Heures de vigilance (``plages_vigilance``) : exigées par hphc_vigilance (#26), refusées ailleurs."""
+    _LOGGER.debug("_plages_vigilance: entrée")
+    if option != "hphc_vigilance":
+        _exiger(
+            "plages_vigilance" not in donnees,
+            f"{chemin}.plages_vigilance",
+            "réservé à l'option hphc_vigilance",
+        )
+        _LOGGER.debug("_plages_vigilance: sans objet")
+        return None
+    plages = _plages_saison(donnees, "plages_vigilance", chemin, True)
+    _LOGGER.debug("_plages_vigilance: %s plage(s)", len(plages))
+    return plages
+
+
 def _grilles_option(
     donnees: dict[str, Any],
     chemin: str,
@@ -376,6 +432,7 @@ def _grilles_option(
     _LOGGER.debug("_grilles_option: entrée")
     abonnements = _puissances(donnees, chemin)
     plages_hc = _plages_offre(donnees, chemin, option)
+    vigilance = _plages_vigilance(donnees, chemin, option)
     grilles: dict[int, Grille] = {}
     if "kwh_ttc_par_puissance" in donnees:
         _exiger("kwh_ttc" not in donnees, chemin, "kwh_ttc et kwh_ttc_par_puissance sont exclusifs")
@@ -394,14 +451,30 @@ def _grilles_option(
                 prix[poste] = _decimal(montant, f"{chemin}[{puissance}].{poste}")
             _exiger_postes(prix, option, f"{chemin}[{puissance}]")
             grilles[puissance] = Grille(
-                cles, puissance, debut, None, abonnements[puissance], prix, jour_choisi, plages_hc=plages_hc
+                cles,
+                puissance,
+                debut,
+                None,
+                abonnements[puissance],
+                prix,
+                jour_choisi,
+                plages_hc=plages_hc,
+                plages_vigilance=vigilance,
             )
     else:
         prix_uniforme = _postes(donnees, chemin)
         _exiger_postes(prix_uniforme, option, chemin)
         for puissance, abonnement in abonnements.items():
             grilles[puissance] = Grille(
-                cles, puissance, debut, None, abonnement, prix_uniforme, jour_choisi, plages_hc=plages_hc
+                cles,
+                puissance,
+                debut,
+                None,
+                abonnement,
+                prix_uniforme,
+                jour_choisi,
+                plages_hc=plages_hc,
+                plages_vigilance=vigilance,
             )
     _LOGGER.debug("_grilles_option: %s grille(s)", len(grilles))
     return grilles
@@ -492,7 +565,17 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     _exiger(
         isinstance(options, dict)
         and set(options)
-        <= {"base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", *JOUR_CHOISI}
+        <= {
+            "base",
+            "hphc",
+            "week_end",
+            "week_end_hphc",
+            *OPTIONS_SAISONNIERES,
+            "flex",
+            "hphc_vigilance",
+            "tempo",
+            *JOUR_CHOISI,
+        }
         and set(options)
         & {
             "base",
@@ -501,17 +584,28 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
             "week_end_jour_lundi",
             "week_end_jour_mercredi",
             "week_end_jour_vendredi",
-            "hphc_saisonnieres",
+            *OPTIONS_SAISONNIERES,
+            "hphc_vigilance",
         },
         "offre.options",
-        "option principale attendue (base, hphc, week_end, week_end_jour_* ou"
-        " hphc_saisonnieres) ; les autres sont facultatives",
+        "option principale attendue (base, hphc, week_end, week_end_jour_*,"
+        " hphc_saisonnieres, super_heures_creuses ou hphc_vigilance) ; les autres sont facultatives",
     )
     grilles: dict[str, Grilles] = {}
-    for option in ("base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", *JOUR_CHOISI):
+    for option in (
+        "base",
+        "hphc",
+        "week_end",
+        "week_end_hphc",
+        *OPTIONS_SAISONNIERES,
+        "flex",
+        "hphc_vigilance",
+        "tempo",
+        *JOUR_CHOISI,
+    ):
         if option not in options:
             continue
-        if option == "hphc_saisonnieres":
+        if option in OPTIONS_SAISONNIERES:
             grilles_saison = _grilles_saisonniere(
                 options[option], f"offre.options.{option}", f"{ident}:{option}", donnees["grille_du"]
             )

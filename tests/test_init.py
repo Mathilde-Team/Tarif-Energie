@@ -78,6 +78,8 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV Tempo (#108) : 1er au 3/10/2026, jours bleus, 0 h-6 h en HC du jour Tempo de la veille ;
         # 36 x 0,1356 + 3/365 x 189,9802924 = 6,44 €.
         "tempo",
+        # TRV local de Bitche, option Tempo (#285) : 36 x 0,1356 + 3/365 x 201,41 = 6,54 €.
+        "bitche_trv_local:tempo",
         # Charge'Heures (#24) : 24 x 0,1335 + 12 x 0,1576 + 3/365 x 188,28 = 6,64 €.
         "totalenergies_charge_heures:hphc_saisonnieres",
         "primeo_fixe_confort:hphc",
@@ -260,6 +262,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Zen Week-End HC (#117) : tout à 17,62 c€ (nuit HC + samedi 03/10)
         # + 3/365 x 190,32 = 7,91 €.
         "edf_zen_week_end:week_end_hphc",
+        # ilek Voiture électrique Super Heures Creuses (#160) : 0 h en HP, 1 h-3 h en HC, 3 h-6 h
+        # en HSC : 6 x 0,2142 + 12 x 0,1589 + 18 x 0,1064 + 3/365 x 341,40 = 7,91 €.
+        "ilek_voiture_electrique:super_heures_creuses",
         # Enercoop Flexibilité 2 saisons (#51, révisable), été : 0-6 h en HP les 01 et
         # 02/10 (24 x 0,19567), samedi 03/10 en HC (12 x 0,13831)
         # + 3/365 x 189,84 = 7,92 €.
@@ -456,6 +461,9 @@ async def test_capteurs(hass: HomeAssistant):
         "totalenergies_fixe_2ans:base",
         # Happ-e Électricité 1 an HC (#128) : 36 x 0,22398 + 3/365 x 214,35 = 9,83 €.
         "happe_elec_1an:hphc",
+        # ilek Voiture électrique HC (#159), plages ilek 1 h-3 h en HC, 0 h et 3 h-6 h en HP :
+        # 12 x 0,1589 + 24 x 0,2142 + 3/365 x 341,40 = 9,85 €.
+        "ilek_voiture_electrique:hphc_saisonnieres",
         # elmy prix fixe 2 ans Base (#104) : 36 x 0,2323 + 3/365 x 190,32 = 9,93 €.
         "elmy_prix_fixe_2ans:base",
         "ilek_enrfixe_plus:hphc",

@@ -49,6 +49,17 @@ def test_jours_rouges_tempo_et_sobriete():
     assert not est_jour_sobriete(date(2026, 7, 14))
 
 
+def test_jours_eclair():
+    """#26 : jours Éclair estimés par les jours rouges Tempo, du 15/10 au 15/04 seulement."""
+    from custom_components.tarifenergie.jours import est_jour_eclair, jours_rouges_tempo
+
+    assert est_jour_eclair(date(2026, 1, 5))
+    assert not est_jour_eclair(date(2026, 1, 8))
+    assert not est_jour_eclair(date(2026, 7, 14))
+    rouges = jours_rouges_tempo()
+    assert all(est_jour_eclair(j) for j in rouges)  # toujours dans les fenêtres Éclair
+
+
 def test_jours_blancs_et_couleur_tempo():
     """#108 : 43 jours blancs par saison connue ; un jour absent des calendriers est bleu."""
     from custom_components.tarifenergie.jours import couleur_tempo, jours_blancs_tempo, jours_rouges_tempo

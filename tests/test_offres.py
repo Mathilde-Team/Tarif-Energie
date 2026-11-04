@@ -124,6 +124,7 @@ def test_quatre_offres_livrees(offres):
         "totalenergies_charge_heures",
         "totalenergies_fixe_2ans",
         "totalenergies_heures_eco",
+        "totalenergies_heures_eco_plus",
         "totalenergies_speciale",
         "totalenergies_verte_fixe",
         "uem_trv_local",
@@ -140,6 +141,7 @@ def test_quatre_offres_livrees(offres):
     # (#20 : Zen Estival porte ses plages, un client sans HC y est simulable).
     # Zen Week-End Plus n'a pas de Base classique : « week-end + jour choisi ».
     # Engie Elec'Car (#78) n'existe qu'en HP/HC : hphc seule est admise.
+    # TotalEnergies Heures Eco+ (#26) n'existe qu'en HP/HC + vigilance : hphc_vigilance seule.
     assert all(
         {
             "base",
@@ -149,6 +151,7 @@ def test_quatre_offres_livrees(offres):
             "week_end_jour_mercredi",
             "week_end_jour_vendredi",
             "hphc_saisonnieres",
+            "hphc_vigilance",
         }
         & set(o.grilles)
         for o in offres.values()
@@ -552,7 +555,7 @@ def test_ilek_voiture_electrique_base_indexee_trv(offres):
     offre = offres["ilek_voiture_electrique"]
     assert (offre.type_prix, offre.eld, offre.duree_fixite_mois) == ("indexe_trv", None, None)
     grilles = grilles_offres(offres)
-    assert "ilek_voiture_electrique:hphc" not in grilles  # plages propres à ilek (#159, #160)
+    assert "ilek_voiture_electrique:hphc" not in grilles  # plages propres à ilek (#159)
     jour = datetime(2026, 10, 24).date()
     g = grilles["ilek_voiture_electrique:base"].en_vigueur(6, jour)
     assert (g.debut, g.abonnement_an, g.prix) == (
@@ -562,6 +565,43 @@ def test_ilek_voiture_electrique_base_indexee_trv(offres):
     )
     g = grilles["ilek_voiture_electrique:base"].en_vigueur(36, jour)
     assert (g.abonnement_an, g.prix) == (Decimal("1064.88"), {"base": Decimal("0.1985")})
+
+
+def test_ilek_voiture_electrique_heures_creuses(offres):
+    """Option Heures creuses (#159) : plages ilek 1 h-3 h et 13 h-15 h, pas celles d'Enedis."""
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["ilek_voiture_electrique:hphc_saisonnieres"]
+    g = grilles_option.en_vigueur(6, datetime(2026, 10, 24).date())
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 8, 1).date(), Decimal("341.40"))  # 28,45 x 12
+    assert g.prix == {"annee_hc": Decimal("0.1589"), "annee_hp": Decimal("0.2142")}
+    assert [(s.nom, s.debut, s.fin, s.hsc, s.hc) for s in g.saisons] == [
+        ("annee", (1, 1), (12, 31), (), ((60, 180), (780, 900)))
+    ]
+    assert grilles_option.en_vigueur(36, datetime(2026, 10, 24).date()).abonnement_an == Decimal("1068.60")
+    assert 3 not in grilles_option.puissances()
+    conso = [(datetime(2026, 10, 19, h, 0), 1.0) for h in (0, 1, 2, 3, 13, 14, 23)]
+    cout = cout_option("hphc_saisonnieres", grilles_option, 6, conso)
+    assert cout.kwh == {"annee_hc": Decimal(4), "annee_hp": Decimal(3)}
+
+
+def test_ilek_voiture_electrique_super_heures_creuses(offres):
+    """Option Super Heures Creuses (#160) : HSC 3 h-7 h, HC 1 h-3 h et 13 h-15 h, plages ilek."""
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["ilek_voiture_electrique:super_heures_creuses"]
+    g = grilles_option.en_vigueur(6, datetime(2026, 10, 24).date())
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 8, 1).date(), Decimal("341.40"))  # 28,45 x 12
+    assert g.prix == {
+        "annee_hsc": Decimal("0.1064"),
+        "annee_hc": Decimal("0.1589"),
+        "annee_hp": Decimal("0.2142"),
+    }
+    assert [(s.nom, s.debut, s.fin, s.hsc, s.hc) for s in g.saisons] == [
+        ("annee", (1, 1), (12, 31), ((180, 420),), ((60, 180), (780, 900)))
+    ]
+    assert 3 not in grilles_option.puissances()
+    conso = [(datetime(2026, 10, 19, h, 0), 1.0) for h in (0, 1, 3, 6, 7, 13, 23)]
+    cout = cout_option("super_heures_creuses", grilles_option, 6, conso)
+    assert cout.kwh == {"annee_hsc": Decimal(2), "annee_hc": Decimal(2), "annee_hp": Decimal(3)}
 
 
 def test_papernest_grille_du_22_septembre_2026(offres):
@@ -1016,6 +1056,61 @@ def test_bitche_trv_local_grille_du_1er_aout_2026(offres):
     g = grilles["bitche_trv_local:hphc"].en_vigueur(36, jour)
     assert g.abonnement_an == Decimal("571.82")
     assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
+
+
+def test_bitche_trv_local_tempo(offres):
+    """Option Tempo du TRV local de Bitche (#285) : barème national, abonnement publié tel quel."""
+    grilles = grilles_offres(offres)
+    tempo = grilles["bitche_trv_local:tempo"]
+    jour = datetime(2026, 10, 24).date()
+    assert tempo.en_vigueur(6, jour).abonnement_an == Decimal("201.41")
+    assert tempo.en_vigueur(36, jour).abonnement_an == Decimal("699.18")
+    assert 3 not in tempo.puissances()
+    # Prix de l'option Tempo du TRV national (CRE, 01/08/2026).
+    assert tempo.en_vigueur(6, jour).prix == Grilles.charger("tempo").en_vigueur(6, jour).prix
+    # Même moteur que le TRV national (#108, couleurs testées dans test_calcul.py) : la saison
+    # 2026-2027 n'est pas encore relevée, ses jours sont bleus ; HC 22 h-6 h.
+    conso = [
+        (datetime(2026, 10, 19, 12), 1.0),
+        (datetime(2026, 10, 20, 5), 1.0),
+        (datetime(2026, 10, 20, 22), 1.0),
+    ]
+    cout = cout_option("tempo", tempo, 6, conso)
+    assert cout.kwh == {"bleu_hp": Decimal(1), "bleu_hc": Decimal(2)}
+
+
+def test_option_tempo_schema():
+    """Option tempo : six postes exacts ; facultative, jamais seule (pas d'option principale)."""
+    from datetime import date
+
+    postes = {
+        "bleu_hc": 0.1356,
+        "bleu_hp": 0.1654,
+        "blanc_hc": 0.1536,
+        "blanc_hp": 0.1921,
+        "rouge_hc": 0.1615,
+        "rouge_hp": 0.7295,
+    }
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "TRV local",
+        "type_prix": "reglemente",
+        "eld": "x",
+        "grille_du": date(2026, 8, 1),
+        "source": "https://exemple.fr/grille.pdf",
+        "options": {
+            "base": {"abonnement_annuel_ttc": {6: 171.94}, "kwh_ttc": {"base": 0.2001}},
+            "tempo": {"abonnement_annuel_ttc": {6: 201.41}, "kwh_ttc": postes},
+        },
+    }
+    assert set(offre_depuis_dict(donnees, "x").grilles) == {"base", "tempo"}
+    donnees["options"]["tempo"]["kwh_ttc"] = {k: v for k, v in postes.items() if k != "rouge_hp"}
+    with pytest.raises(OffreInvalide, match="option tempo"):
+        offre_depuis_dict(donnees, "x")
+    donnees["options"] = {"tempo": {"abonnement_annuel_ttc": {6: 201.41}, "kwh_ttc": postes}}
+    with pytest.raises(OffreInvalide, match="option principale attendue"):
+        offre_depuis_dict(donnees, "x")
 
 
 def test_la_reole_trv_local_grille_du_1er_aout_2026(offres):
@@ -1935,8 +2030,9 @@ def test_comparaison_trv_contre_offres(offres):
     Flexibilité 2 saisons (#51), en heures creuses d'été imposées par l'offre (11 h-17 h ;
     13,831 c€, 189,84 €/an : 1,90 €) ; puis EDF Zen Week-End Flex (#97), en heures creuses
     imposées par l'offre (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €) ; puis le TRV Tempo
-    (#108), un jour bleu en heures pleines (16,54 c€, 189,98 €/an : 2,17 €) ; puis EDF Zen
-    Week-End Plus jour choisi lundi (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO
+    (#108), un jour bleu en heures pleines (16,54 c€, 189,98 €/an : 2,17 €) ; puis le Tempo du TRV
+    local de Bitche (#285, mêmes prix, 201,41 €/an : 2,2058 €) ; puis EDF Zen Week-End Plus
+    jour choisi lundi (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO
     -15 % Base (17,04 c€, 196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
     241,92 €/an : 2,34 €), le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais
     grille du 05/10).
@@ -1954,7 +2050,9 @@ def test_comparaison_trv_contre_offres(offres):
     assert comp.classement[2].option == "edf_zen_week_end:flex"
     assert comp.classement[3].option == "tempo"
     assert comp.classement[3].total == Decimal("2.17")
-    assert comp.classement[4].option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.classement[4].option == "bitche_trv_local:tempo"
+    assert comp.classement[5].option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.classement[4].total == comp.classement[5].total == Decimal("2.21")  # 2,2058 < 2,2124
     assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]
@@ -3051,6 +3149,71 @@ def test_plages_hc_reservees_a_flex():
     donnees = _offre_flex(plages_hc="13:00-18:00")
     donnees["options"]["base"]["plages_hc"] = "22:00-06:00"
     with pytest.raises(OffreInvalide, match="réservé à l'option flex"):
+        offre_depuis_dict(donnees, "x")
+
+
+def test_totalenergies_heures_eco_plus(offres):
+    """#26 : Heures Eco+, HP/HC seule (pas de Base), 6 à 36 kVA, vigilance 7-15 h et 18-20 h."""
+    offre = offres["totalenergies_heures_eco_plus"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 6)
+    assert offre.cles() == ["totalenergies_heures_eco_plus:hphc_vigilance"]
+    grilles = grilles_offres(offres)
+    option = grilles["totalenergies_heures_eco_plus:hphc_vigilance"]
+    jour = datetime(2026, 11, 2).date()
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        option.en_vigueur(3, jour)
+    g = option.en_vigueur(6, jour)
+    assert g.abonnement_an == Decimal("15.69") * 12
+    assert option.en_vigueur(36, jour).abonnement_an == Decimal("52.72") * 12
+    assert g.prix == {"hp": Decimal("0.1977"), "hc": Decimal("0.1455"), "hv": Decimal("0.6375")}
+    assert PlagesHC(plages=g.plages_vigilance).minutes_par_jour() == 10 * 60
+    assert g.plages_hc is None
+
+
+def _offre_vigilance(**option):
+    from datetime import date
+
+    return {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Eco+",
+        "type_prix": "fixe",
+        "duree_fixite_mois": 6,
+        "grille_du": date(2026, 11, 1),
+        "source": "https://exemple.fr/eco-plus.pdf",
+        "options": {
+            "hphc_vigilance": {
+                "abonnement_mensuel_ttc": {6: 15.0},
+                "kwh_ttc": {"hp": 0.2, "hc": 0.15, "hv": 0.6},
+                **option,
+            },
+        },
+    }
+
+
+def test_hphc_vigilance_exige_ses_plages():
+    """#26 : l'option hphc_vigilance est principale et exige ses heures de vigilance."""
+    with pytest.raises(OffreInvalide, match="plages_vigilance attendues"):
+        offre_depuis_dict(_offre_vigilance(), "x")
+    offre = offre_depuis_dict(_offre_vigilance(plages_vigilance="07:00-15:00"), "x")
+    assert offre.cles() == ["x:hphc_vigilance"]
+
+
+def test_hphc_vigilance_postes_attendus():
+    donnees = _offre_vigilance(plages_vigilance="07:00-15:00")
+    donnees["options"]["hphc_vigilance"]["kwh_ttc"] = {"hp": 0.2, "hc": 0.15}
+    with pytest.raises(OffreInvalide, match="hp\\+hc\\+hv attendus"):
+        offre_depuis_dict(donnees, "x")
+
+
+def test_plages_vigilance_reservees_a_hphc_vigilance():
+    donnees = _offre_vigilance(plages_vigilance="07:00-15:00")
+    donnees["options"]["base"] = {
+        "abonnement_mensuel_ttc": {6: 15.0},
+        "kwh_ttc": {"base": 0.2},
+        "plages_vigilance": "07:00-15:00",
+    }
+    with pytest.raises(OffreInvalide, match="réservé à l'option hphc_vigilance"):
         offre_depuis_dict(donnees, "x")
 
 

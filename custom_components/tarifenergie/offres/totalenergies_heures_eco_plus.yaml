@@ -1,0 +1,22 @@
+# TotalEnergies Heures Eco+ (issue #26 ; inventaire #6, registre #27).
+# « Autre offre » selon la CRE : abonnement et kWh HT révisables au maximum deux
+# fois par année civile — modélisée en prix fixes sur 6 mois, comme Charge'Heures
+# (#24). Grille TTC « Offre - Heures Eco+ - 1 nov. 2026 » (PDF officiel), option
+# Heures pleines / Heures creuses uniquement (pas de Base), 6 à 36 kVA.
+# Trois cadrans : HP et HC aux plages Enedis du point de livraison, et Heures de
+# Vigilance (7 h-15 h et 18 h-20 h) les 20 jours Éclair de l'année civile,
+# signalés entre le 15 octobre et le 15 avril. TotalEnergies ne publie pas
+# d'historique des jours Éclair : ils sont estimés par les jours rouges Tempo de
+# ces fenêtres (même décision que les jours Sobriété d'EDF Flex, #97).
+id: totalenergies_heures_eco_plus
+fournisseur: TotalEnergies
+offre: Heures Eco+
+type_prix: fixe
+duree_fixite_mois: 6
+grille_du: 2026-11-01
+source: https://www.totalenergies.fr/fileadmin/Digital/Groupe/PDF/Documents_contractuels/Particuliers/Tarifs_TotalEnergies/fr/grille-tarifaire-heures-eco-plus-particuliers.pdf
+options:
+  hphc_vigilance:
+    abonnement_mensuel_ttc: {6: 15.69, 9: 19.90, 12: 24.01, 15: 27.71, 18: 31.15, 24: 39.11, 30: 46.45, 36: 52.72}
+    plages_vigilance: "07:00-15:00, 18:00-20:00"
+    kwh_ttc: {hp: 0.1977, hc: 0.1455, hv: 0.6375}
