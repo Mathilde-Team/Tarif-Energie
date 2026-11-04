@@ -84,7 +84,7 @@ sans durée de fixité, réseau dans `eld:`) : ÉS Énergies (Strasbourg Électr
 Energies (Barr et Villé), GEG (GreenAlp, Grenoble), Gedia (Dreux), SICAE Oise, Energis
 (Saint-Avold), Gascogne Énergies Services (Aire-sur-l'Adour), Énergies Services Lannemezan (plateau
 de Lannemezan), Oya énergies, Bazas Energies (Bazas), CESML (Saint-Martin-de-Londres), Régie d'Amnéville (Amnéville), Enes Hagondange (Hagondange), Gazélec Péronne (Péronne), Régie de Montois-la-Montagne
-(Montois-la-Montagne), Régie de Pierrevillers (Pierrevillers), SEML Omega Rombas (Rombas), Régie de Bitche (Bitche), SÉOLIS (réseau
+(Montois-la-Montagne), Régie de Pierrevillers (Pierrevillers), SEML Omega Rombas (Rombas), Régie de Bitche (Bitche, dont l'option Tempo), SÉOLIS (réseau
 Gérédis, Deux-Sèvres), Sorégies (réseau SRD, Vienne), Synelva (pays chartrain), UEM (réseau réséda,
 Metz), Vialis (Colmar), Énergies & Services Sarre-Union (Sarre-Union), Régie de Marange-Silvange
 (Marange-Silvange), RMMS La Réole (La Réole), Enes Creutzwald (Creutzwald), Enes Hombourg-Haut
@@ -152,7 +152,7 @@ YAML sur le modèle des existants, une issue d'inventaire la documentant.
 - La CRE ne publie l'option Base que jusqu'à 15 kVA : au-delà, elle est signalée indisponible.
 - Statistiques horaires : une heure à cheval sur une limite d'heures creuses (ex. 23:30) est répartie au prorata des minutes.
 - Pas encore de gaz (#4) ni d'offres de marché des fournisseurs (#5).
-- Tempo : un jour absent des calendriers versionnés (saison en cours, pas encore relevée) est compté bleu, la couleur la plus fréquente ; le coût Tempo des derniers mois est alors un minorant tant que le calendrier n'est pas mis à jour. Option Tempo du TRV national seulement : les Tempo des TRV locaux (ELD) ne sont pas encore repris. La CRE ne publie pas Tempo en 3 kVA : option signalée indisponible.
+- Tempo : un jour absent des calendriers versionnés (saison en cours, pas encore relevée) est compté bleu, la couleur la plus fréquente ; le coût Tempo des derniers mois est alors un minorant tant que le calendrier n'est pas mis à jour. Tempo des TRV locaux (option `tempo` des offres YAML, mêmes règles) : Régie de Bitche (#285) ; les autres ELD restent à reprendre. La CRE ne publie pas Tempo en 3 kVA : option signalée indisponible.
 - Parties gaz des offres mixtes (TotalEnergies Spéciale #112, Engie Duo Référence #113) : hors comparateur, grilles documentées dans [docs/sources.md](docs/sources.md).
 
 Sources et particularités des données : [docs/sources.md](docs/sources.md).

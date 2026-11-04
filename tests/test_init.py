@@ -78,6 +78,8 @@ async def test_capteurs(hass: HomeAssistant):
         # TRV Tempo (#108) : 1er au 3/10/2026, jours bleus, 0 h-6 h en HC du jour Tempo de la veille ;
         # 36 x 0,1356 + 3/365 x 189,9802924 = 6,44 €.
         "tempo",
+        # TRV local de Bitche, option Tempo (#285) : 36 x 0,1356 + 3/365 x 201,41 = 6,54 €.
+        "bitche_trv_local:tempo",
         # Charge'Heures (#24) : 24 x 0,1335 + 12 x 0,1576 + 3/365 x 188,28 = 6,64 €.
         "totalenergies_charge_heures:hphc_saisonnieres",
         "primeo_fixe_confort:hphc",

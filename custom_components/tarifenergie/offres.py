@@ -6,7 +6,8 @@ offre). Le moteur lit les offres **à prix fixe** et **indexées sur le TRV** (t
 CRE), ainsi que les TRV locaux des ELD et les offres à option Week-end (postes
 semaine / week-end : tarif week-end les samedis, dimanches et jours fériés
 nationaux), ainsi que l'option Flex de Zen Week-End (jours Éco / Sobriété, #97 :
-jours Sobriété estimés par les jours rouges Tempo de ``calendriers/tempo_rouge.yaml``) ;
+jours Sobriété estimés par les jours rouges Tempo de ``calendriers/tempo_rouge.yaml``) et
+l'option Tempo des TRV locaux (#285, mêmes règles que le Tempo du TRV national, #108) ;
 les offres dynamiques (OctoTempo…) viendront plus tard avec leurs structures propres.
 
 Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
@@ -39,6 +40,10 @@ Format YAML (exemple complet : ``offres/la_bellenergie_prudence.yaml``) ::
         abonnement_mensuel_ttc: {6: 15.86, …}
         plages_hc: "13:00-18:00, 20:00-08:00"                  # heures creuses imposées par l'offre
         kwh_ttc: {eco_hp: 0.2142, eco_hc: 0.1595, sobriete_hp: 0.7467, sobriete_hc: 0.2142}
+      tempo:                             # option Tempo d'un TRV local (#285) : jour Tempo 6 h-6 h,
+        abonnement_annuel_ttc: {6: 201.41, …}                 # HC fixes 22 h-6 h, calendriers #108
+        kwh_ttc: {bleu_hc: 0.1356, bleu_hp: 0.1654, blanc_hc: 0.1536, blanc_hp: 0.1921,
+                  rouge_hc: 0.1615, rouge_hp: 0.7295}
 
 Les prix sont TTC, en €/kWh (les grilles des fournisseurs sont en c€ TTC/kWh).
 L'abonnement mensuel est converti en €/an (multiplié par 12, en ``Decimal`` exact) ;
@@ -108,6 +113,13 @@ POSTES = (
     "eco_hc",
     "sobriete_hp",
     "sobriete_hc",
+    # Option Tempo (#108, #285) : heures pleines / creuses de chaque couleur de jour.
+    "bleu_hc",
+    "bleu_hp",
+    "blanc_hc",
+    "blanc_hp",
+    "rouge_hc",
+    "rouge_hp",
 )
 MOIS_PAR_AN = Decimal("12")
 
@@ -123,6 +135,12 @@ POSTES_PAR_OPTION: dict[str, tuple[frozenset[str], str]] = {
     "flex": (
         frozenset({"eco_hp", "eco_hc", "sobriete_hp", "sobriete_hc"}),
         "eco_hp+eco_hc+sobriete_hp+sobriete_hc attendus (option flex)",
+    ),
+    # Option Tempo (TRV locaux des ELD, #285) : comme le Tempo du TRV national (#108), jour
+    # Tempo de 6 h à 6 h, heures creuses fixes 22 h-6 h, couleurs des calendriers versionnés.
+    "tempo": (
+        frozenset({"bleu_hc", "bleu_hp", "blanc_hc", "blanc_hp", "rouge_hc", "rouge_hp"}),
+        "bleu_hc+bleu_hp+blanc_hc+blanc_hp+rouge_hc+rouge_hp attendus (option tempo)",
     ),
 }
 
@@ -492,7 +510,7 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     _exiger(
         isinstance(options, dict)
         and set(options)
-        <= {"base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", *JOUR_CHOISI}
+        <= {"base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", "tempo", *JOUR_CHOISI}
         and set(options)
         & {
             "base",
@@ -508,7 +526,16 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
         " hphc_saisonnieres) ; les autres sont facultatives",
     )
     grilles: dict[str, Grilles] = {}
-    for option in ("base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", *JOUR_CHOISI):
+    for option in (
+        "base",
+        "hphc",
+        "week_end",
+        "week_end_hphc",
+        "hphc_saisonnieres",
+        "flex",
+        "tempo",
+        *JOUR_CHOISI,
+    ):
         if option not in options:
             continue
         if option == "hphc_saisonnieres":

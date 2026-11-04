@@ -1018,6 +1018,61 @@ def test_bitche_trv_local_grille_du_1er_aout_2026(offres):
     assert g.prix == {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")}
 
 
+def test_bitche_trv_local_tempo(offres):
+    """Option Tempo du TRV local de Bitche (#285) : barème national, abonnement publié tel quel."""
+    grilles = grilles_offres(offres)
+    tempo = grilles["bitche_trv_local:tempo"]
+    jour = datetime(2026, 10, 24).date()
+    assert tempo.en_vigueur(6, jour).abonnement_an == Decimal("201.41")
+    assert tempo.en_vigueur(36, jour).abonnement_an == Decimal("699.18")
+    assert 3 not in tempo.puissances()
+    # Prix de l'option Tempo du TRV national (CRE, 01/08/2026).
+    assert tempo.en_vigueur(6, jour).prix == Grilles.charger("tempo").en_vigueur(6, jour).prix
+    # Même moteur que le TRV national (#108, couleurs testées dans test_calcul.py) : la saison
+    # 2026-2027 n'est pas encore relevée, ses jours sont bleus ; HC 22 h-6 h.
+    conso = [
+        (datetime(2026, 10, 19, 12), 1.0),
+        (datetime(2026, 10, 20, 5), 1.0),
+        (datetime(2026, 10, 20, 22), 1.0),
+    ]
+    cout = cout_option("tempo", tempo, 6, conso)
+    assert cout.kwh == {"bleu_hp": Decimal(1), "bleu_hc": Decimal(2)}
+
+
+def test_option_tempo_schema():
+    """Option tempo : six postes exacts ; facultative, jamais seule (pas d'option principale)."""
+    from datetime import date
+
+    postes = {
+        "bleu_hc": 0.1356,
+        "bleu_hp": 0.1654,
+        "blanc_hc": 0.1536,
+        "blanc_hp": 0.1921,
+        "rouge_hc": 0.1615,
+        "rouge_hp": 0.7295,
+    }
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "TRV local",
+        "type_prix": "reglemente",
+        "eld": "x",
+        "grille_du": date(2026, 8, 1),
+        "source": "https://exemple.fr/grille.pdf",
+        "options": {
+            "base": {"abonnement_annuel_ttc": {6: 171.94}, "kwh_ttc": {"base": 0.2001}},
+            "tempo": {"abonnement_annuel_ttc": {6: 201.41}, "kwh_ttc": postes},
+        },
+    }
+    assert set(offre_depuis_dict(donnees, "x").grilles) == {"base", "tempo"}
+    donnees["options"]["tempo"]["kwh_ttc"] = {k: v for k, v in postes.items() if k != "rouge_hp"}
+    with pytest.raises(OffreInvalide, match="option tempo"):
+        offre_depuis_dict(donnees, "x")
+    donnees["options"] = {"tempo": {"abonnement_annuel_ttc": {6: 201.41}, "kwh_ttc": postes}}
+    with pytest.raises(OffreInvalide, match="option principale attendue"):
+        offre_depuis_dict(donnees, "x")
+
+
 def test_la_reole_trv_local_grille_du_1er_aout_2026(offres):
     """TRV local RMMS La Réole (#272, #273)."""
     offre = offres["la_reole_trv_local"]
@@ -1935,8 +1990,9 @@ def test_comparaison_trv_contre_offres(offres):
     Flexibilité 2 saisons (#51), en heures creuses d'été imposées par l'offre (11 h-17 h ;
     13,831 c€, 189,84 €/an : 1,90 €) ; puis EDF Zen Week-End Flex (#97), en heures creuses
     imposées par l'offre (13 h-18 h) un jour Éco (15,95 c€, 190,32 €/an : 2,12 €) ; puis le TRV Tempo
-    (#108), un jour bleu en heures pleines (16,54 c€, 189,98 €/an : 2,17 €) ; puis EDF Zen
-    Week-End Plus jour choisi lundi (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO
+    (#108), un jour bleu en heures pleines (16,54 c€, 189,98 €/an : 2,17 €) ; puis le Tempo du TRV
+    local de Bitche (#285, mêmes prix, 201,41 €/an : 2,2058 €) ; puis EDF Zen Week-End Plus
+    jour choisi lundi (#10, 16,91 c€, 190,32 €/an : 2,21 €) bat Primeo Fixe ECO
     -15 % Base (17,04 c€, 196,32 €/an : 2,24 €), elle-même devant Primeo Fixe Confort Base (16,74 c€,
     241,92 €/an : 2,34 €), le TRV Base (20,01 c€, 190,81 €/an) et GEG (18,37 c€ mais
     grille du 05/10).
@@ -1954,7 +2010,9 @@ def test_comparaison_trv_contre_offres(offres):
     assert comp.classement[2].option == "edf_zen_week_end:flex"
     assert comp.classement[3].option == "tempo"
     assert comp.classement[3].total == Decimal("2.17")
-    assert comp.classement[4].option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.classement[4].option == "bitche_trv_local:tempo"
+    assert comp.classement[5].option == "edf_zen_week_end_plus:week_end_jour_lundi"
+    assert comp.classement[4].total == comp.classement[5].total == Decimal("2.21")  # 2,2058 < 2,2124
     assert comp.couts["primeo_fixe_eco_15:base"].total < comp.couts["primeo_fixe_confort:base"].total
     trv = comp.couts["base"]
     moins_chere = comp.couts[comp.moins_chere.option]
