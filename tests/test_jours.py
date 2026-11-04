@@ -47,3 +47,18 @@ def test_jours_rouges_tempo_et_sobriete():
     assert est_jour_sobriete(date(2026, 1, 5))
     assert not est_jour_sobriete(date(2026, 1, 8))
     assert not est_jour_sobriete(date(2026, 7, 14))
+
+
+def test_jours_blancs_et_couleur_tempo():
+    """#108 : 43 jours blancs par saison connue ; un jour absent des calendriers est bleu."""
+    from custom_components.tarifenergie.jours import couleur_tempo, jours_blancs_tempo, jours_rouges_tempo
+
+    blancs = jours_blancs_tempo()
+    assert len(blancs) == 4 * 43
+    assert not blancs & jours_rouges_tempo()  # un jour n'a qu'une couleur
+    assert all(j.weekday() != 6 for j in blancs)  # jamais de dimanche blanc
+    # Couleurs relevées sur api-couleur-tempo.fr, saison 2025-2026.
+    assert couleur_tempo(date(2026, 1, 5)) == "rouge"
+    assert couleur_tempo(date(2026, 1, 8)) == "blanc"
+    assert couleur_tempo(date(2026, 1, 9)) == "bleu"
+    assert couleur_tempo(date(2030, 1, 7)) == "bleu"  # saison non relevée

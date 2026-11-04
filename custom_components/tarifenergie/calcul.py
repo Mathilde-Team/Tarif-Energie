@@ -23,13 +23,18 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
-from .jours import est_jour_sobriete, est_week_end
+from .jours import couleur_tempo, est_jour_sobriete, est_week_end
 from .modele import Grilles, Saison, TarifIntrouvable
 
 _LOGGER = logging.getLogger(__name__)
 
 CENTIME = Decimal("0.01")
 MINUTES_JOUR = 24 * 60
+# Option Tempo (#108) : le jour Tempo va de 6 h à 6 h le lendemain et ses heures creuses,
+# fixées par EDF, vont de 22 h à 6 h, quelles que soient celles du point de livraison.
+POSTES_TEMPO = frozenset(f"{c}_{p}" for c in ("bleu", "blanc", "rouge") for p in ("hc", "hp"))
+DEBUT_JOUR_TEMPO = 6
+HC_TEMPO = ((22 * 60, 6 * 60),)
 _PLAGE = re.compile(r"^\s*(\d{1,2})[:h](\d{2})\s*-\s*(\d{1,2})[:h](\d{2})\s*$")
 
 
@@ -235,6 +240,13 @@ def cout_option(
             # jours Sobriété estimés par les jours rouges Tempo (EDF les annonce la veille).
             prefixe = "sobriete_" if est_jour_sobriete(jour) else "eco_"
             hc = quantite * PlagesHC(plages=grille.plages_hc or ()).fraction_hc(debut.hour)
+            repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
+        elif set(grille.prix) == POSTES_TEMPO:
+            # Option Tempo du TRV (#108) : couleur du jour Tempo (6 h → 6 h, une heure avant
+            # 6 h prend la couleur de la veille), d'après les calendriers versionnés (#97).
+            jour_tempo = jour - timedelta(days=1) if debut.hour < DEBUT_JOUR_TEMPO else jour
+            prefixe = couleur_tempo(jour_tempo) + "_"
+            hc = quantite * PlagesHC(plages=HC_TEMPO).fraction_hc(debut.hour)
             repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
         elif grille.saisons is not None:
             # Offre à postes saisonniers (Zen Estival, #20) : l'été compte

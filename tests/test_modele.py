@@ -39,7 +39,7 @@ def test_grille_du_jour_et_changement_au_1er_aout(base):
     assert base.en_vigueur(6, date(2026, 7, 31)).prix["base"] == Decimal("0.1940")
 
 
-@pytest.mark.parametrize("option", ["base", "hphc"])
+@pytest.mark.parametrize("option", ["base", "hphc", "tempo"])
 def test_periodes_continues_sans_chevauchement(option):
     """Chaque grille commence le lendemain de la fin de la précédente : aucun jour sans tarif."""
     par_puissance: dict[int, list] = {}
@@ -78,3 +78,19 @@ def test_fichier_mal_forme(tmp_path):
         lire_grilles("base", fichier)
     fichier.write_text(entete + "01/08/2026;;6;;;;\n", encoding="utf-8")
     assert lire_grilles("base", fichier) == []
+
+
+def test_option_tempo_publiee_par_la_cre():
+    """#108 : six prix TTC (HC/HP par couleur), grille du 01/08/2026, 6 kVA ; pas de 3 kVA."""
+    tempo = Grilles.charger("tempo")
+    g = tempo.en_vigueur(6, date(2026, 10, 18))
+    assert g.abonnement_an == Decimal("189.9802924")
+    assert g.prix == {
+        "bleu_hc": Decimal("0.1356"),
+        "bleu_hp": Decimal("0.1654"),
+        "blanc_hc": Decimal("0.1536"),
+        "blanc_hp": Decimal("0.1921"),
+        "rouge_hc": Decimal("0.1615"),
+        "rouge_hp": Decimal("0.7295"),
+    }
+    assert 3 not in tempo.puissances()
