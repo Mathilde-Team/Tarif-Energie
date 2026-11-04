@@ -124,6 +124,7 @@ def test_quatre_offres_livrees(offres):
         "totalenergies_charge_heures",
         "totalenergies_fixe_2ans",
         "totalenergies_heures_eco",
+        "totalenergies_heures_eco_plus",
         "totalenergies_speciale",
         "totalenergies_verte_fixe",
         "uem_trv_local",
@@ -140,6 +141,7 @@ def test_quatre_offres_livrees(offres):
     # (#20 : Zen Estival porte ses plages, un client sans HC y est simulable).
     # Zen Week-End Plus n'a pas de Base classique : « week-end + jour choisi ».
     # Engie Elec'Car (#78) n'existe qu'en HP/HC : hphc seule est admise.
+    # TotalEnergies Heures Eco+ (#26) n'existe qu'en HP/HC + vigilance : hphc_vigilance seule.
     assert all(
         {
             "base",
@@ -149,6 +151,7 @@ def test_quatre_offres_livrees(offres):
             "week_end_jour_mercredi",
             "week_end_jour_vendredi",
             "hphc_saisonnieres",
+            "hphc_vigilance",
         }
         & set(o.grilles)
         for o in offres.values()
@@ -3051,6 +3054,71 @@ def test_plages_hc_reservees_a_flex():
     donnees = _offre_flex(plages_hc="13:00-18:00")
     donnees["options"]["base"]["plages_hc"] = "22:00-06:00"
     with pytest.raises(OffreInvalide, match="réservé à l'option flex"):
+        offre_depuis_dict(donnees, "x")
+
+
+def test_totalenergies_heures_eco_plus(offres):
+    """#26 : Heures Eco+, HP/HC seule (pas de Base), 6 à 36 kVA, vigilance 7-15 h et 18-20 h."""
+    offre = offres["totalenergies_heures_eco_plus"]
+    assert (offre.type_prix, offre.duree_fixite_mois) == ("fixe", 6)
+    assert offre.cles() == ["totalenergies_heures_eco_plus:hphc_vigilance"]
+    grilles = grilles_offres(offres)
+    option = grilles["totalenergies_heures_eco_plus:hphc_vigilance"]
+    jour = datetime(2026, 11, 2).date()
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        option.en_vigueur(3, jour)
+    g = option.en_vigueur(6, jour)
+    assert g.abonnement_an == Decimal("15.69") * 12
+    assert option.en_vigueur(36, jour).abonnement_an == Decimal("52.72") * 12
+    assert g.prix == {"hp": Decimal("0.1977"), "hc": Decimal("0.1455"), "hv": Decimal("0.6375")}
+    assert PlagesHC(plages=g.plages_vigilance).minutes_par_jour() == 10 * 60
+    assert g.plages_hc is None
+
+
+def _offre_vigilance(**option):
+    from datetime import date
+
+    return {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "Eco+",
+        "type_prix": "fixe",
+        "duree_fixite_mois": 6,
+        "grille_du": date(2026, 11, 1),
+        "source": "https://exemple.fr/eco-plus.pdf",
+        "options": {
+            "hphc_vigilance": {
+                "abonnement_mensuel_ttc": {6: 15.0},
+                "kwh_ttc": {"hp": 0.2, "hc": 0.15, "hv": 0.6},
+                **option,
+            },
+        },
+    }
+
+
+def test_hphc_vigilance_exige_ses_plages():
+    """#26 : l'option hphc_vigilance est principale et exige ses heures de vigilance."""
+    with pytest.raises(OffreInvalide, match="plages_vigilance attendues"):
+        offre_depuis_dict(_offre_vigilance(), "x")
+    offre = offre_depuis_dict(_offre_vigilance(plages_vigilance="07:00-15:00"), "x")
+    assert offre.cles() == ["x:hphc_vigilance"]
+
+
+def test_hphc_vigilance_postes_attendus():
+    donnees = _offre_vigilance(plages_vigilance="07:00-15:00")
+    donnees["options"]["hphc_vigilance"]["kwh_ttc"] = {"hp": 0.2, "hc": 0.15}
+    with pytest.raises(OffreInvalide, match="hp\\+hc\\+hv attendus"):
+        offre_depuis_dict(donnees, "x")
+
+
+def test_plages_vigilance_reservees_a_hphc_vigilance():
+    donnees = _offre_vigilance(plages_vigilance="07:00-15:00")
+    donnees["options"]["base"] = {
+        "abonnement_mensuel_ttc": {6: 15.0},
+        "kwh_ttc": {"base": 0.2},
+        "plages_vigilance": "07:00-15:00",
+    }
+    with pytest.raises(OffreInvalide, match="réservé à l'option hphc_vigilance"):
         offre_depuis_dict(donnees, "x")
 
 
