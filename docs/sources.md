@@ -30,11 +30,16 @@ Les parties **gaz** des offres mixtes ne sont pas comparées par l'intégration 
 La partie électricité de ces offres mixtes est modélisée dans les issues correspondantes
 (TotalEnergies Spéciale : #96/#134 ; Engie Duo : #98/#135).
 
+## Calendriers Tempo
+
+| Donnée | Source | Format | Dans le dépôt |
+|---|---|---|---|
+| Jours blancs et rouges Tempo, saisons 2022-2023 à 2025-2026 (option Tempo #108, option Flex #97) | [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr/api/joursTempo?periode=2025-2026) (données RTE/EDF), relevé le 04/11/2026 | YAML, une liste de dates par saison (1er septembre au 31 août) | `calendriers/tempo_blanc.yaml`, `calendriers/tempo_rouge.yaml` ; un jour absent est bleu ; mise à jour par PR en fin de saison |
+
 ## Prévues
 
 | Donnée | Source | Issue |
 |---|---|---|
-| Couleur des jours Tempo | RTE (API avec inscription) ou entité Home Assistant | #3 |
 | Prix repère du gaz | CRE | #4 |
 | Offres de marché des fournisseurs | Comparateur Énergie-Info du Médiateur national de l'énergie (sans API publique documentée : conditions de réutilisation à vérifier d'abord) | #5 |
 | Distributeur par commune | Agence ORE | #5 |

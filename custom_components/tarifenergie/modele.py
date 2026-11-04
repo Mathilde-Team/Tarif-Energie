@@ -25,8 +25,14 @@ DOSSIER_TARIFS = Path(__file__).parent / "tarifs"
 COLONNES: dict[str, dict[str, str]] = {
     "base": {"base": "PART_VARIABLE_TTC"},
     "hphc": {"hp": "PART_VARIABLE_HP_TTC", "hc": "PART_VARIABLE_HC_TTC"},
+    # Option Tempo (#108) : heures pleines / creuses de chaque couleur de jour.
+    "tempo": {
+        f"{couleur}_{poste}": f"PART_VARIABLE_{poste.upper()}{couleur.capitalize()}_TTC"
+        for couleur in ("bleu", "blanc", "rouge")
+        for poste in ("hc", "hp")
+    },
 }
-FICHIERS = {"base": "Option_Base.csv", "hphc": "Option_HPHC.csv"}
+FICHIERS = {"base": "Option_Base.csv", "hphc": "Option_HPHC.csv", "tempo": "Option_Tempo.csv"}
 
 
 class TarifIntrouvable(LookupError):
