@@ -5,7 +5,11 @@
 # € TTC/an, repris tel quel. Composition TTC : abonnement + CTA (réseau ELD) +
 # TVA 20 % ; kWh + accise + TVA 20 %. Base 9-36 kVA en extinction (arrêté du
 # 28/01/2025) : publiée pour les contrats en cours. HC dès 3 kVA, plages
-# 22h30-6h30 ou 0h-8h. Tempo non repris (limite du moteur).
+# 22h30-6h30 ou 0h-8h. Tempo (#285) de 6 à 36 kVA (pas de 3 kVA), HC 22h-6h, prix
+# du barème national ; abonnement Tempo publié repris tel quel (6 kVA : 142,68 € HT,
+# 201,41 € TTC, soit HT x 1,41), bien que sa composition TTC diffère de celle de la
+# Base et des HC (HT x 1,20 exactement) : écart de la grille de l'ELD, relu dans le
+# PDF le 04/11/2026.
 id: bitche_trv_local
 fournisseur: Régie d'électricité de Bitche
 offre: TRV local (Tarif Bleu)
@@ -29,3 +33,6 @@ options:
   hphc:
     abonnement_annuel_ttc: {3: 132.77, 6: 171.94, 9: 214.56, 12: 255.46, 15: 293.47, 18: 332.78, 24: 417.46, 30: 494.21, 36: 571.82}
     kwh_ttc: {hp: 0.2142, hc: 0.1589}
+  tempo:  # option Tempo (#285)
+    abonnement_annuel_ttc: {6: 201.41, 9: 252.45, 12: 302.20, 15: 348.64, 18: 396.95, 24: 495.72, 30: 595.51, 36: 699.18}
+    kwh_ttc: {bleu_hc: 0.1356, bleu_hp: 0.1654, blanc_hc: 0.1536, blanc_hp: 0.1921, rouge_hc: 0.1615, rouge_hp: 0.7295}
