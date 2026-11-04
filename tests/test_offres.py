@@ -56,6 +56,7 @@ def test_quatre_offres_livrees(offres):
         "enes_schoeneck_trv_local",
         "engie_duo_reference_3ans",
         "engie_elec_reference_3ans",
+        "engie_eleccar_1an",
         "es_seyssel_trv_local",
         "es_trv_local",
         "es_verte_fixe_1an",
@@ -138,9 +139,11 @@ def test_quatre_offres_livrees(offres):
     # base, week_end, une variante à jour choisi (#10) ou des postes saisonniers
     # (#20 : Zen Estival porte ses plages, un client sans HC y est simulable).
     # Zen Week-End Plus n'a pas de Base classique : « week-end + jour choisi ».
+    # Engie Elec'Car (#78) n'existe qu'en HP/HC : hphc seule est admise.
     assert all(
         {
             "base",
+            "hphc",
             "week_end",
             "week_end_jour_lundi",
             "week_end_jour_mercredi",
@@ -2252,7 +2255,7 @@ def test_offre_a_jour_choisi_schema_invalide():
             },
         }
     }
-    with pytest.raises(OffreInvalide, match="option Base attendue"):
+    with pytest.raises(OffreInvalide, match="option principale attendue"):
         offre_depuis_dict(donnees, "x")
 
 
@@ -2900,6 +2903,45 @@ def test_mylight150_vert_france_prix_de_bienvenue(offres):
     assert grilles["mylight150_vert_france:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("747.12")
     with pytest.raises(TarifIntrouvable, match="3 kVA"):
         grilles["mylight150_vert_france:hphc"].en_vigueur(3, jour)
+
+
+def test_engie_eleccar_hphc_sans_base(offres):
+    """Elec'Car (#78) : seule l'option HP/HC existe, HC HTT = 50 % du HP HTT."""
+    offre = offres["engie_eleccar_1an"]
+    assert (offre.fournisseur, offre.type_prix, set(offre.grilles)) == ("Engie", "indexe_trv", {"hphc"})
+    grilles = grilles_offres(offres)
+    assert "engie_eleccar_1an:base" not in grilles
+    g = grilles["engie_eleccar_1an:hphc"].en_vigueur(6, datetime(2026, 11, 4).date())
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 11, 1).date(),
+        Decimal("194.11"),
+        {"hp": Decimal("0.25512"), "hc": Decimal("0.14593")},
+    )
+    assert grilles["engie_eleccar_1an:hphc"].en_vigueur(36, datetime(2026, 11, 4).date()).abonnement_an == (
+        Decimal("669.06")
+    )
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["engie_eleccar_1an:hphc"].en_vigueur(3, datetime(2026, 11, 4).date())
+
+
+def test_offre_hphc_seule_admise_aucune_option_refusee():
+    """Décision #78 : une offre HP/HC seule est valide, une offre sans option ne l'est pas."""
+    from datetime import date
+
+    donnees = {
+        "id": "x",
+        "fournisseur": "F",
+        "offre": "HC seule",
+        "type_prix": "indexe_trv",
+        "grille_du": date(2026, 11, 1),
+        "source": "https://exemple.fr/grille.pdf",
+        "options": {"hphc": {"abonnement_mensuel_ttc": {6: 16.18}, "kwh_ttc": {"hp": 0.2551, "hc": 0.1459}}},
+    }
+    assert set(offre_depuis_dict(donnees, "x").grilles) == {"hphc"}
+    for options in ({}, None):
+        donnees["options"] = options
+        with pytest.raises(OffreInvalide, match="option principale attendue"):
+            offre_depuis_dict(donnees, "x")
 
 
 def test_reserve_autoproducteurs_par_defaut_et_filtre(offres):

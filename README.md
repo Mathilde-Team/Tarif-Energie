@@ -42,6 +42,8 @@ les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
 - Ohm Énergie Sérénité Fixe 1 an et Fixe 2 ans,
 - Alterna Mon électricité française fixe 1 an et Mon électricité du coin 1 an,
 - Engie Elec Référence 3 ans (prix fixe de la part fourniture ; acheminement CU en Base, MUDT en Heures creuses),
+- Engie Elec'Car 1 an (indexée TRV, HP/HC seule : HC HTT à -50 % du HP HTT, de 6 à 36 kVA ;
+  réservée aux véhicules électriques, condition non vérifiée ; indisponible sans heures creuses — #78),
 - Engie Duo Référence 3 ans, partie électricité (mixte ; Base, même grille qu'Elec Référence 3 ans — option HP/HC en #135, partie gaz documentée hors moteur),
 - EDF Zen Estival (prix fixe 12 mois, heures super creuses et heures creuses
   d'été, heures creuses d'hiver — postes et plages saisonniers portés par l'offre),

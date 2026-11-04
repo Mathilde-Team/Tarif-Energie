@@ -1,0 +1,23 @@
+# Engie Elec'Car 1 an, option Heures pleines / heures creuses (issue #78 ;
+# variante Base en #129) ; inventaire #6.
+# Réservée aux propriétaires d'un véhicule électrique ou hybride rechargeable,
+# avec un comptage HP/HC : pas d'option Base, admise par la décision du
+# 28/10/2026 (#78, option 1). Indisponible pour un client sans heures creuses.
+# Indexée sur le TRV (révisée à chaque variation du tarif bleu) : kWh HTT en
+# heures creuses = 50 % du kWh HTT en heures pleines de l'offre
+# (0,09099 = 0,18198 / 2). Pas de 3 kVA. Heures creuses du gestionnaire de réseau.
+# Non modélisés : option gratuite Elec'Car+ (2 h-6 h à HP HT -60 %, versée en
+# cagnotte) et promotions de souscription.
+# « Grille tarifaire - novembre 2026 » de la fiche descriptive officielle
+# (PDF modifié le 29/10/2026), relevée le 04/11/2026 avec pdftotext -layout ;
+# abonnements publiés en €/an. Grille d'octobre (issue) : HP 0,25668 / HC 0,14671.
+id: engie_eleccar_1an
+fournisseur: Engie
+offre: Elec'Car 1 an
+type_prix: indexe_trv
+grille_du: 2026-11-01
+source: https://particuliers.engie.fr/content/dam/pdf/fiches-descriptives/fiche_descriptive_eleccar_1_an.pdf
+options:
+  hphc:  # seule option de l'offre, pas de 3 kVA
+    abonnement_annuel_ttc: {6: 194.11, 9: 244.24, 12: 292.64, 15: 338.16, 18: 384.98, 24: 484.67, 30: 576.43, 36: 669.06}
+    kwh_ttc: {hp: 0.25512, hc: 0.14593}
