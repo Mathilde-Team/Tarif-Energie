@@ -260,6 +260,9 @@ async def test_capteurs(hass: HomeAssistant):
         # EDF Zen Week-End HC (#117) : tout à 17,62 c€ (nuit HC + samedi 03/10)
         # + 3/365 x 190,32 = 7,91 €.
         "edf_zen_week_end:week_end_hphc",
+        # ilek Voiture électrique Super Heures Creuses (#160) : 0 h en HP, 1 h-3 h en HC, 3 h-6 h
+        # en HSC : 6 x 0,2142 + 12 x 0,1589 + 18 x 0,1064 + 3/365 x 341,40 = 7,91 €.
+        "ilek_voiture_electrique:super_heures_creuses",
         # Enercoop Flexibilité 2 saisons (#51, révisable), été : 0-6 h en HP les 01 et
         # 02/10 (24 x 0,19567), samedi 03/10 en HC (12 x 0,13831)
         # + 3/365 x 189,84 = 7,92 €.
