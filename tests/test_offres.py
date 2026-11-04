@@ -584,6 +584,26 @@ def test_ilek_voiture_electrique_heures_creuses(offres):
     assert cout.kwh == {"annee_hc": Decimal(4), "annee_hp": Decimal(3)}
 
 
+def test_ilek_voiture_electrique_super_heures_creuses(offres):
+    """Option Super Heures Creuses (#160) : HSC 3 h-7 h, HC 1 h-3 h et 13 h-15 h, plages ilek."""
+    grilles = grilles_offres(offres)
+    grilles_option = grilles["ilek_voiture_electrique:super_heures_creuses"]
+    g = grilles_option.en_vigueur(6, datetime(2026, 10, 24).date())
+    assert (g.debut, g.abonnement_an) == (datetime(2026, 8, 1).date(), Decimal("341.40"))  # 28,45 x 12
+    assert g.prix == {
+        "annee_hsc": Decimal("0.1064"),
+        "annee_hc": Decimal("0.1589"),
+        "annee_hp": Decimal("0.2142"),
+    }
+    assert [(s.nom, s.debut, s.fin, s.hsc, s.hc) for s in g.saisons] == [
+        ("annee", (1, 1), (12, 31), ((180, 420),), ((60, 180), (780, 900)))
+    ]
+    assert 3 not in grilles_option.puissances()
+    conso = [(datetime(2026, 10, 19, h, 0), 1.0) for h in (0, 1, 3, 6, 7, 13, 23)]
+    cout = cout_option("super_heures_creuses", grilles_option, 6, conso)
+    assert cout.kwh == {"annee_hsc": Decimal(2), "annee_hc": Decimal(2), "annee_hp": Decimal(3)}
+
+
 def test_papernest_grille_du_22_septembre_2026(offres):
     """papernest énergie Électricité verte 1 an (#67, #169), grille TTC du 22/09/2026."""
     offre = offres["papernest_verte_1an"]
