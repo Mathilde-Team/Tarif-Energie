@@ -1,5 +1,5 @@
 # Urban Solar Energy — particuliers avec centrale photovoltaïque et stockage
-# virtuel, option Base (issue #70 ; HC en #172) ; inventaire #6.
+# virtuel, options Base (issue #70) et Heures creuses (issue #172) ; inventaire #6.
 # Offre réservée aux autoproducteurs : hors du classement par défaut, ajoutée par
 # l'option « Foyer autoproducteur » de la configuration (décision du 28/10/2026).
 # Indexée sur le TRV (catégorie CRE de la page des tarifs) : kWh HTT = TRV (0,1361
@@ -9,9 +9,12 @@
 # surimpression dans le PDF : les abonnements TTC ci-dessous sont ceux du tableau).
 # Non modélisés : le stockage virtuel (1 € HT par kWc et par mois ; kWh déstockés
 # au prix de l'acheminement, 0,1110 € TTC/kWh) et les frais de mise en service.
-# Grille « Tarifs particuliers avec centrale photovoltaïque et stockage virtuel —
-# Base, courte utilisation, au 01/08/2026 », relevée le 04/11/2026 avec
-# pdftotext -layout.
+# Grilles « Tarifs particuliers avec centrale photovoltaïque et stockage virtuel —
+# Base, courte utilisation » et « Heures pleines / heures creuses, moyenne
+# utilisation », au 01/08/2026, relevées le 04/11/2026 avec pdftotext -layout.
+# HC de 6 à 36 kVA (pas de 3 kVA), un seul prix HP/HC pour toutes les puissances
+# (kWh HTT = TRV : 0,1479 / 0,1018), heures creuses Enedis du point de livraison.
+# Grille HC : https://www.urbansolarenergy.fr/wp-content/uploads/2026/08/TARIFS-BV-PARTICULIER-HPHC.pdf
 id: urban_solar_stockage_virtuel
 fournisseur: Urban Solar Energy
 offre: Stockage virtuel
@@ -32,3 +35,6 @@ options:
       24: {base: 0.1985}
       30: {base: 0.1985}
       36: {base: 0.1985}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 17.31, 9: 21.48, 12: 26.09, 15: 30.88, 18: 35.68, 24: 45.27, 30: 54.86, 36: 64.45}
+    kwh_ttc: {hp: 0.2142, hc: 0.1589}

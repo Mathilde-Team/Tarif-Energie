@@ -534,7 +534,7 @@ async def test_offre_reservee_aux_autoproducteurs(hass: HomeAssistant):
     entree = await _installer(hass, _nuit())
     assert cle not in entree.runtime_data.grilles
     classement = hass.states.get("sensor.maison_cheapest_option").attributes["classement"]
-    assert cle not in {ligne["option"] for ligne in classement}
+    assert {cle, "urban_solar_stockage_virtuel:hphc"}.isdisjoint(ligne["option"] for ligne in classement)
     assert await hass.config_entries.async_unload(entree.entry_id)
     await hass.async_block_till_done()
     assert await hass.config_entries.async_remove(entree.entry_id)
@@ -542,7 +542,10 @@ async def test_offre_reservee_aux_autoproducteurs(hass: HomeAssistant):
     assert cle in entree.runtime_data.grilles
     classement = hass.states.get("sensor.maison_cheapest_option").attributes["classement"]
     # 36 kWh à 0,2001 + 3 jours de 17,08 x 12 = 204,96 €/an : 7,20 + 1,68 = 8,89 €.
-    assert {ligne["option"]: ligne["total"] for ligne in classement}[cle] == 8.89
+    totaux = {ligne["option"]: ligne["total"] for ligne in classement}
+    assert totaux[cle] == 8.89
+    # Option HC (#172) : 36 kWh en HC à 0,1589 + 3 jours de 17,31 x 12 = 207,72 €/an.
+    assert totaux["urban_solar_stockage_virtuel:hphc"] == 7.43
 
 
 async def test_sans_donnees(hass: HomeAssistant):
