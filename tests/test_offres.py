@@ -89,6 +89,7 @@ def test_quatre_offres_livrees(offres):
         "mint_online_green",
         "mint_smart_green",
         "montois_trv_local",
+        "mylight150_vert_france",
         "octopus_eco_fixe_oct2026",
         "octopus_eco_fixe_plus_oct2026",
         "ohm_extra_eco",
@@ -2869,13 +2870,50 @@ def test_urban_solar_stockage_virtuel_heures_creuses(offres):
         grilles["urban_solar_stockage_virtuel:hphc"].en_vigueur(3, jour)
 
 
+def test_mylight150_vert_france_prix_de_bienvenue(offres):
+    """mylight150 (#66 Base, #168 HC) : réservée, kWh de bienvenue = TRV, abonnement majoré."""
+    offre = offres["mylight150_vert_france"]
+    assert (offre.fournisseur, offre.type_prix, offre.reserve_autoproducteurs) == (
+        "mylight150",
+        "indexe_trv",
+        True,
+    )
+    assert not {"mylight150_vert_france:base", "mylight150_vert_france:hphc"} & set(grilles_offres(offres))
+    grilles = grilles_offres(offres, autoproducteur=True)
+    jour = datetime(2026, 11, 4).date()
+    g = grilles["mylight150_vert_france:base"].en_vigueur(6, jour)
+    assert (g.debut, g.abonnement_an, g.prix) == (
+        datetime(2026, 10, 1).date(),
+        Decimal("204.96"),  # 17,08 x 12
+        {"base": Decimal("0.2001")},
+    )
+    trv = Grilles.charger("base").en_vigueur(6, jour)
+    assert g.prix == trv.prix
+    assert g.abonnement_an > trv.abonnement_an
+    assert grilles["mylight150_vert_france:base"].en_vigueur(9, jour).prix == {"base": Decimal("0.1985")}
+    g = grilles["mylight150_vert_france:hphc"].en_vigueur(6, jour)
+    assert (g.abonnement_an, g.prix) == (
+        Decimal("248.40"),
+        {"hp": Decimal("0.2142"), "hc": Decimal("0.1589")},
+    )
+    assert g.prix == Grilles.charger("hphc").en_vigueur(6, jour).prix
+    assert grilles["mylight150_vert_france:hphc"].en_vigueur(36, jour).abonnement_an == Decimal("747.12")
+    with pytest.raises(TarifIntrouvable, match="3 kVA"):
+        grilles["mylight150_vert_france:hphc"].en_vigueur(3, jour)
+
+
 def test_reserve_autoproducteurs_par_defaut_et_filtre(offres):
     """Seules les offres marquées sont écartées ; avec l'option, toutes les grilles sont là."""
     reservees = {ident for ident, o in offres.items() if o.reserve_autoproducteurs}
-    assert reservees == {"urban_solar_stockage_virtuel"}
+    assert reservees == {"mylight150_vert_france", "urban_solar_stockage_virtuel"}
     sans = grilles_offres(offres)
     avec = grilles_offres(offres, autoproducteur=True)
-    assert set(avec) - set(sans) == {"urban_solar_stockage_virtuel:base", "urban_solar_stockage_virtuel:hphc"}
+    assert set(avec) - set(sans) == {
+        "mylight150_vert_france:base",
+        "mylight150_vert_france:hphc",
+        "urban_solar_stockage_virtuel:base",
+        "urban_solar_stockage_virtuel:hphc",
+    }
     assert set(sans) <= set(avec)
 
 

@@ -1,0 +1,40 @@
+# mylight150 — Fourniture d'électricité Vert France, options Base (issue #66) et
+# Heures creuses (issue #168) ; inventaire #6.
+# Offre réservée aux foyers équipés de panneaux solaires : hors du classement par
+# défaut, ajoutée par l'option « Foyer autoproducteur » (décision du 28/10/2026, #66).
+# Indexée sur le TRV. Prix modélisé : l'offre de bienvenue des 12 premiers mois
+# (kWh HT = TRV : Base 0,1361 jusqu'à 6 kVA, 0,1348 au-delà ; HP 0,1479, HC 0,1018),
+# ce que paie un nouveau client (option 1 de la décision du 28/10/2026).
+# Après 12 mois, prix « Vert France » NON modélisé (environ TRV +20,6 %) :
+# Base 0,2336 € TTC (3-6 kVA) / 0,2320 € TTC (9-36 kVA), HP 0,2540, HC 0,19 € TTC.
+# Abonnements (TTC/mois) au-dessus du TRV, identiques dans les deux phases.
+# Non modélisés : majoration autoproducteur sans stockage virtuel (9,84 € HT/an),
+# stockage virtuel MySmartBattery / MyBattery, pilotage MySmartPilot.
+# HC de 6 à 36 kVA (pas de 3 kVA), heures creuses du gestionnaire de réseau (Enedis).
+# Grille « Fourniture d'électricité Vert France » d'octobre 2026, pages 3-4
+# (nouveaux clients dès le 01/10/2026, clients existants au 01/11/2026), PDF image
+# relu visuellement le 04/11/2026. Plus de nouveaux clients sur le réseau
+# Strasbourg Électricité Réseau depuis le 30/06/2026.
+id: mylight150_vert_france
+fournisseur: mylight150
+offre: Vert France
+type_prix: indexe_trv
+grille_du: 2026-10-01
+source: https://cdn.prod.website-files.com/65f08fc6f2c52e2310a49dcb/6abd2b38f3fe5e9fbd1a3a90_GRILLE%20TARIFAIRE%20-%20OCT%202026.pdf
+reserve_autoproducteurs: true
+options:
+  base:
+    abonnement_mensuel_ttc: {3: 13.31, 6: 17.08, 9: 21.15, 12: 25.07, 15: 28.75, 18: 32.54, 24: 40.62, 30: 48.05, 36: 55.54}
+    kwh_ttc_par_puissance:
+      3: {base: 0.2001}
+      6: {base: 0.2001}
+      9: {base: 0.1985}
+      12: {base: 0.1985}
+      15: {base: 0.1985}
+      18: {base: 0.1985}
+      24: {base: 0.1985}
+      30: {base: 0.1985}
+      36: {base: 0.1985}
+  hphc:  # pas d'option HC en 3 kVA
+    abonnement_mensuel_ttc: {6: 20.70, 9: 24.79, 12: 29.56, 15: 32.55, 18: 36.97, 24: 46.37, 30: 54.26, 36: 62.26}
+    kwh_ttc: {hp: 0.2142, hc: 0.1589}
