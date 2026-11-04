@@ -128,7 +128,9 @@ Les offres **réservées aux autoproducteurs** (foyers équipés de panneaux sol
 `reserve_autoproducteurs: true` dans le YAML, #70) sont hors du classement par défaut :
 cochez « Foyer autoproducteur » dans la configuration (ou ses options) pour les y
 ajouter. C'est le cas d'Urban Solar Energy avec stockage virtuel (indexée TRV, Base de 3
-à 36 kVA, HC de 6 à 36 kVA, abonnement majoré pour les autoproducteurs) ; le stockage virtuel lui-même
+à 36 kVA, HC de 6 à 36 kVA, abonnement majoré pour les autoproducteurs) et de mylight150 Vert France (#66,
+#168 : prix de bienvenue des 12 premiers mois, kWh au TRV ; la hausse d'environ 20 %
+au-delà n'est pas simulée) ; le stockage virtuel lui-même
 (1 € HT par kWc et par mois, kWh déstockés au prix de l'acheminement) n'est pas simulé.
 
 Les offres dynamiques ou à coloration de
