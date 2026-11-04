@@ -127,3 +127,18 @@ def est_jour_sobriete(jour: date) -> bool:
     resultat = jour in jours_rouges_tempo()
     _LOGGER.debug("est_jour_sobriete: sortie")
     return resultat
+
+
+def est_jour_eclair(jour: date) -> bool:
+    """Jour Éclair de l'offre Heures Eco+ de TotalEnergies (#26), estimé par les jours rouges Tempo.
+
+    TotalEnergies fixe ses 20 jours Éclair par année civile selon les signaux RTE (du
+    1er janvier au 15 avril et du 15 octobre au 31 décembre), sans historique public :
+    comme pour les jours Sobriété (#97), on retient les jours rouges Tempo de ces deux
+    fenêtres. Un jour absent du calendrier est un jour ordinaire.
+    """
+    _LOGGER.debug("est_jour_eclair: entrée")
+    dans_fenetre = (jour.month, jour.day) <= (4, 15) or (jour.month, jour.day) >= (10, 15)
+    resultat = dans_fenetre and jour in jours_rouges_tempo()
+    _LOGGER.debug("est_jour_eclair: sortie")
+    return resultat

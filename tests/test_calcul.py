@@ -331,6 +331,40 @@ def test_flex_jours_sobriete_et_plages_de_l_offre():
     assert cout.energie == Decimal("0.7467") + Decimal("0.2142") + Decimal("0.2142") + Decimal("0.1595")
 
 
+def _grilles_vigilance():
+    prix = {"hp": Decimal("0.1977"), "hc": Decimal("0.1455"), "hv": Decimal("0.6375")}
+    vigilance = PlagesHC.lire("07:00-15:00, 18:00-20:00").plages
+    return Grilles(
+        [
+            Grille(
+                "o:hphc_vigilance", 6, date(2025, 1, 1), None, Decimal(365), prix, plages_vigilance=vigilance
+            )
+        ]
+    )
+
+
+def test_hphc_vigilance_jours_eclair():
+    """#26 : jour Éclair (rouge Tempo), vigilance 7-15 h et 18-20 h ; ailleurs HP/HC du client."""
+    eclair, ordinaire = date(2026, 1, 5), date(2026, 1, 8)  # lundi rouge Tempo 2025-2026, jeudi bleu
+    heures = (3, 9, 16, 19, 23)  # HC, vigilance, HP, vigilance, HC
+    conso = [(datetime(j.year, j.month, j.day, h), 1.0) for j in (eclair, ordinaire) for h in heures]
+    cout = cout_option("o:hphc_vigilance", _grilles_vigilance(), 6, conso, PlagesHC.lire("22:00-06:00"))
+    assert cout.kwh == {"hv": Decimal(2), "hc": Decimal(4), "hp": Decimal(4)}
+    assert cout.energie == 2 * Decimal("0.6375") + 4 * Decimal("0.1455") + 4 * Decimal("0.1977")
+
+
+def test_hphc_vigilance_heure_partiellement_creuse():
+    """Hors vigilance, une heure à cheval sur les HC du client est partagée HP/HC."""
+    conso = [(datetime(2026, 1, 5, 6), 1.0)]  # jour Éclair, 6 h : hors vigilance
+    cout = cout_option("o:hphc_vigilance", _grilles_vigilance(), 6, conso, PlagesHC.lire("22:00-06:30"))
+    assert cout.kwh == {"hv": Decimal(0), "hc": Decimal("0.5"), "hp": Decimal("0.5")}
+
+
+def test_hphc_vigilance_exige_les_plages_du_client():
+    with pytest.raises(ValueError, match="demande des plages"):
+        cout_option("o:hphc_vigilance", _grilles_vigilance(), 6, [(datetime(2026, 1, 5, 9), 1.0)])
+
+
 def test_tempo_couleur_du_jour_de_6h_a_6h():
     """#108 : HC 22 h-6 h imposées ; une heure avant 6 h prend la couleur de la veille."""
     prix = {

@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
 
-from .jours import couleur_tempo, est_jour_sobriete, est_week_end
+from .jours import couleur_tempo, est_jour_eclair, est_jour_sobriete, est_week_end
 from .modele import Grilles, Saison, TarifIntrouvable
 
 _LOGGER = logging.getLogger(__name__)
@@ -241,6 +241,18 @@ def cout_option(
             prefixe = "sobriete_" if est_jour_sobriete(jour) else "eco_"
             hc = quantite * PlagesHC(plages=grille.plages_hc or ()).fraction_hc(debut.hour)
             repartition = {prefixe + "hc": hc, prefixe + "hp": quantite - hc}
+        elif set(grille.prix) == {"hp", "hc", "hv"}:
+            # Heures Eco+ de TotalEnergies (#26) : les jours Éclair (estimés par les jours
+            # rouges Tempo), les heures de vigilance passent au poste hv ; le reste suit les
+            # heures creuses du point de livraison.
+            if plages is None:
+                _LOGGER.debug("cout_option: lève une exception")
+                raise ValueError("l'option heures creuses demande des plages")
+            hv = Decimal(0)
+            if est_jour_eclair(jour):
+                hv = quantite * PlagesHC(plages=grille.plages_vigilance or ()).fraction_hc(debut.hour)
+            hc = (quantite - hv) * plages.fraction_hc(debut.hour)
+            repartition = {"hv": hv, "hc": hc, "hp": quantite - hv - hc}
         elif set(grille.prix) == POSTES_TEMPO:
             # Option Tempo du TRV (#108) : couleur du jour Tempo (6 h → 6 h, une heure avant
             # 6 h prend la couleur de la veille), d'après les calendriers versionnés (#97).

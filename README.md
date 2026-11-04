@@ -37,7 +37,7 @@ Avec moins de 12 mois d'historique, les coûts portent sur la période disponibl
 Les grilles des fournisseurs sont livrées dans `custom_components/tarifenergie/offres/*.yaml`
 (inventaire [#6](https://github.com/Mathilde-Team/Tarif-Energie/issues/6), moteur [#5](https://github.com/Mathilde-Team/Tarif-Energie/issues/5)) :
 une issue par offre documente la grille, sa date d'effet et ses sources. La v0.2 couvre
-les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
+les offres **à prix fixe** avec options Base et Heures creuses — 38 offres :
 
 - la bellenergie Prudence 1 an, Constance 2 ans et Garance 3 ans,
 - Octopus Energy Eco Fixe Octobre 2026 et Eco Fixe Plus Octobre 2026 (territoire Enedis),
@@ -51,6 +51,9 @@ les offres **à prix fixe** avec options Base et Heures creuses — 37 offres :
   d'été, heures creuses d'hiver — postes et plages saisonniers portés par l'offre),
 - TotalEnergies Charge'Heures (heures super creuses 2-6 h et heures creuses
   23-2 h / 6-7 h toute l'année — plages portées par l'offre, sans option Base),
+- TotalEnergies Heures Eco+ (HP/HC du point de livraison, heures de vigilance 7-15 h et 18-20 h
+  les 20 jours Éclair, estimés par les jours rouges Tempo faute d'historique public ; sans option
+  Base, de 6 à 36 kVA ; indisponible sans heures creuses — #26),
 - Symphonics -50 % sur les Heures Creuses (prix fixés 12 mois sur le TRVE à la souscription ;
   HC 0-6 h / 14-16 h toute l'année à -50 % du HP HT — plages portées par l'offre, sans option
   Base ; Linky et équipement pilotable requis, condition non vérifiée ; surplus solaire non modélisé),
