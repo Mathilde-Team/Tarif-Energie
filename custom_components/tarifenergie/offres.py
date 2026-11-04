@@ -144,6 +144,11 @@ POSTES_PAR_OPTION: dict[str, tuple[frozenset[str], str]] = {
     ),
 }
 
+# Options à postes et plages portées par l'offre (saisons, #20, #24) : « hphc_saisonnieres »,
+# et « super_heures_creuses » pour une offre qui propose les deux (ilek Voiture électrique :
+# Heures creuses #159 et Super Heures Creuses #160, aux plages propres à ilek).
+OPTIONS_SAISONNIERES: tuple[str, ...] = ("hphc_saisonnieres", "super_heures_creuses")
+
 # Jour de semaine du « jour choisi » des offres Zen Week-End Plus (#10, #116) :
 # le client choisit lundi, mercredi ou vendredi, et le moteur simule les trois
 # variantes (une clé de comparaison par jour choisi).
@@ -510,7 +515,16 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
     _exiger(
         isinstance(options, dict)
         and set(options)
-        <= {"base", "hphc", "week_end", "week_end_hphc", "hphc_saisonnieres", "flex", "tempo", *JOUR_CHOISI}
+        <= {
+            "base",
+            "hphc",
+            "week_end",
+            "week_end_hphc",
+            *OPTIONS_SAISONNIERES,
+            "flex",
+            "tempo",
+            *JOUR_CHOISI,
+        }
         and set(options)
         & {
             "base",
@@ -519,11 +533,11 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
             "week_end_jour_lundi",
             "week_end_jour_mercredi",
             "week_end_jour_vendredi",
-            "hphc_saisonnieres",
+            *OPTIONS_SAISONNIERES,
         },
         "offre.options",
-        "option principale attendue (base, hphc, week_end, week_end_jour_* ou"
-        " hphc_saisonnieres) ; les autres sont facultatives",
+        "option principale attendue (base, hphc, week_end, week_end_jour_*,"
+        " hphc_saisonnieres ou super_heures_creuses) ; les autres sont facultatives",
     )
     grilles: dict[str, Grilles] = {}
     for option in (
@@ -531,14 +545,14 @@ def offre_depuis_dict(donnees: Any, ident: str) -> Offre:
         "hphc",
         "week_end",
         "week_end_hphc",
-        "hphc_saisonnieres",
+        *OPTIONS_SAISONNIERES,
         "flex",
         "tempo",
         *JOUR_CHOISI,
     ):
         if option not in options:
             continue
-        if option == "hphc_saisonnieres":
+        if option in OPTIONS_SAISONNIERES:
             grilles_saison = _grilles_saisonniere(
                 options[option], f"offre.options.{option}", f"{ident}:{option}", donnees["grille_du"]
             )
